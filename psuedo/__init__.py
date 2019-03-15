@@ -2,7 +2,7 @@
 
 import sys
 
-from lexer import Lexer, EndOfFile
+from pseudo.lexer import Lexer, EndOfFile
 
 __author__ = u"Patryk Niedźwiedziński"
 

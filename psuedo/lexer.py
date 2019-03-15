@@ -2,8 +2,8 @@
 This module contains Lexer class using to tokenize stream.
 """
 
-from stream import Stream, EndOfFile
-from pseudo_types import String, Int, Operator, Statement, EOL
+from pseudo.stream import Stream, EndOfFile
+from pseudo.pseudo_types import String, Int, Operator, Statement, EOL
 
 __author__ = u"Patryk Niedźwiedziński"
 
