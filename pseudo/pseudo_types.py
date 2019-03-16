@@ -36,11 +36,15 @@ class String(Value):
         return f"String(\"{self.value}\")"
 
 
-class Operator(Value):
+class Operation():
     """Operator value node."""
-    #TODO
+    def __init__(self, value, left, right):
+        self.value = value
+        self.left = left
+        self.right = right
+
     def __repr__(self):
-        return f"Operator(\"{self.value}\")"
+        return f"Operation({self.left}{self.value}{self.right})"
 
 
 class Statement():

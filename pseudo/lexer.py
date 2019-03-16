@@ -3,7 +3,7 @@ This module contains Lexer class using to tokenize stream.
 """
 
 from pseudo.stream import Stream, EndOfFile
-from pseudo.pseudo_types import String, Int, Operator, Statement, EOL
+from pseudo.pseudo_types import String, Int, Operation, Statement, EOL
 
 __author__ = u"Patryk Niedźwiedziński"
 
@@ -91,7 +91,7 @@ class Lexer():
         keyword = self.read(self.is_not_keyword_end)
         return keyword
 
-    def read_next(self):
+    def read_next(self, prev=None):
         """Read next element from the stream and guess the type."""
         if self.i.eof():
             raise EndOfFile
@@ -112,17 +112,19 @@ class Lexer():
 
         if self.is_operator(c):
             self.i.next()
-            return Operator(c)
+            return Operation(c, prev, self.read_next())
 
         if self.is_alphabet(c):
             keyword = self.read_keyword()
             if self.is_keyword(keyword):
-                args = []
+                arg = None
+                prev_arg = None
                 while not self.i.eol():
-                    arg = self.read_next()
-                    if not isinstance(arg, EOL):
-                        args.append(arg)
-                return Statement(keyword, args=args)
+                    arg = self.read_next(prev=prev_arg)
+                    if isinstance(arg, EOL):
+                        arg = prev_arg
+                    prev_arg = arg
+                return Statement(keyword, args=arg)
             self.i.throw(f"'{keyword}' is not defined")
 
         self.i.throw(f"Invalid character: '{c}'")
