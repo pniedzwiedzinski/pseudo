@@ -9,7 +9,7 @@ Goal of this project is to enable property and other kinds of testing in pseudoc
 ## Install
 
 ```bash
-pip install git+https://github.com/pniedzwiedzinski/pseudo.git
+pip3 install git+https://github.com/pniedzwiedzinski/pseudo.git
 ```
 
 ### Requirements
@@ -27,5 +27,5 @@ pisz "test"
 To run it type:
 
 ```bash
-python3 -m pseudo file.pdc
+pseudo file.pdc
 ```
