@@ -3,7 +3,7 @@ This module contains Lexer class using to tokenize stream.
 """
 
 from pseudo.stream import Stream, EndOfFile
-from pseudo.pseudo_types import String, Int, Operation, Statement, EOL, Variable, Assign
+from pseudo.pseudo_types import String, Int, Operation, Statement, EOL, Variable,  Assignment, Bool
 
 __author__ = u"Patryk Niedźwiedziński"
 
@@ -27,7 +27,7 @@ class Lexer():
         """Inits Lexer with input."""
         self.i = Stream(inp)
         self.keywords = {"pisz", "koniec", "czytaj"}
-        self.operators = {"+", "-", ":"}
+        self.operators = {"+", "-", ":", "<"}
 
     def is_keyword(self, string) -> bool:
         """Checks if given string is a keyword."""
@@ -129,14 +129,13 @@ class Lexer():
 
         if self.is_operator(c):
             self.i.next()
-            if c == ":" and self.i.peek() == "=":
+            if (c == ":" and self.i.peek() == "=") or (c == "<" and self.i.peek() == "-"):
                 self.i.next()
-                if not isinstance(prev, Variable):
-                    self.i.throw(f"You can only assign values to variables, not '{type(prev)}'")
-                return Assign(prev, self.read_args())
+                return ":="
             return Operation(c, prev, self.read_next())
 
         if self.is_alphabet(c):
+            col = self.i.col
             keyword = self.read_keyword()
             if self.is_keyword(keyword):
                 arg = self.read_args()
@@ -144,8 +143,19 @@ class Lexer():
                     if not isinstance(arg, Variable):
                         self.i.throw("Statement 'czytaj' requires variable as argument")
                 return Statement(keyword, args=arg)
+            if keyword == "prawda":
+                return Bool(1)
+            if keyword == "fałsz":
+                return Bool(0)
+            if col == 1:
+                operator = self.read_next()
+                if operator != ":=":
+                    self.i.throw(f"Invalid syntax")
+                args = self.read_args()
+                if not isinstance(args, Int) and not isinstance(args, String) and not isinstance(args, Operation):
+                    self.i.throw(f"Cannot assign type {type(args)} to variable")
+                return Assignment(Variable(keyword), args)
             return Variable(keyword)
-            #self.i.throw(f"'{keyword}' is not defined")
 
         self.i.throw(f"Invalid character: '{c}'")
 

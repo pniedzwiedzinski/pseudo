@@ -5,7 +5,7 @@ import sys
 from pseudo.lexer import Lexer, EndOfFile
 
 __author__ = u"Patryk Niedźwiedziński"
-__version__ = "0.2"
+__version__ = "0.3"
 
 
 def main():
@@ -20,4 +20,4 @@ def main():
             x = lexer.read_next(prev=x)
         except EndOfFile:
             break
-        print(x)
+        x.eval()
