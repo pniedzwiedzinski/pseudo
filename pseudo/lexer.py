@@ -3,7 +3,7 @@ This module contains Lexer class using to tokenize stream.
 """
 
 from pseudo.stream import Stream, EndOfFile
-from pseudo.pseudo_types import String, Int, Operation, Statement, EOL
+from pseudo.pseudo_types import String, Int, Operation, Statement, EOL, Variable, Assign
 
 __author__ = u"Patryk Niedźwiedziński"
 
@@ -26,8 +26,8 @@ class Lexer():
     def __init__(self, inp):
         """Inits Lexer with input."""
         self.i = Stream(inp)
-        self.keywords = {"pisz"}
-        self.operators = {"+", "-"}
+        self.keywords = {"pisz", "koniec", "czytaj"}
+        self.operators = {"+", "-", ":"}
 
     def is_keyword(self, string) -> bool:
         """Checks if given string is a keyword."""
@@ -94,6 +94,18 @@ class Lexer():
         keyword = self.read(self.is_not_keyword_end)
         return keyword
 
+    def read_args(self):
+        """Read arguments from the stream."""
+        arg = None
+        prev_arg = None
+        while True:
+            arg = self.read_next(prev=prev_arg)
+            if isinstance(arg, EOL):
+                arg = prev_arg
+                break
+            prev_arg = arg
+        return arg
+
     def read_next(self, prev=None):
         """Read next element from the stream and guess the type."""
         if self.i.eof():
@@ -117,21 +129,23 @@ class Lexer():
 
         if self.is_operator(c):
             self.i.next()
+            if c == ":" and self.i.peek() == "=":
+                self.i.next()
+                if not isinstance(prev, Variable):
+                    self.i.throw(f"You can only assign values to variables, not '{type(prev)}'")
+                return Assign(prev, self.read_args())
             return Operation(c, prev, self.read_next())
 
         if self.is_alphabet(c):
             keyword = self.read_keyword()
             if self.is_keyword(keyword):
-                arg = None
-                prev_arg = None
-                while True:
-                    arg = self.read_next(prev=prev_arg)
-                    if isinstance(arg, EOL):
-                        arg = prev_arg
-                        break
-                    prev_arg = arg
+                arg = self.read_args()
+                if keyword == "czytaj":
+                    if not isinstance(arg, Variable):
+                        self.i.throw("Statement 'czytaj' requires variable as argument")
                 return Statement(keyword, args=arg)
-            self.i.throw(f"'{keyword}' is not defined")
+            return Variable(keyword)
+            #self.i.throw(f"'{keyword}' is not defined")
 
         self.i.throw(f"Invalid character: '{c}'")
 

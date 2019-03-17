@@ -11,6 +11,7 @@ class Value():
     Attributes:
         value: Value of instance.
     """
+
     def __init__(self, value):
         self.value = value
 
@@ -55,12 +56,51 @@ class Statement():
         value: Statement name.
         args: Arguments of statement.
     """
+
     def __init__(self, value, args=None):
         self.value = value
         self.args = args
 
     def __repr__(self):
-        return f"Expression(\"{self.value}\", args={self.args})"
+        return f"Statement(\"{self.value}\", args={self.args})"
+
+    def __str__(self):
+        return self.__repr__()
+
+
+class Variable():
+    """
+    Node for representing variables.
+
+    Attributes:
+        name: Name of the variable.
+    """
+
+    def __init__(self, name):
+        self.name = name
+
+    def __repr__(self):
+        return f"Variable(\"{self.name}\")"
+
+    def __str__(self):
+        return self.__repr__()
+
+
+class Assign():
+    """
+    Node for representing assignments.
+
+    Attributes:
+        target: Target variable.
+        value: Value to assign.
+    """
+
+    def __init__(self, target, value):
+        self.target = target
+        self.value = value
+
+    def __repr__(self):
+        return f"Assign({self.target}, {self.value})"
 
     def __str__(self):
         return self.__repr__()

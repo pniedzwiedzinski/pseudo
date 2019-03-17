@@ -56,7 +56,7 @@ class Stream():
     def throw(self, error):
         """Error handler."""
         #raise Exception(f"\n\n⚠️  Error on line {self.line+1}:\n\t{error}")
-        print(f"⚠️  Error on line {self.line+1}:\n\t{error}")
+        print(f"⚠️  Error on line {self.line-1}:\n\t{error}")
         exit()
 
 
