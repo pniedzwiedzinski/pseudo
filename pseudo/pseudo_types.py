@@ -82,7 +82,14 @@ class Statement():
         if self.value == "pisz":
             print(self.args.eval())
         elif self.value == "czytaj":
-            x = Assignment(self.args, input(self.args.name + ": "))
+            inp = input(self.args.name + ": ")
+            try:
+                inp = int(inp)
+                inp = Int(inp)
+            except ValueError:
+                inp = String(inp)
+            x = Assignment(self.args, inp)
+            x.eval()
         elif self.value == "koniec":
             exit(self.args.eval())
 
