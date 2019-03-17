@@ -1,6 +1,6 @@
 # pseudo
 
-A prototype for pseudocode interpreter. Currently it's only building AST.
+A prototype for pseudocode interpreter.
 
 ## Goal
 
@@ -42,3 +42,16 @@ dla i=1,...,n wykonuj
     jeżeli i mod 2 = 0 to
         pisz i
 ```
+
+## Features
+
+- [x] `pisz 2`, `pisz "hello"`, `pisz prawda`
+- [x] `pisz 2+2`, `pisz 2-2`
+- [ ] `pisz 2*2`, `pisz 2 div 2`
+- [ ] `x mod 2`
+- [x] `czytaj x`
+- [x] `x := x+2`, `x <- 0-x`
+- [ ] `x := -x`
+- [x] `koniec`
+- [ ] `jeżeli .. to`
+- [ ] `dopóki .. wykonuj`, `dla .. wykonuj`
