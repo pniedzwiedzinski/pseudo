@@ -2,6 +2,8 @@
 This module contains class of stream object used to iterate over input.
 """
 
+from pseudo.pseudo_types import EOL
+
 __author__ = u"Patryk Niedźwiedziński"
 
 
@@ -16,6 +18,7 @@ class Stream():
             - inp - string with pseudocode
         """
         self.inp = inp.split("\n")
+        self.inp.append("")
         self.line = 1
         self.col = 1
 
@@ -31,13 +34,14 @@ class Stream():
 
     def peek(self):
         """Returns next char without moving cursor."""
-        return self.inp[self.line-1][self.col-1]
+        try:
+            return self.inp[self.line-1][self.col-1]
+        except IndexError:
+            return EOL()
 
     def eol(self):
         """Returns true if next char is '\n'."""
-        try:
-            self.peek()
-        except IndexError:
+        if isinstance(self.peek(), EOL):
             return True
         return False
 
@@ -45,9 +49,7 @@ class Stream():
         """Returns true if next char is end of file."""
         if not self.eol():
             return False
-        try:
-            self.inp[self.line][0]
-        except IndexError:
+        if self.line >= len(self.inp):
             return True
         return False
 

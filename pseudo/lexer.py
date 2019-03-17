@@ -40,7 +40,10 @@ class Lexer():
 
     def is_digit(self, c) -> bool:
         """Checks if given char is a digit."""
-        return ord(c) >= 48 and ord(c) <= 57
+        try:
+            return ord(c) >= 48 and ord(c) <= 57
+        except TypeError:
+            return False
 
     def is_operator(self, c) -> bool:
         """Checks if given char is an allowed operator."""
@@ -96,10 +99,12 @@ class Lexer():
         if self.i.eof():
             raise EndOfFile
         self.read(lambda c: c == "\n" or c == " ", eol=False)
-        if self.i.eol():
-            self.i.next_line()
-            return EOL()
         c = self.i.peek()
+        if isinstance(c, EOL):
+            self.i.next_line()
+            if self.i.eof():
+                raise EndOfFile
+            return c
         if c == "#":
             self.i.next_line()
             return self.read_next()
@@ -119,10 +124,11 @@ class Lexer():
             if self.is_keyword(keyword):
                 arg = None
                 prev_arg = None
-                while not self.i.eol():
+                while True:
                     arg = self.read_next(prev=prev_arg)
                     if isinstance(arg, EOL):
                         arg = prev_arg
+                        break
                     prev_arg = arg
                 return Statement(keyword, args=arg)
             self.i.throw(f"'{keyword}' is not defined")

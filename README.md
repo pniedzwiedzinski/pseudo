@@ -1,6 +1,6 @@
 # pseudo
 
-A prototype for pseudocode interpreter.
+A prototype for pseudocode interpreter. Currently it's only building AST.
 
 ## Goal
 
@@ -28,4 +28,17 @@ To run it type:
 
 ```bash
 pseudo file.pdc
+```
+
+## Sample pseudocode
+
+test.pdc
+
+```
+czytaj n
+pisz "Start"
+# Pętla wypisuje liczby parzyste od 1 do `n`
+dla i=1,...,n wykonuj
+    jeżeli i mod 2 = 0 to
+        pisz i
 ```
