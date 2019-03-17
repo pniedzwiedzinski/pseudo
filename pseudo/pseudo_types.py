@@ -91,7 +91,7 @@ class Statement():
             x = Assignment(self.args, inp)
             x.eval()
         elif self.value == "koniec":
-            exit(self.args.eval())
+            exit()
 
     def __repr__(self):
         return f"Statement(\"{self.value}\", args={self.args})"

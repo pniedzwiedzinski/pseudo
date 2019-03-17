@@ -132,6 +132,8 @@ class Lexer():
             if (c == ":" and self.i.peek() == "=") or (c == "<" and self.i.peek() == "-"):
                 self.i.next()
                 return ":="
+            if prev is None:
+                prev = Int(0)
             return Operation(c, prev, self.read_next())
 
         if self.is_alphabet(c):

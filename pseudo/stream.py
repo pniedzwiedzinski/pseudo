@@ -19,6 +19,7 @@ class Stream():
         """
         self.inp = inp.split("\n")
         self.inp.append("")
+        self.inp.append("")
         self.line = 1
         self.col = 1
 
