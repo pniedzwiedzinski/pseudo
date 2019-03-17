@@ -51,7 +51,7 @@ dla i=1,...,n wykonuj
 - [ ] `x mod 2`
 - [x] `czytaj x`
 - [x] `x := x+2`, `x <- 0-x`
-- [ ] `x := -x`
+- [x] `x := -x`
 - [x] `koniec`
 - [ ] `jeżeli .. to`
 - [ ] `dopóki .. wykonuj`, `dla .. wykonuj`
