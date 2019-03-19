@@ -1,4 +1,6 @@
-# pseudo
+![pseudo](https://github.com/pniedzwiedzinski/pseudo/tree/master/pseudo.svg)
+
+<!--<img style="height:60px" src="https://github.com/pniedzwiedzinski/pseudo/tree/master/pseudo.svg">-->
 
 A prototype for pseudocode interpreter.
 
