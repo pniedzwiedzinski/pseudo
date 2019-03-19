@@ -3,12 +3,21 @@ This module contains Lexer class using to tokenize stream.
 """
 
 from pseudo.stream import Stream, EndOfFile
-from pseudo.pseudo_types import String, Int, Operation, Statement, EOL, Variable,  Assignment, Bool
+from pseudo.pseudo_types import (
+    String,
+    Int,
+    Operation,
+    Statement,
+    EOL,
+    Variable,
+    Assignment,
+    Bool,
+)
 
-__author__ = u"Patryk Niedźwiedziński"
+__author__ = "Patryk Niedźwiedziński"
 
 
-class Lexer():
+class Lexer:
     """
     Class to parse code.
 
@@ -16,6 +25,7 @@ class Lexer():
         i: A Stream instance with input code.
         keywords: A set of all keywords in pseudo.
         operators: A set of operators in pseudo.
+        operator_keywords: A set of operators written as string.
 
     Usage:
     >>> lex = Lexer("pisz 12")
@@ -27,7 +37,8 @@ class Lexer():
         """Inits Lexer with input."""
         self.i = Stream(inp)
         self.keywords = {"pisz", "koniec", "czytaj"}
-        self.operators = {"+", "-", ":", "<"}
+        self.operators = {"+", "-", "*", ":", "<"}
+        self.operator_keywords = {"div", "mod"}
 
     def is_keyword(self, string) -> bool:
         """Checks if given string is a keyword."""
@@ -35,8 +46,11 @@ class Lexer():
 
     def is_alphabet(self, c) -> bool:
         """Checks if given char is from alphabet."""
-        ascii = ord(c)
-        return (ascii >= 65 and ascii <= 90) or (ascii >= 97 and ascii <= 122)
+        try:
+            ascii = ord(c)
+            return (ascii >= 65 and ascii <= 90) or (ascii >= 97 and ascii <= 122)
+        except TypeError:
+            return False
 
     def is_digit(self, c) -> bool:
         """Checks if given char is a digit."""
@@ -58,6 +72,24 @@ class Lexer():
         `asd1+asd2` - This is two keywords with `+` in between them.
         """
         return c != " " and not self.is_operator(c)
+
+    def opearation_order(self, first, second):
+        """Returns true if given order of operation is correct."""
+        if first in "+-":
+            if second in {"*", "div", "mod"}:
+                return False
+        return True
+
+    def equal_operators(self, first, second):
+        """Checks if given operators are in the same order group."""
+        group_1 = {"*", "div", "mod"}
+        group_2 = {"-", "+"}
+
+        if first in group_1 and second in group_1:
+            return True
+        if first in group_2 and second in group_2:
+            return True
+        return False
 
     def read(self, test, eol=True) -> str:
         """
@@ -85,7 +117,7 @@ class Lexer():
     def read_string(self) -> String:
         """Read a string from the stream."""
         self.i.next()
-        string = self.read(lambda c: c != "\"")
+        string = self.read(lambda c: c != '"')
         self.i.next()
         return String(string)
 
@@ -106,22 +138,38 @@ class Lexer():
             prev_arg = arg
         return arg
 
+    def read_expression(self, c, prev):
+        next_val = self.read_next()
+        if not isinstance(next_val, EOL):
+            next_op = self.read_next(prev=next_val)
+            if not isinstance(next_op, EOL):
+                if self.opearation_order(c, next_op.value):
+                    l = next_op.left
+                    return Operation(
+                        next_op.value, Operation(c, prev, l), next_op.right
+                    )
+                return Operation(c, prev, next_op)
+            return Operation(c, prev, next_val)
+        self.i.throw(f"Empty value, cannot do '{c}' on nil")
+
     def read_next(self, prev=None):
-        """Read next element from the stream and guess the type."""
+        """Read next elements from the stream and guess the type."""
         if self.i.eof():
             raise EndOfFile
         self.read(lambda c: c == "\n" or c == " ", eol=False)
         c = self.i.peek()
+
         if isinstance(c, EOL):
             self.i.next_line()
             if self.i.eof():
                 raise EndOfFile
             return c
+
         if c == "#":
             self.i.next_line()
             return self.read_next()
 
-        if c == "\"" or c == "\'":
+        if c == '"' or c == "'":
             return self.read_string()
 
         if self.is_digit(c):
@@ -129,12 +177,14 @@ class Lexer():
 
         if self.is_operator(c):
             self.i.next()
-            if (c == ":" and self.i.peek() == "=") or (c == "<" and self.i.peek() == "-"):
+            if (c == ":" and self.i.peek() == "=") or (
+                c == "<" and self.i.peek() == "-"
+            ):
                 self.i.next()
                 return ":="
             if prev is None:
                 prev = Int(0)
-            return Operation(c, prev, self.read_next())
+            return self.read_expression(c, prev)
 
         if self.is_alphabet(c):
             col = self.i.col
@@ -144,20 +194,33 @@ class Lexer():
                 if keyword == "czytaj":
                     if not isinstance(arg, Variable):
                         self.i.throw("Statement 'czytaj' requires variable as argument")
+                if isinstance(arg, Statement):
+                    self.i.throw(
+                        f"Statement '{keyword}' cannot take '{arg}' as argument"
+                    )
                 return Statement(keyword, args=arg)
+            if keyword in self.operator_keywords:
+                return self.read_expression(keyword, prev)
             if keyword == "prawda":
                 return Bool(1)
             if keyword == "fałsz":
                 return Bool(0)
             if col == 1:
                 operator = self.read_next()
+                print(operator)
                 if operator != ":=":
-                    self.i.throw(f"Invalid syntax")
+                    self.i.throw(f"Invalid syntax, cannot parse '{operator}'")
                 args = self.read_args()
-                if not isinstance(args, Int) and not isinstance(args, String) and not isinstance(args, Operation):
+                print("Args: " + str(args))
+                if (
+                    not isinstance(args, Int)
+                    and not isinstance(args, String)
+                    and not isinstance(args, Operation)
+                ):
                     self.i.throw(f"Cannot assign type {type(args)} to variable")
                 return Assignment(Variable(keyword), args)
             return Variable(keyword)
-
+        if c == "":
+            raise EndOfFile
         self.i.throw(f"Invalid character: '{c}'")
 

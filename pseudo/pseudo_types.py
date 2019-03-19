@@ -4,9 +4,10 @@ This module contains classes for types in AST.
 
 VAR = {}
 
-__author__ = u"Patryk Niedźwiedziński"
+__author__ = "Patryk Niedźwiedziński"
 
-class Value():
+
+class Value:
     """
     Node containing a value.
 
@@ -29,6 +30,7 @@ class Value():
 
 class Int(Value):
     """Int value node."""
+
     def __init__(self, value):
         self.value = int(value)
 
@@ -38,34 +40,56 @@ class Int(Value):
 
 class String(Value):
     """String value node."""
+
     def __repr__(self):
-        return f"String(\"{self.value}\")"
+        return f'String("{self.value}")'
 
 
 class Bool(Value):
     """Bool value node."""
+
     def __repr__(self):
         return f"Bool({bool(self.value)})"
 
 
-class Operation():
-    """Operator value node."""
-    def __init__(self, value, left, right):
-        self.value = value
+class Operator:
+    """Opartor class for representing mathematical operator."""
+
+    def __init__(self, operator):
+        self.operator = operator
+
+    def eval(self, left, right):
+        if self.operator == "+":
+            return left.eval() + right.eval()
+        if self.operator == "-":
+            return left.eval() - right.eval()
+        if self.operator == "*":
+            return left.eval() * right.eval()
+        if self.operator == "div":
+            return left.eval() // right.eval()
+        if self.operator == "mod":
+            return left.eval() % right.eval()
+
+    def __repr__(self):
+        return self.operator
+
+
+class Operation:
+    """Operation node."""
+
+    def __init__(self, operator, left, right):
+        self.operator = operator
         self.left = left
         self.right = right
 
     def eval(self):
-        if self.value == "+":
-            return self.left.eval() + self.right.eval()
-        if self.value == "-":
-            return self.left.eval() - self.right.eval()
+        return self.operator.eval(self.left, self.right)
 
     def __repr__(self):
-        return f"Operation({self.left}{self.value}{self.right})"
+        return f"({self.left}{self.operator}{self.right})"
 
 
-class Statement():
+class Statement:
     """
     Node for statement with arguments.
 
@@ -94,13 +118,13 @@ class Statement():
             exit()
 
     def __repr__(self):
-        return f"Statement(\"{self.value}\", args={self.args})"
+        return f'Statement("{self.value}", args={self.args})'
 
     def __str__(self):
         return self.__repr__()
 
 
-class Variable():
+class Variable:
     """
     Node for representing variables.
 
@@ -115,13 +139,13 @@ class Variable():
         return VAR[self.name]
 
     def __repr__(self):
-        return f"Variable(\"{self.name}\")"
+        return f'Variable("{self.name}")'
 
     def __str__(self):
         return self.__repr__()
 
 
-class Assignment():
+class Assignment:
     """
     Node for representing assignments.
 
@@ -144,8 +168,9 @@ class Assignment():
         return self.__repr__()
 
 
-class EOL():
+class EOL:
     """Representation of newline."""
+
     def __init__(self):
         pass
 
