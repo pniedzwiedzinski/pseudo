@@ -17,10 +17,10 @@ class Stream:
         args:
             - inp - string with pseudocode
         """
-        self.inp = [x + " " for x in inp.split("\n")]
+        self.inp = inp.split("\n")
         # TODO: Fix crop while parsing
-        for _ in range(100):
-            self.inp.append([""])
+        # for _ in range(100):
+        #     self.inp.append([""])
         self.line = 1
         self.col = 1
 
@@ -42,16 +42,16 @@ class Stream:
             return EOL()
 
     def eol(self):
-        """Returns true if next char is '\n'."""
+        """Returns true if next char is end of line."""
         if isinstance(self.peek(), EOL):
             return True
         return False
 
     def eof(self):
-        """Returns true if next char is end of file."""
+        """Returns true if next line is end of file."""
         if not self.eol():
             return False
-        if self.line >= len(self.inp):
+        if self.line > len(self.inp):
             return True
         return False
 

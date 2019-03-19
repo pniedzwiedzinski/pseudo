@@ -2,9 +2,10 @@
 This module contains classes for types in AST.
 """
 
-VAR = {}
 
 __author__ = "Patryk Niedźwiedziński"
+
+VAR = {}
 
 
 class Value:
@@ -72,6 +73,18 @@ class Operator:
 
     def __repr__(self):
         return self.operator
+
+
+class Pseudo_Operation():
+    def __init__(self, s):
+        self.s = s
+
+    def eval(self):
+        return eval(self.s)
+
+    def __repr__(self):
+        return self.s
+
 
 
 class Operation:

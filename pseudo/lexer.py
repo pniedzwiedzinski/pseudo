@@ -7,6 +7,7 @@ from pseudo.pseudo_types import (
     String,
     Int,
     Operation,
+    Pseudo_Operation,
     Statement,
     EOL,
     Variable,
@@ -61,7 +62,7 @@ class Lexer:
 
     def is_operator(self, c) -> bool:
         """Checks if given char is an allowed operator."""
-        return c in self.operators
+        return c in self.operators or c in self.operator_keywords
 
     def is_not_keyword_end(self, c) -> bool:
         """
@@ -71,9 +72,9 @@ class Lexer:
         `asd1` - This is one keyword.
         `asd1+asd2` - This is two keywords with `+` in between them.
         """
-        return c != " " and not self.is_operator(c)
+        return self.is_alphabet(c) or self.is_digit(c)
 
-    def opearation_order(self, first, second):
+    def operation_order(self, first, second):
         """Returns true if given order of operation is correct."""
         if first in "+-":
             if second in {"*", "div", "mod"}:
@@ -112,6 +113,10 @@ class Lexer:
     def read_number(self) -> Int:
         """Read a number from the stream."""
         number = self.read(self.is_digit)
+        try:
+            int(number)
+        except ValueError:
+            return None
         return Int(number)
 
     def read_string(self) -> String:
@@ -143,13 +148,8 @@ class Lexer:
         if not isinstance(next_val, EOL):
             next_op = self.read_next(prev=next_val)
             if not isinstance(next_op, EOL):
-                if self.opearation_order(c, next_op.value):
-                    l = next_op.left
-                    return Operation(
-                        next_op.value, Operation(c, prev, l), next_op.right
-                    )
-                return Operation(c, prev, next_op)
-            return Operation(c, prev, next_val)
+                return Pseudo_Operation(str(prev.eval()) + c + str(next_op.s))
+            return Pseudo_Operation(str(prev.eval()) + c + str(next_val.eval()))
         self.i.throw(f"Empty value, cannot do '{c}' on nil")
 
     def read_next(self, prev=None):
