@@ -132,10 +132,8 @@ class Lexer:
         """Read arguments from the stream."""
         args = []
         expression = False
-        while True:
+        while not self.i.eol():
             arg = self.read_next()
-            if isinstance(arg, EOL):
-                break
             if isinstance(arg, Operator):
                 expression = True
                 if len(args) == 0:
@@ -151,6 +149,8 @@ class Lexer:
                         if operator < prev:
                             i += 1
                             continue
+                        if isinstance(args[i+1], Operator):
+                            self.i.throw(f"Cannot do '{operator}' on nil")
                         try:
                             next_operator = args[i + 2]
                             if operator > next_operator:
