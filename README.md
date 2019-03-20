@@ -49,8 +49,8 @@ dla i=1,...,n wykonuj
 
 - [x] `pisz 2`, `pisz "hello"`, `pisz prawda`
 - [x] `pisz 2+2`, `pisz 2-2`
-- [ ] `pisz 2*2`, `pisz 2 div 2`
-- [ ] `x mod 2`
+- [x] `pisz 2*2`, `pisz 2 div 2`
+- [x] `x mod 2`
 - [x] `czytaj x`
 - [x] `x := x+2`, `x <- 0-x`
 - [x] `x := -x`
