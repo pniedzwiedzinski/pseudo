@@ -3,6 +3,7 @@
 import pytest
 import pseudo
 
+from pseudo.pseudo_types import Operation, Operator, Int
 
 __author__ = "Patryk Niedźwiedziński"
 
@@ -67,21 +68,11 @@ def test_is_not_keyword_end(lexer):
         raise AssertionError
 
 
-def test_operation_order(lexer):
-    """Checks Lexer.operation_order"""
+def test_update_args(lexer):
+    """Checks Lexer.update_args"""
     if not (
-        lexer.operation_order("+", "*") is False
-        and lexer.operation_order("*", "+") is True
-        and lexer.operation_order("mod", "-") is True
-    ):
-        raise AssertionError
-
-
-def test_equal_operators(lexer):
-    """Checks Lexer.equal_operators"""
-    if not (
-        lexer.equal_operators("+", "-") is True
-        and lexer.equal_operators("div", "+") is False
+        lexer.update_args([Int(2), Operator("+"), Int(2)], 1)
+        == [Operation(Operator("+"), Int(2), Int(2))]
     ):
         raise AssertionError
 

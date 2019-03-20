@@ -8,6 +8,7 @@ from pseudo.pseudo_types import (
     Int,
     Operation,
     Pseudo_Operation,
+    Operator,
     Statement,
     EOL,
     Variable,
@@ -16,6 +17,10 @@ from pseudo.pseudo_types import (
 )
 
 __author__ = "Patryk Niedźwiedziński"
+
+
+GROUP_1 = {"*", "div", "mod"}
+GROUP_2 = {"-", "+"}
 
 
 class Lexer:
@@ -74,23 +79,15 @@ class Lexer:
         """
         return self.is_alphabet(c) or self.is_digit(c)
 
-    def operation_order(self, first, second):
-        """Returns true if given order of operation is correct."""
-        if first in "+-":
-            if second in {"*", "div", "mod"}:
-                return False
-        return True
-
-    def equal_operators(self, first, second):
-        """Checks if given operators are in the same order group."""
-        group_1 = {"*", "div", "mod"}
-        group_2 = {"-", "+"}
-
-        if first in group_1 and second in group_1:
-            return True
-        if first in group_2 and second in group_2:
-            return True
-        return False
+    def update_args(self, args, i):
+        """Update args with new operation instance."""
+        try:
+            args[i] = Operation(args[i], args[i - 1], args[i + 1])
+            del args[i + 1]
+            del args[i - 1]
+        except IndexError:
+            self.i.throw(f"Cannot do '{arg.operator}' on nil")
+        return args
 
     def read(self, test, eol=True) -> str:
         """
@@ -133,24 +130,40 @@ class Lexer:
 
     def read_args(self):
         """Read arguments from the stream."""
-        arg = None
-        prev_arg = None
+        args = []
+        expression = False
         while True:
-            arg = self.read_next(prev=prev_arg)
+            arg = self.read_next()
             if isinstance(arg, EOL):
-                arg = prev_arg
                 break
-            prev_arg = arg
-        return arg
-
-    def read_expression(self, c, prev):
-        next_val = self.read_next()
-        if not isinstance(next_val, EOL):
-            next_op = self.read_next(prev=next_val)
-            if not isinstance(next_op, EOL):
-                return Pseudo_Operation(str(prev.eval()) + c + str(next_op.s))
-            return Pseudo_Operation(str(prev.eval()) + c + str(next_val.eval()))
-        self.i.throw(f"Empty value, cannot do '{c}' on nil")
+            if isinstance(arg, Operator):
+                expression = True
+                if len(args) == 0:
+                    args.append(Int(0))
+            args.append(arg)
+        if expression:
+            while len(args) > 1:
+                prev = Operator("+")
+                i = 0
+                while i < len(args):
+                    operator = args[i]
+                    if isinstance(operator, Operator):
+                        if operator < prev:
+                            i += 1
+                            continue
+                        try:
+                            next_operator = args[i + 2]
+                            if operator > next_operator:
+                                prev = operator
+                                args = self.update_args(args, i)
+                                i -= 1
+                            else:
+                                prev = next_operator
+                                args = self.update_args(args, i + 2)
+                        except IndexError:
+                            args = self.update_args(args, i)
+                    i += 1
+        return args[0]
 
     def read_next(self, prev=None):
         """Read next elements from the stream and guess the type."""
@@ -182,9 +195,7 @@ class Lexer:
             ):
                 self.i.next()
                 return ":="
-            if prev is None:
-                prev = Int(0)
-            return self.read_expression(c, prev)
+            return Operator(c)
 
         if self.is_alphabet(c):
             col = self.i.col
@@ -200,7 +211,7 @@ class Lexer:
                     )
                 return Statement(keyword, args=arg)
             if keyword in self.operator_keywords:
-                return self.read_expression(keyword, prev)
+                return Operator(keyword)
             if keyword == "prawda":
                 return Bool(1)
             if keyword == "fałsz":

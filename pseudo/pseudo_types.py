@@ -7,6 +7,9 @@ __author__ = "Patryk Niedźwiedziński"
 
 VAR = {}
 
+GROUP_1 = {"*", "div", "mod"}
+GROUP_2 = {"-", "+"}
+
 
 class Value:
     """
@@ -34,6 +37,9 @@ class Int(Value):
 
     def __init__(self, value):
         self.value = int(value)
+
+    def __eq__(self, other):
+        return self.value == other.value
 
     def __repr__(self):
         return f"Int({repr(self.value)})"
@@ -71,6 +77,26 @@ class Operator:
         if self.operator == "mod":
             return left.eval() % right.eval()
 
+    def __lt__(self, o):
+        if self.operator in GROUP_2:
+            if o.operator in GROUP_1:
+                return True
+        return False
+
+    def __gt__(self, o):
+        if self.operator in GROUP_1:
+            return True
+        if self == o:
+            return True
+        return False
+
+    def __eq__(self, o):
+        if self.operator in GROUP_1 and o.operator in GROUP_1:
+            return True
+        if self.operator in GROUP_2 and o.operator in GROUP_2:
+            return True
+        return False
+
     def __repr__(self):
         return self.operator
 
@@ -97,6 +123,11 @@ class Operation:
 
     def eval(self):
         return self.operator.eval(self.left, self.right)
+
+    def __eq__(self, other):
+        print(self.__dict__)
+        print(other.__dict__)
+        return self.__dict__ == other.__dict__
 
     def __repr__(self):
         return f"({self.left}{self.operator}{self.right})"

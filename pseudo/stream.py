@@ -19,8 +19,8 @@ class Stream:
         """
         self.inp = inp.split("\n")
         # TODO: Fix crop while parsing
-        # for _ in range(100):
-        #     self.inp.append([""])
+        for _ in range(100):
+            self.inp.append([""])
         self.line = 1
         self.col = 1
 
