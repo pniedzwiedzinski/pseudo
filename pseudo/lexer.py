@@ -128,7 +128,7 @@ class Lexer:
         keyword = self.read(self.is_not_keyword_end)
         return keyword
 
-    def read_args(self, brace=None):
+    def read_args(self, bracket=None):
         """Read arguments from the stream."""
         args = []
         while not self.i.eol():
@@ -137,13 +137,13 @@ class Lexer:
                 if len(args) == 0:
                     args.append(Int(0))
             if arg == Value(")"):
-                if brace:
+                if bracket:
                     break
                 self.i.throw(f"Invalid character '{operator}'")
             args.append(arg)
-        return self.read_expression(args, brace)
+        return self.read_expression(args, bracket)
 
-    def read_expression(self, args, brace=None):
+    def read_expression(self, args, bracket=None):
         while len(args) > 1:
             prev = Operator("+")
             i = 0
@@ -189,7 +189,7 @@ class Lexer:
         if c in {"(", ")"}:
             self.i.next()
             if c == "(":
-                return self.read_args(brace=True)
+                return self.read_args(bracket=True)
             return Value(c)
 
         if c == '"' or c == "'":
