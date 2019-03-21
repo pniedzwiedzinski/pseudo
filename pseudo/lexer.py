@@ -7,13 +7,13 @@ from pseudo.pseudo_types import (
     String,
     Int,
     Operation,
-    Pseudo_Operation,
     Operator,
     Statement,
     EOL,
     Variable,
     Assignment,
     Bool,
+    Value,
 )
 
 __author__ = "Patryk Niedźwiedziński"
@@ -128,41 +128,45 @@ class Lexer:
         keyword = self.read(self.is_not_keyword_end)
         return keyword
 
-    def read_args(self):
+    def read_args(self, brace=None):
         """Read arguments from the stream."""
         args = []
-        expression = False
         while not self.i.eol():
             arg = self.read_next()
             if isinstance(arg, Operator):
-                expression = True
                 if len(args) == 0:
                     args.append(Int(0))
+            if arg == Value(")"):
+                if brace:
+                    break
+                self.i.throw(f"Invalid character '{operator}'")
             args.append(arg)
-        if expression:
-            while len(args) > 1:
-                prev = Operator("+")
-                i = 0
-                while i < len(args):
-                    operator = args[i]
-                    if isinstance(operator, Operator):
-                        if operator < prev:
-                            i += 1
-                            continue
-                        if isinstance(args[i+1], Operator):
-                            self.i.throw(f"Cannot do '{operator}' on nil")
-                        try:
-                            next_operator = args[i + 2]
-                            if operator > next_operator:
-                                prev = operator
-                                args = self.update_args(args, i)
-                                i -= 1
-                            else:
-                                prev = next_operator
-                                args = self.update_args(args, i + 2)
-                        except IndexError:
+        return self.read_expression(args, brace)
+
+    def read_expression(self, args, brace=None):
+        while len(args) > 1:
+            prev = Operator("+")
+            i = 0
+            while i < len(args):
+                operator = args[i]
+                if isinstance(operator, Operator):
+                    if operator < prev:
+                        i += 1
+                        continue
+                    if isinstance(args[i + 1], Operator):
+                        self.i.throw(f"Cannot do '{operator}' on nil")
+                    try:
+                        next_operator = args[i + 2]
+                        if operator > next_operator:
+                            prev = operator
                             args = self.update_args(args, i)
-                    i += 1
+                            i -= 1
+                        else:
+                            prev = next_operator
+                            args = self.update_args(args, i + 2)
+                    except IndexError:
+                        args = self.update_args(args, i)
+                i += 1
         return args[0]
 
     def read_next(self, prev=None):
@@ -181,6 +185,12 @@ class Lexer:
         if c == "#":
             self.i.next_line()
             return self.read_next()
+
+        if c in {"(", ")"}:
+            self.i.next()
+            if c == "(":
+                return self.read_args(brace=True)
+            return Value(c)
 
         if c == '"' or c == "'":
             return self.read_string()
@@ -218,11 +228,9 @@ class Lexer:
                 return Bool(0)
             if col == 1:
                 operator = self.read_next()
-                print(operator)
                 if operator != ":=":
                     self.i.throw(f"Invalid syntax, cannot parse '{operator}'")
                 args = self.read_args()
-                print("Args: " + str(args))
                 if (
                     not isinstance(args, Int)
                     and not isinstance(args, String)

@@ -106,3 +106,21 @@ def test_read_args(lexer):
     lexer.i = pseudo.stream.Stream(" 12")
     if 12 != lexer.read_args().value:
         raise AssertionError
+    lexer.i = pseudo.stream.Stream("2+2*2")
+    if 6 != lexer.read_args().eval():
+        raise AssertionError
+    lexer.i = pseudo.stream.Stream("(2+2)*2")
+    if 8 != lexer.read_args().eval():
+        raise AssertionError
+
+
+def test_read_expression(lexer):
+    """Checks Lexer.read_expression"""
+    if (
+        lexer.read_expression(
+            [Int(2), Operator("+"), Int(2), Operator("*"), Int(2)]
+        ).eval()
+        != 6
+    ):
+        raise AssertionError
+

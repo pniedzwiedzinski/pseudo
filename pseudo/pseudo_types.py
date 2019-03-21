@@ -25,6 +25,9 @@ class Value:
     def eval(self):
         return self.value
 
+    def __eq__(self, other):
+        return self.value == other.value
+
     def __repr__(self):
         return f"Value({repr(self.value)})"
 
@@ -59,58 +62,43 @@ class Bool(Value):
         return f"Bool({bool(self.value)})"
 
 
-class Operator:
+class Operator(Value):
     """Opartor class for representing mathematical operator."""
 
-    def __init__(self, operator):
-        self.operator = operator
-
     def eval(self, left, right):
-        if self.operator == "+":
+        if self.value == "+":
             return left.eval() + right.eval()
-        if self.operator == "-":
+        if self.value == "-":
             return left.eval() - right.eval()
-        if self.operator == "*":
+        if self.value == "*":
             return left.eval() * right.eval()
-        if self.operator == "div":
+        if self.value == "div":
             return left.eval() // right.eval()
-        if self.operator == "mod":
+        if self.value == "mod":
             return left.eval() % right.eval()
 
     def __lt__(self, o):
-        if self.operator in GROUP_2:
-            if o.operator in GROUP_1:
+        if self.value in GROUP_2:
+            if o.value in GROUP_1:
                 return True
         return False
 
     def __gt__(self, o):
-        if self.operator in GROUP_1:
+        if self.value in GROUP_1:
             return True
         if self == o:
             return True
         return False
 
     def __eq__(self, o):
-        if self.operator in GROUP_1 and o.operator in GROUP_1:
+        if self.value in GROUP_1 and o.value in GROUP_1:
             return True
-        if self.operator in GROUP_2 and o.operator in GROUP_2:
+        if self.value in GROUP_2 and o.value in GROUP_2:
             return True
         return False
 
     def __repr__(self):
-        return self.operator
-
-
-class Pseudo_Operation():
-    def __init__(self, s):
-        self.s = s
-
-    def eval(self):
-        return eval(self.s)
-
-    def __repr__(self):
-        return self.s
-
+        return self.value
 
 
 class Operation:
@@ -125,8 +113,6 @@ class Operation:
         return self.operator.eval(self.left, self.right)
 
     def __eq__(self, other):
-        print(self.__dict__)
-        print(other.__dict__)
         return self.__dict__ == other.__dict__
 
     def __repr__(self):
