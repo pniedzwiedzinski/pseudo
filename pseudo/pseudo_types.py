@@ -146,7 +146,7 @@ class Statement:
         if self.value == "pisz":
             print(self.args.eval())
         elif self.value == "czytaj":
-            inp = input(self.args.name + ": ")
+            inp = input(self.args.value + ": ")
             try:
                 inp = int(inp)
                 inp = Int(inp)
