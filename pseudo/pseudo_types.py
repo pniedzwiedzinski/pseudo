@@ -59,13 +59,13 @@ class Bool(Value):
     """Bool value node."""
 
     def __repr__(self):
-        return f"Bool({bool(self.value)})"
+        return f"Bool({self.value})"
 
 
 class Operator(Value):
     """Opartor class for representing mathematical operator."""
 
-    def eval(self, left, right):
+    def eval(self, left: Value, right: Value):
         if self.value == "+":
             return left.eval() + right.eval()
         if self.value == "-":
@@ -76,6 +76,16 @@ class Operator(Value):
             return left.eval() // right.eval()
         if self.value == "mod":
             return left.eval() % right.eval()
+
+        if self.value == "=":
+            if left.eval() == right.eval():
+                return 1
+            return 0
+
+        if self.value == "!=":
+            if left.eval() != right.eval():
+                return 1
+            return 0
 
     def __lt__(self, o):
         if self.value in GROUP_2:
@@ -154,22 +164,22 @@ class Statement:
         return self.__repr__()
 
 
-class Variable:
+class Variable(Value):
     """
     Node for representing variables.
 
     Attributes:
-        name: Name of the variable.
+        value: Name of the variable.
     """
 
-    def __init__(self, name):
-        self.name = name
-
     def eval(self):
-        return VAR[self.name]
+        try:
+            return VAR[self.value]
+        except KeyError:
+            return "nil"
 
     def __repr__(self):
-        return f'Variable("{self.name}")'
+        return f'Variable("{self.value}")'
 
     def __str__(self):
         return self.__repr__()
@@ -189,13 +199,41 @@ class Assignment:
         self.value = value
 
     def eval(self):
-        VAR[self.target.name] = self.value.eval()
+        VAR[self.target.value] = self.value.eval()
 
     def __repr__(self):
         return f"Assignment({self.target}, {self.value})"
 
     def __str__(self):
         return self.__repr__()
+
+
+class Condition:
+    """
+    Node for representing conditional expressions (if).
+
+    Attributes:
+        condition: Condtion to check
+        true: List to evaluate if condition is true
+        false: List to evaluate if condition is false (optional)
+    """
+
+    def __init__(self, condition, true, false=None):
+        self.condition = condition
+        self.true = true
+        self.false = false
+
+    def eval(self):
+        b = self.condition.eval()
+        if b and b != "nil":
+            for x in self.true:
+                x.eval()
+        elif self.false is not None:
+            for x in self.false:
+                x.eval()
+
+    def __repr__(self):
+        return f"Condition({self.condition}, {self.true}, {self.false})"
 
 
 class EOL:

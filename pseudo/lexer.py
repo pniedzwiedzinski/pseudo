@@ -14,6 +14,7 @@ from pseudo.pseudo_types import (
     Assignment,
     Bool,
     Value,
+    Condition,
 )
 
 __author__ = "Patryk Niedźwiedziński"
@@ -32,6 +33,7 @@ class Lexer:
         keywords: A set of all keywords in pseudo.
         operators: A set of operators in pseudo.
         operator_keywords: A set of operators written as string.
+        indent_size: Size of indentation using in particular file.
 
     Usage:
     >>> lex = Lexer("pisz 12")
@@ -42,9 +44,10 @@ class Lexer:
     def __init__(self, inp):
         """Inits Lexer with input."""
         self.i = Stream(inp)
-        self.keywords = {"pisz", "koniec", "czytaj"}
-        self.operators = {"+", "-", "*", ":", "<"}
+        self.keywords = {"pisz", "koniec", "czytaj", "jeżeli", "to"}
+        self.operators = {"+", "-", "*", ":", "<", "=", "!"}
         self.operator_keywords = {"div", "mod"}
+        self.indent_size = None
 
     def is_keyword(self, string) -> bool:
         """Checks if given string is a keyword."""
@@ -77,7 +80,8 @@ class Lexer:
         `asd1` - This is one keyword.
         `asd1+asd2` - This is two keywords with `+` in between them.
         """
-        return self.is_alphabet(c) or self.is_digit(c)
+        # TODO: Fix name (double not)
+        return not (self.is_operator(c) or c == " ")
 
     def update_args(self, args, i):
         """Update args with new operation instance."""
@@ -120,19 +124,44 @@ class Lexer:
         """Read a string from the stream."""
         self.i.next()
         string = self.read(lambda c: c != '"')
-        self.i.next()
+        try:
+            string_end = self.i.next() == '"'
+        except IndexError:
+            string_end = False
+        if not string_end:
+            self.i.throw(f"Could not parse string")
         return String(string)
+
+    def read_bool(self, keyword: str) -> Bool:
+        """Parse bool str to Bool object."""
+        if keyword == "prawda":
+            return Bool(1)
+        if keyword == "fałsz":
+            return Bool(0)
+        self.i.throw(f"Could not parse '{keyword}' to bool.")
 
     def read_keyword(self) -> str:
         """Read a keyword from the stream."""
         keyword = self.read(self.is_not_keyword_end)
         return keyword
 
-    def read_args(self, bracket=None):
+    def read_if(self) -> object:
+        """Read condition of conditional expression."""
+        #TODO: tests
+        args = self.read_args()
+        if not isinstance(args[-1], str):
+            self.i.throw(f"Expected keyword 'to', instead got '{args[-1]}'")
+        condition = self.read_expression(args[:-1])
+        return condition
+
+    def read_args(self, bracket: bool = None) -> list:
         """Read arguments from the stream."""
         args = []
         while not self.i.eol():
             arg = self.read_next()
+            if not isinstance(arg, Value):
+                args.append(arg)
+                continue
             if isinstance(arg, Operator):
                 if len(args) == 0:
                     args.append(Int(0))
@@ -141,9 +170,9 @@ class Lexer:
                     break
                 self.i.throw(f"Invalid character '{operator}'")
             args.append(arg)
-        return self.read_expression(args, bracket)
+        return args
 
-    def read_expression(self, args, bracket=None):
+    def read_expression(self, args: list, bracket: bool = None) -> object:
         while len(args) > 1:
             prev = Operator("+")
             i = 0
@@ -169,11 +198,12 @@ class Lexer:
                 i += 1
         return args[0]
 
-    def read_next(self, prev=None):
+    def read_next(self, prev: object = None) -> object:
         """Read next elements from the stream and guess the type."""
         if self.i.eof():
             raise EndOfFile
-        self.read(lambda c: c == "\n" or c == " ", eol=False)
+        if self.i.col > 1:
+            self.read(lambda c: c == " ", eol=False)
         c = self.i.peek()
 
         if isinstance(c, EOL):
@@ -189,14 +219,12 @@ class Lexer:
         if c in {"(", ")"}:
             self.i.next()
             if c == "(":
-                return self.read_args(bracket=True)
+                args = self.read_args(bracket=True)
+                return self.read_expression(args, bracket=True)
             return Value(c)
 
         if c == '"' or c == "'":
             return self.read_string()
-
-        if self.is_digit(c):
-            return self.read_number()
 
         if self.is_operator(c):
             self.i.next()
@@ -205,13 +233,27 @@ class Lexer:
             ):
                 self.i.next()
                 return ":="
+            if c == "!" and self.i.peek() == "=":
+                self.i.next()
+                return Operator("!=")
             return Operator(c)
 
-        if self.is_alphabet(c):
+        if self.is_digit(c):
+            return self.read_number()
+
+        else:
             col = self.i.col
             keyword = self.read_keyword()
             if self.is_keyword(keyword):
+                if keyword == "to":
+                    return keyword
+                if keyword == "jeżeli":
+                    condition = self.read_if()
+                    self.i.next_line()
+                    true = self.read_indent()
+                    return Condition(condition, true)
                 arg = self.read_args()
+                arg = self.read_expression(arg)
                 if keyword == "czytaj":
                     if not isinstance(arg, Variable):
                         self.i.throw("Statement 'czytaj' requires variable as argument")
@@ -222,19 +264,19 @@ class Lexer:
                 return Statement(keyword, args=arg)
             if keyword in self.operator_keywords:
                 return Operator(keyword)
-            if keyword == "prawda":
-                return Bool(1)
-            if keyword == "fałsz":
-                return Bool(0)
+            if keyword == "prawda" or keyword == "fałsz":
+                return self.read_bool(keyword)
             if col == 1:
                 operator = self.read_next()
                 if operator != ":=":
                     self.i.throw(f"Invalid syntax, cannot parse '{operator}'")
                 args = self.read_args()
+                args = self.read_expression(args)
                 if (
                     not isinstance(args, Int)
                     and not isinstance(args, String)
                     and not isinstance(args, Operation)
+                    and not isinstance(args, Variable)
                 ):
                     self.i.throw(f"Cannot assign type {type(args)} to variable")
                 return Assignment(Variable(keyword), args)
@@ -243,3 +285,31 @@ class Lexer:
             raise EndOfFile
         self.i.throw(f"Invalid character: '{c}'")
 
+    def read_indent_size(self):
+        """Read indent size from stream."""
+        #TODO: tests
+        size = 0
+        while self.i.peek() == " ":
+            self.i.next()
+            size += 1
+        if size <= 1:
+            self.i.throw(f"Invalid indentation, should be at least 2, not {size}")
+        self.indent_size = size
+
+    def read_indent(self, indent_level: int = 0) -> list:
+        """Read indented expressions while valid indentation and returns list of them."""
+        #TODO: tests
+        expressions = []
+        while self.i.peek() == " ":
+            if self.indent_size is None:
+                self.read_indent_size()
+            else:
+                for i in range(self.indent_size):
+                    c = self.i.next()
+                    if c != " ":
+                        self.i.throw(f"Unconsistent indentation size")
+            e = self.read_next()
+            expressions.append(e)
+            if not isinstance(e, EOL):
+                self.i.next_line()
+        return expressions

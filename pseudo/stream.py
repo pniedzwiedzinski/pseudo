@@ -18,9 +18,6 @@ class Stream:
             - inp - string with pseudocode
         """
         self.inp = inp.split("\n")
-        # TODO: Fix crop while parsing
-        for _ in range(100):
-            self.inp.append([""])
         self.line = 1
         self.col = 1
 
@@ -58,7 +55,12 @@ class Stream:
     def throw(self, error):
         """Error handler."""
         # raise Exception(f"\n\n⚠️  Error on line {self.line+1}:\n\t{error}")
-        print(f"⚠️  Error on line {self.line}:\n\t{error}")
+        print(f"⚠️  Error on line {self.line}:")
+        if "EOL" in error:
+            print(f"\t'{self.inp[self.line-2]}'")
+        else:
+            print(f"\t'{self.inp[self.line-1]}'")
+        print(f"{error}")
         exit()
 
 

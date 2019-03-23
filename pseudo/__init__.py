@@ -4,8 +4,8 @@ import sys
 
 from pseudo.lexer import Lexer, EndOfFile
 
-__author__ = u"Patryk Niedźwiedziński"
-__version__ = "0.4.2"
+__author__ = "Patryk Niedźwiedziński"
+__version__ = "0.5"
 
 
 def main():
