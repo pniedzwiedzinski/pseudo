@@ -2,64 +2,80 @@
 This module contains class of stream object used to iterate over input.
 """
 
+from typing import Union
+
 from pseudo.pseudo_types import EOL
 
 __author__ = "Patryk Niedźwiedziński"
 
 
 class Stream:
-    """Class for input stream."""
+    """
+    Stream is an object used to iterate over input. It is a little bit similar to queue.
 
-    def __init__(self, inp):
+    Attributes:
+        - input: List of lines of code.
+        - line: Number of current line. Counting from 1
+        - col: Number of current column. Counting from 1
+    """
+
+    def __init__(self, input: str):
         """
-        Constructor for class.
+        Split input string to list of lines and initialize object.
 
         args:
-            - inp - string with pseudocode
+            - input - string with pseudocode
         """
-        self.inp = inp.split("\n")
+        self.input = input.split("\n")
         self.line = 1
-        self.col = 1
+        self.col = 0
 
     def next_line(self):
-        """Switch cursor to next line."""
+        """Move cursor to next line."""
         self.line += 1
         self.col = 1
 
-    def next(self):
-        """Switch cursor to next col and return char."""
+    def next(self) -> str:
+        """Move cursor to next column and return char from this postion."""
         self.col += 1
-        return self.inp[self.line - 1][self.col - 2]
+        return self.input[self.line - 1][
+            self.col - 1
+        ]  # -1 because list index starts at zero
 
-    def peek(self, size: int = 0):
-        """Returns next char without moving cursor."""
+    def peek(self, size: int = 0) -> Union[str, EOL]:
+        """
+        Returns next char without moving cursor. If next char does not exists
+        it returns EOL instance.
+
+        args:
+            - size: Size of shift, default `0`.
+        """
         try:
-            return self.inp[self.line - 1][self.col - 1 + size]
+            return self.input[self.line - 1][self.col + size]
         except IndexError:
             return EOL()
 
-    def eol(self):
+    def eol(self) -> bool:
         """Returns true if next char is end of line."""
         if isinstance(self.peek(), EOL):
             return True
         return False
 
-    def eof(self):
-        """Returns true if next line is end of file."""
+    def eof(self) -> bool:
+        """Returns true if next line is end of file and next char is end of line."""
         if not self.eol():
             return False
-        if self.line > len(self.inp):
+        if self.line > len(self.input):
             return True
         return False
 
-    def throw(self, error):
-        """Error handler."""
-        # raise Exception(f"\n\n⚠️  Error on line {self.line+1}:\n\t{error}")
+    def throw(self, error: str):
+        """Used to display error messages with line number. It stops the execution."""
         print(f"⚠️  Error on line {self.line}:")
         if "EOL" in error:
-            print(f"\t'{self.inp[self.line-2]}'")
+            print(f"\t'{self.input[self.line-2]}'")
         else:
-            print(f"\t'{self.inp[self.line-1]}'")
+            print(f"\t'{self.input[self.line-1]}'")
         print(f"{error}")
         exit()
 
