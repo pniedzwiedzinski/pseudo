@@ -31,10 +31,10 @@ class Stream:
         self.col += 1
         return self.inp[self.line - 1][self.col - 2]
 
-    def peek(self):
+    def peek(self, size: int = 0):
         """Returns next char without moving cursor."""
         try:
-            return self.inp[self.line - 1][self.col - 1]
+            return self.inp[self.line - 1][self.col - 1 + size]
         except IndexError:
             return EOL()
 
