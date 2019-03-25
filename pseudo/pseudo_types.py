@@ -16,7 +16,7 @@ class Value:
     Node containing a value.
 
     Attributes:
-        value: Value of instance.
+        - value: Value of instance.
     """
 
     def __init__(self, value):
@@ -81,9 +81,24 @@ class Operator(Value):
             if left.eval() == right.eval():
                 return 1
             return 0
-
         if self.value == "!=":
             if left.eval() != right.eval():
+                return 1
+            return 0
+        if self.value == ">":
+            if left.eval() > right.eval():
+                return 1
+            return 0
+        if self.value == "<":
+            if left.eval() < right.eval():
+                return 1
+            return 0
+        if self.value == "<=":
+            if left.eval() <= right.eval():
+                return 1
+            return 0
+        if self.value == ">=":
+            if left.eval() >= right.eval():
                 return 1
             return 0
 
@@ -134,8 +149,8 @@ class Statement:
     Node for statement with arguments.
 
     Attributes:
-        value: Statement name.
-        args: Arguments of statement.
+        - value: Statement name.
+        - args: Arguments of statement.
     """
 
     def __init__(self, value, args=None):
@@ -169,7 +184,7 @@ class Variable(Value):
     Node for representing variables.
 
     Attributes:
-        value: Name of the variable.
+        - value: Name of the variable.
     """
 
     def eval(self):
@@ -190,8 +205,8 @@ class Assignment:
     Node for representing assignments.
 
     Attributes:
-        target: Target variable.
-        value: Value to assign.
+        - target: Target variable.
+        - value: Value to assign.
     """
 
     def __init__(self, target, value):
@@ -213,9 +228,9 @@ class Condition:
     Node for representing conditional expressions (if).
 
     Attributes:
-        condition: Condtion to check
-        true: List to evaluate if condition is true
-        false: List to evaluate if condition is false (optional)
+        - condition: Condtion to check
+        - true: List to evaluate if condition is true
+        - false: List to evaluate if condition is false (optional)
     """
 
     def __init__(self, condition, true, false=None):
@@ -244,6 +259,9 @@ class EOL:
 
     def eval(self):
         pass
+
+    # def __eq__(self, other):
+    #     return isinstance(other, EOL)
 
     def __repr__(self):
         return f"EOL()"

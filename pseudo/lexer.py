@@ -29,11 +29,11 @@ class Lexer:
     Class to parse code.
 
     Attributes:
-        i: A Stream instance with input code.
-        keywords: A set of all keywords in pseudo.
-        operators: A set of operators in pseudo.
-        operator_keywords: A set of operators written as string.
-        indent_size: Size of indentation using in particular file.
+        - i: A Stream instance with input code.
+        - keywords: A set of all keywords in pseudo.
+        - operators: A set of operators in pseudo.
+        - operator_keywords: A set of operators written as string.
+        - indent_size: Size of indentation using in particular file.
 
     Usage:
     >>> lex = Lexer("pisz 12")
@@ -45,7 +45,7 @@ class Lexer:
         """Inits Lexer with input."""
         self.i = Stream(inp)
         self.keywords = {"pisz", "koniec", "czytaj", "jeżeli", "to", "wpp"}
-        self.operators = {"+", "-", "*", ":", "<", "=", "!"}
+        self.operators = {"+", "-", "*", ":", "<", ">", "=", "!"}
         self.operator_keywords = {"div", "mod"}
         self.indent_size = None
 
@@ -53,7 +53,8 @@ class Lexer:
         """Checks if given string is a keyword."""
         return string in self.keywords
 
-    def is_alphabet(self, c) -> bool:
+    @staticmethod
+    def is_alphabet(c) -> bool:
         """Checks if given char is from alphabet."""
         try:
             ascii = ord(c)
@@ -61,7 +62,8 @@ class Lexer:
         except TypeError:
             return False
 
-    def is_digit(self, c) -> bool:
+    @staticmethod
+    def is_digit(c) -> bool:
         """Checks if given char is a digit."""
         try:
             return ord(c) >= 48 and ord(c) <= 57
@@ -198,6 +200,19 @@ class Lexer:
                 i += 1
         return args[0]
 
+    def read_operator(self, c):
+        """Return operator from input stream."""
+        if (c == ":" and self.i.peek() == "=") or (c == "<" and self.i.peek() == "-"):
+            self.i.next()
+            return ":="
+        if c == "!" and self.i.peek() == "=":
+            self.i.next()
+            return Operator("!=")
+        if self.i.peek() == "=":
+            if c in "<>":
+                return Operator(c + self.i.next())
+        return Operator(c)
+
     def read_next(self, prev: object = None, indent_level: int = 0) -> object:
         """Read next elements from the stream and guess the type."""
         if self.i.eof():
@@ -231,15 +246,7 @@ class Lexer:
 
         if self.is_operator(c):
             self.i.next()
-            if (c == ":" and self.i.peek() == "=") or (
-                c == "<" and self.i.peek() == "-"
-            ):
-                self.i.next()
-                return ":="
-            if c == "!" and self.i.peek() == "=":
-                self.i.next()
-                return Operator("!=")
-            return Operator(c)
+            return self.read_operator(c)
 
         if self.is_digit(c):
             return self.read_number()
@@ -259,11 +266,25 @@ class Lexer:
                     self.i.next_line()
                     true = self.read_indent(indent_level=indent_level + 1)
                     false = None
+                    if self.i.eof():
+                        return Condition(condition, true, false=false)
                     c, l = self.i.col, self.i.line
-                    if self.read_next(prev=Condition(condition, true)) == "wpp":
-                        self.i.next_line()
-                        false = self.read_indent(indent_level=indent_level+1)
-                    else:
+                    try:
+                        for i in range(indent_level * self.indent_size):
+                            char = self.i.next()
+                            if char != " ":
+                                if i % self.indent_size == 0:
+                                    self.i.col = 0
+                                    return Condition(condition, true, false=false)
+                                self.i.throw(f"Unconsistent indentation size")
+                        if self.i.peek() == " ":
+                            self.i.throw(f"Unconsistent indentation size")
+                        if self.read_next(prev=Condition(condition, true)) == "wpp":
+                            self.i.next_line()
+                            false = self.read_indent(indent_level=indent_level + 1)
+                        else:
+                            self.i.col, self.i.line = c, l
+                    except EndOfFile:
                         self.i.col, self.i.line = c, l
                     return Condition(condition, true, false=false)
                 arg = self.read_args()
@@ -280,7 +301,7 @@ class Lexer:
                 return Operator(keyword)
             if keyword == "prawda" or keyword == "fałsz":
                 return self.read_bool(keyword)
-            if col == 1:
+            if col == 0:
                 operator = self.read_next()
                 if operator != ":=":
                     self.i.throw(f"Invalid syntax, cannot parse '{operator}'")
@@ -314,7 +335,11 @@ class Lexer:
         """Read indented expressions while valid indentation and returns list of them."""
         # TODO: tests
         expressions = []
-        while self.i.peek() == " " or self.i.peek() == "#":
+        while (
+            self.i.peek() == " "
+            or self.i.peek() == "#"
+            or isinstance(self.i.peek(), EOL)
+        ):
             if self.i.peek() == "#":
                 self.i.next_line()
                 continue
@@ -323,12 +348,18 @@ class Lexer:
             else:
                 for i in range(self.indent_size * indent_level):
                     c = self.i.next()
+                    if isinstance(c, EOL):
+                        continue
+                    if c == "#":
+                        self.i.next_line()
+                        continue
                     if c != " ":
+                        if i % self.indent_size == 0:
+                            self.i.col = 0
+                            return expressions
                         self.i.throw(f"Unconsistent indentation size")
             if self.i.peek() == " ":
                 self.i.throw(f"Unconsistent indentation size")
             e = self.read_next(indent_level=indent_level)
             expressions.append(e)
-            if not isinstance(e, EOL):
-                self.i.next_line()
         return expressions

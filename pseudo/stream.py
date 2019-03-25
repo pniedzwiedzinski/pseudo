@@ -27,20 +27,24 @@ class Stream:
             - input - string with pseudocode
         """
         self.input = input.split("\n")
+        self.input.append([""])
         self.line = 1
         self.col = 0
 
     def next_line(self):
         """Move cursor to next line."""
         self.line += 1
-        self.col = 1
+        self.col = 0
 
     def next(self) -> str:
         """Move cursor to next column and return char from this postion."""
         self.col += 1
-        return self.input[self.line - 1][
-            self.col - 1
-        ]  # -1 because list index starts at zero
+        try:
+            return self.input[self.line - 1][
+                self.col - 1
+            ]  # `-1` because list index starts at zero
+        except IndexError:
+            return EOL()
 
     def peek(self, size: int = 0) -> Union[str, EOL]:
         """
