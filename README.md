@@ -55,5 +55,5 @@ dla i=1,...,n wykonuj
 - [x] `x := x+2`, `x <- 0-x`
 - [x] `x := -x`
 - [x] `koniec`
-- [ ] `jeżeli .. to`
+- [x] `jeżeli .. to`
 - [ ] `dopóki .. wykonuj`, `dla .. wykonuj`
