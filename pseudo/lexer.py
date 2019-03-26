@@ -197,6 +197,8 @@ class Lexer:
                             args = self.update_args(args, i + 2)
                     except IndexError:
                         args = self.update_args(args, i)
+                elif not isinstance(args[i+1], Operator):
+                    self.i.throw(f"Undefined operation ☹️")
                 i += 1
         return args[0]
 
@@ -218,7 +220,7 @@ class Lexer:
         if self.i.eof():
             raise EndOfFile
         if self.indent_size is None:
-            if self.i.col > 1:
+            if self.i.col > 0:
                 self.read(lambda c: c == " ", eol=False)
         elif self.i.col > self.indent_size * indent_level:
             self.read(lambda c: c == " ", eol=False)
@@ -303,8 +305,10 @@ class Lexer:
                 return self.read_bool(keyword)
             if col == 0:
                 operator = self.read_next()
+                if isinstance(operator, EOL):
+                    return Variable(keyword)
                 if operator != ":=":
-                    self.i.throw(f"Invalid syntax, cannot parse '{operator}'")
+                    self.i.throw(f"Cannot parse '{operator}'")
                 args = self.read_args()
                 args = self.read_expression(args)
                 if (
@@ -312,6 +316,7 @@ class Lexer:
                     and not isinstance(args, String)
                     and not isinstance(args, Operation)
                     and not isinstance(args, Variable)
+                    and not isinstance(args, Bool)
                 ):
                     self.i.throw(f"Cannot assign type {type(args)} to variable")
                 return Assignment(Variable(keyword), args)

@@ -26,7 +26,10 @@ class Value:
         return self.value
 
     def __eq__(self, other):
-        return self.value == other.value
+        try:
+            return self.value == other.value
+        except AttributeError:
+            return False
 
     def __repr__(self):
         return f"Value({repr(self.value)})"
