@@ -35,10 +35,10 @@ class Lexer:
         - operator_keywords: A set of operators written as string.
         - indent_size: Size of indentation using in particular file.
 
-    Usage:
-    >>> lex = Lexer("pisz 12")
-    >>> lex.read_next()
-    Expression("pisz", args=[Number(12)])
+    Usage::
+        >>> lex = Lexer("pisz 12")
+        >>> lex.read_next()
+        Expression("pisz", args=[Number(12)])
     """
 
     def __init__(self, inp):
