@@ -56,4 +56,5 @@ dla i=1,...,n wykonuj
 - [x] `x := -x`
 - [x] `koniec`
 - [x] `jeżeli .. to`
-- [ ] `dopóki .. wykonuj`, `dla .. wykonuj`
+- [x] `dopóki .. wykonuj`
+- [ ] `dla .. wykonuj`
