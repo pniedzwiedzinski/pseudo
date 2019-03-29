@@ -15,6 +15,7 @@ from pseudo.pseudo_types import (
     Bool,
     Value,
     Condition,
+    Loop
 )
 
 __author__ = "Patryk Niedźwiedziński"
@@ -44,7 +45,7 @@ class Lexer:
     def __init__(self, inp):
         """Inits Lexer with input."""
         self.i = Stream(inp)
-        self.keywords = {"pisz", "koniec", "czytaj", "jeżeli", "to", "wpp"}
+        self.keywords = {"pisz", "koniec", "czytaj", "jeżeli", "to", "wpp", "dopóki", "wykonuj"}
         self.operators = {"+", "-", "*", ":", "<", ">", "=", "!"}
         self.operator_keywords = {"div", "mod"}
         self.indent_size = None
@@ -142,17 +143,56 @@ class Lexer:
             return Bool(0)
         self.i.throw(f"Could not parse '{keyword}' to bool.")
 
+    def read_if(self, indent_level: int) -> Condition:
+        """Read if statement."""
+        #TODO: tests
+        condition = self.read_condition("jeżeli", indent_level=indent_level)
+        self.i.next_line()
+        true = self.read_indent(indent_level=indent_level + 1)
+        false = None
+        if self.i.eof():
+            return Condition(condition, true, false=false)
+        c, l = self.i.col, self.i.line
+        try:
+            for i in range(indent_level * self.indent_size):
+                char = self.i.next()
+                if char != " ":
+                    if i % self.indent_size == 0:
+                        self.i.col = 0
+                        return Condition(condition, true, false=false)
+                    self.i.throw(f"Unconsistent indentation size")
+            if self.i.peek() == " ":
+                self.i.throw(f"Unconsistent indentation size")
+            if self.read_next(prev=Condition(condition, true)) == "wpp":
+                self.i.next_line()
+                false = self.read_indent(indent_level=indent_level + 1)
+            else:
+                self.i.col, self.i.line = c, l
+        except EndOfFile:
+            self.i.col, self.i.line = c, l
+        return Condition(condition, true, false=false)
+
+    def read_while(self, indent_level: int) -> Loop:
+        """Read while statement."""
+        condition = self.read_condition("dopóki", indent_level=indent_level)
+        self.i.next_line()
+        expressions = self.read_indent(indent_level=indent_level + 1)
+        if expressions is None:
+            self.i.throw(f"Expected indented code, instead got 'nil'")
+        return Loop(condition, expressions)
+
     def read_keyword(self) -> str:
         """Read a keyword from the stream."""
         keyword = self.read(self.is_not_keyword_end)
         return keyword
 
-    def read_if(self, indent_level: int = 0) -> object:
+    def read_condition(self, keyword, indent_level: int = 0) -> object:
         """Read condition of conditional expression."""
         # TODO: tests
+        m = {"jeżeli": "to", "dopóki": "wykonuj"}
         args = self.read_args(indent_level=indent_level)
-        if not isinstance(args[-1], str):
-            self.i.throw(f"Expected keyword 'to', instead got '{args[-1]}'")
+        if not isinstance(args[-1], str) or args[-1] != m[keyword]:
+            self.i.throw(f"Expected keyword '{m[keyword]}', instead got '{args[-1]}'")
         condition = self.read_expression(args[:-1])
         return condition
 
@@ -219,10 +259,11 @@ class Lexer:
         """Read next elements from the stream and guess the type."""
         if self.i.eof():
             raise EndOfFile
-        if self.indent_size is None:
-            if self.i.col > 0:
-                self.read(lambda c: c == " ", eol=False)
-        elif self.i.col > self.indent_size * indent_level:
+        try:
+            i = indent_level * self.indent_size
+        except TypeError:
+            i = 0
+        if self.i.col > i:
             self.read(lambda c: c == " ", eol=False)
         c = self.i.peek()
 
@@ -261,34 +302,12 @@ class Lexer:
                     if isinstance(prev, Condition):
                         return keyword
                     self.i.throw(f"Unexpected keyword '{keyword}'")
-                if keyword == "to":
+                if keyword == "to" or keyword == "wykonuj":
                     return keyword
                 if keyword == "jeżeli":
-                    condition = self.read_if(indent_level=indent_level)
-                    self.i.next_line()
-                    true = self.read_indent(indent_level=indent_level + 1)
-                    false = None
-                    if self.i.eof():
-                        return Condition(condition, true, false=false)
-                    c, l = self.i.col, self.i.line
-                    try:
-                        for i in range(indent_level * self.indent_size):
-                            char = self.i.next()
-                            if char != " ":
-                                if i % self.indent_size == 0:
-                                    self.i.col = 0
-                                    return Condition(condition, true, false=false)
-                                self.i.throw(f"Unconsistent indentation size")
-                        if self.i.peek() == " ":
-                            self.i.throw(f"Unconsistent indentation size")
-                        if self.read_next(prev=Condition(condition, true)) == "wpp":
-                            self.i.next_line()
-                            false = self.read_indent(indent_level=indent_level + 1)
-                        else:
-                            self.i.col, self.i.line = c, l
-                    except EndOfFile:
-                        self.i.col, self.i.line = c, l
-                    return Condition(condition, true, false=false)
+                    return self.read_if(indent_level)
+                if keyword == "dopóki":
+                    return self.read_while(indent_level)
                 arg = self.read_args()
                 arg = self.read_expression(arg)
                 if keyword == "czytaj":
@@ -303,7 +322,7 @@ class Lexer:
                 return Operator(keyword)
             if keyword == "prawda" or keyword == "fałsz":
                 return self.read_bool(keyword)
-            if col == 0:
+            if col == i:
                 operator = self.read_next()
                 if isinstance(operator, EOL):
                     return Variable(keyword)

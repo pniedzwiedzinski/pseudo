@@ -61,6 +61,11 @@ class String(Value):
 class Bool(Value):
     """Bool value node."""
 
+    def __str__(self):
+        if self.value:
+            return "prawda"
+        return "fałsz"
+
     def __repr__(self):
         return f"Bool({self.value})"
 
@@ -231,7 +236,7 @@ class Condition:
     Node for representing conditional expressions (if).
 
     Attributes:
-        - condition: Condtion to check
+        - condition: Condition to check
         - true: List to evaluate if condition is true
         - false: List to evaluate if condition is false (optional)
     """
@@ -252,6 +257,28 @@ class Condition:
 
     def __repr__(self):
         return f"Condition({self.condition}, {self.true}, {self.false})"
+
+
+class Loop:
+    """
+    Node for representing looped actions.
+
+    Attributes:
+        - condition: Condition to check if loop should be executed.
+        - expressions: List of expressions to execute if condition is positive.
+    """
+
+    def __init__(self, condition, expressions):
+        self.condition = condition
+        self.expressions = expressions
+
+    def eval(self):
+        while self.condition.eval():
+            for e in self.expressions:
+                e.eval()
+
+    def __repr__(self):
+        return f"Loop({self.condition}, {self.expressions})"
 
 
 class EOL:
