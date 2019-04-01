@@ -167,7 +167,11 @@ class Statement:
 
     def eval(self):
         if self.value == "pisz":
-            print(self.args.eval())
+            a = self.args.eval()
+            if a == "\\n":
+                print("")
+            else:
+                print(a, end="")
         elif self.value == "czytaj":
             inp = input(self.args.value + ": ")
             try:
@@ -241,7 +245,10 @@ class Assignment:
             except KeyError:
                 v[key.eval()] = {}
                 v = v[key.eval()]
-        v[self.target.indices[-1].eval()] = self.value.eval()
+        if len(self.target.indices) > 0:
+            v[self.target.indices[-1].eval()] = self.value.eval()
+        else:
+            VAR[self.target.value] = self.value.eval()
 
     def __repr__(self):
         return f"Assignment({self.target}, {self.value})"
