@@ -72,3 +72,9 @@ dla i=1,...,n wykonuj
 - [ ] for loop
 - [ ] arrays
 - [ ] functions
+
+## How it works
+
+W.I.P.
+
+http://pseudo.readthedocs.io
