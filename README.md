@@ -2,7 +2,7 @@
 
 <!--<img style="height:60px" src="pseudo.svg">-->
 
-A prototype for pseudocode interpreter.
+A prototype of pseudocode interpreter.
 
 ## Goal
 
@@ -60,14 +60,15 @@ dla i=1,...,n wykonuj
 
 ## Features
 
-- [x] `pisz 2`, `pisz "hello"`, `pisz prawda`
-- [x] `pisz 2+2`, `pisz 2-2`
-- [x] `pisz 2*2`, `pisz 2 div 2`
-- [x] `x mod 2`
-- [x] `czytaj x`
-- [x] `x := x+2`, `x <- 0-x`
-- [x] `x := -x`
+- [x] printing
+- [x] math operations
+- [x] math operations order
+- [ ] type errors
+- [x] input variable
+- [x] variables
 - [x] `koniec`
-- [x] `jeżeli .. to`
-- [x] `dopóki .. wykonuj`
-- [ ] `dla .. wykonuj`
+- [x] conditional statement
+- [x] while loop
+- [ ] for loop
+- [ ] arrays
+- [ ] functions
