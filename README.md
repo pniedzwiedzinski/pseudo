@@ -10,13 +10,26 @@ Goal of this project is to enable property and other kinds of testing in pseudoc
 
 ## Install
 
+There are two options of installing pseudo
+
+### 1. pip
+
+python3.6 or greater
+
 ```bash
 pip3 install git+https://github.com/pniedzwiedzinski/pseudo.git
 ```
 
-### Requirements
+### 2. Docker
 
-- python3.6 or greater
+Download docker and follow instructions:
+
+```bash
+docker pull pniedzwiedzinski/pseudo
+
+# Create alias
+alias pseudo='docker run -it --rm -v $(pwd):/home pseudo'
+```
 
 ## Usage
 
