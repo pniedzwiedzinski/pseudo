@@ -2,7 +2,7 @@
 
 <!--<img style="height:60px" src="pseudo.svg">-->
 
-A prototype for pseudocode interpreter.
+A prototype of pseudocode interpreter.
 
 ## Goal
 
