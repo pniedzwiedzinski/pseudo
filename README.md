@@ -70,7 +70,7 @@ dla i=1,...,n wykonuj
 - [x] conditional statement
 - [x] while loop
 - [ ] for loop
-- [ ] arrays
+- [x] arrays
 - [ ] functions
 
 ## How it works

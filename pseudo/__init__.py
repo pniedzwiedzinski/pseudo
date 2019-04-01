@@ -29,7 +29,7 @@ import sys
 from pseudo.lexer import Lexer, EndOfFile
 
 __author__ = "Patryk Niedźwiedziński"
-__version__ = "0.6"
+__version__ = "0.7"
 
 
 def main():

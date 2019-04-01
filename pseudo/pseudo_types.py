@@ -193,16 +193,24 @@ class Variable(Value):
 
     Attributes:
         - value: Name of the variable.
+        - indices: List of indices.
     """
+
+    def __init__(self, value, indices=[]):
+        self.value = value
+        self.indices = indices
 
     def eval(self):
         try:
-            return VAR[self.value]
+            var = VAR[self.value]
+            for key in self.indices:
+                var = var.__getitem__(key.eval())
+            return var
         except KeyError:
             return "nil"
 
     def __repr__(self):
-        return f'Variable("{self.value}")'
+        return f'Variable("{self.value}", {self.indices})'
 
     def __str__(self):
         return self.__repr__()
@@ -222,7 +230,18 @@ class Assignment:
         self.value = value
 
     def eval(self):
-        VAR[self.target.value] = self.value.eval()
+        try:
+            v = VAR[self.target.value]
+        except KeyError:
+            VAR[self.target.value] = {}
+            v = VAR[self.target.value]
+        for key in self.target.indices[:-1]:
+            try:
+                v = v[key.eval()]
+            except KeyError:
+                v[key.eval()] = {}
+                v = v[key.eval()]
+        v[self.target.indices[-1].eval()] = self.value.eval()
 
     def __repr__(self):
         return f"Assignment({self.target}, {self.value})"

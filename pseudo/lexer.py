@@ -84,7 +84,7 @@ class Lexer:
         `asd1+asd2` - This is two keywords with `+` in between them.
         """
         # TODO: Fix name (double not)
-        return not (self.is_operator(c) or c == " ")
+        return not (self.is_operator(c) or c == " " or c in {"(",")","[","]","{","}"})
 
     def update_args(self, args, i):
         """Update args with new operation instance."""
@@ -211,6 +211,8 @@ class Lexer:
                 if bracket:
                     break
                 self.i.throw(f"Invalid character '{operator}'")
+            if arg == Value("]"):
+                break
             args.append(arg)
         return args
 
@@ -237,7 +239,7 @@ class Lexer:
                             args = self.update_args(args, i + 2)
                     except IndexError:
                         args = self.update_args(args, i)
-                elif not isinstance(args[i+1], Operator):
+                elif len(args) < i+1 and not isinstance(args[i+1], Operator):
                     self.i.throw(f"Undefined operation ☹️")
                 i += 1
         return args[0]
@@ -277,7 +279,7 @@ class Lexer:
             self.i.next_line()
             return self.read_next()
 
-        if c in {"(", ")"}:
+        if c in {"(", ")", "]"}:
             self.i.next()
             if c == "(":
                 args = self.read_args(bracket=True)
@@ -322,10 +324,16 @@ class Lexer:
                 return Operator(keyword)
             if keyword == "prawda" or keyword == "fałsz":
                 return self.read_bool(keyword)
+            indices = []
+            while self.i.peek() == "[":
+                self.i.next()
+                arg = self.read_args()
+                exp = self.read_expression(arg)
+                indices.append(exp)
             if col == i:
                 operator = self.read_next()
                 if isinstance(operator, EOL):
-                    return Variable(keyword)
+                    return Variable(keyword, indices)
                 if operator != ":=":
                     self.i.throw(f"Cannot parse '{operator}'")
                 args = self.read_args()
@@ -338,8 +346,8 @@ class Lexer:
                     and not isinstance(args, Bool)
                 ):
                     self.i.throw(f"Cannot assign type {type(args)} to variable")
-                return Assignment(Variable(keyword), args)
-            return Variable(keyword)
+                return Assignment(Variable(keyword, indices), args)
+            return Variable(keyword, indices)
         if c == "":
             raise EndOfFile
         self.i.throw(f"Invalid character: '{c}'")
