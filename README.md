@@ -53,9 +53,15 @@ test.pdc
 czytaj n
 pisz "Start"
 # Pętla wypisuje liczby parzyste od 1 do `n`
-dla i=1,...,n wykonuj
+i:=1
+dopóki i<=n wykonuj
     jeżeli i mod 2 = 0 to
         pisz i
+        T[i] := 1
+    wpp
+        pisz "nie"
+    pisz "\n"
+    i:=i+1
 ```
 
 ## Features
