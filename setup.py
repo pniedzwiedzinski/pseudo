@@ -17,7 +17,7 @@ setup(
     description="Pseudocode interpreter prototype",
     long_description=long_description(),
     long_description_content_type="text/markdown",
-    entry_points={"console_scripts": ["pseudo=pseudo:main"]},
+    entry_points={"console_scripts": ["pdc=pseudo:main"]},
     packages=find_packages(),
     tests_require=["pytest"],
     url="https://github.com/pniedzwiedzinski/pseudo",

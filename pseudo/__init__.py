@@ -10,7 +10,7 @@ Example:
     If you installed this module with pip you can run pseudocode from file, i.e. to run
     `test.pdc` file type::
 
-        $ pseudo test.pdc
+        $ pdc test.pdc
 
     If you want to parse it by your own you will need `pseudo.lexer.Lexer` instance.::
 

@@ -6,4 +6,4 @@ RUN pip3 install .
 WORKDIR /home
 RUN rm -rf /home/pseudo
 
-ENTRYPOINT ["pseudo"]
+ENTRYPOINT ["pdc"]

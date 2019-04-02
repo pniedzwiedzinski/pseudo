@@ -28,7 +28,7 @@ Download docker and follow instructions:
 docker pull pniedzwiedzinski/pseudo
 
 # Create alias
-alias pseudo='docker run -it --rm -v $(pwd):/home pseudo'
+alias pdc='docker run -it --rm -v $(pwd):/home pseudo'
 ```
 
 ## Usage
@@ -42,7 +42,7 @@ pisz "test"
 To run it type:
 
 ```bash
-pseudo file.pdc
+pdc file.pdc
 ```
 
 ## Sample pseudocode
