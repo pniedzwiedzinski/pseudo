@@ -1,3 +1,4 @@
 __pycache__
 .vscode
 pseudo.egg-info
+.pytest_cache
