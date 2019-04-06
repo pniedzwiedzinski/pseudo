@@ -184,6 +184,12 @@ class Statement:
         elif self.value == "koniec":
             exit()
 
+    def __eq__(self, other):
+        try:
+            return self.value == other.value and self.args == other.args
+        except AttributeError:
+            return False
+
     def __repr__(self):
         return f'Statement("{self.value}", args={self.args})'
 
@@ -316,8 +322,8 @@ class EOL:
     def eval(self):
         pass
 
-    # def __eq__(self, other):
-    #     return isinstance(other, EOL)
+    def __eq__(self, other):
+        return isinstance(other, EOL)
 
     def __repr__(self):
         return f"EOL()"

@@ -48,6 +48,7 @@ class Lexer:
         self.keywords = {"pisz", "koniec", "czytaj", "jeżeli", "to", "wpp", "dopóki", "wykonuj"}
         self.operators = {"+", "-", "*", ":", "<", ">", "=", "!"}
         self.operator_keywords = {"div", "mod"}
+        self.indent_char = None
         self.indent_size = None
 
     def is_keyword(self, string) -> bool:
@@ -160,9 +161,9 @@ class Lexer:
                     if i % self.indent_size == 0:
                         self.i.col = 0
                         return Condition(condition, true, false=false)
-                    self.i.throw(f"Unconsistent indentation size")
+                    self.i.throw(f"Inconsistent indentation size")
             if self.i.peek() == " ":
-                self.i.throw(f"Unconsistent indentation size")
+                self.i.throw(f"Inconsistent indentation size")
             if self.read_next(prev=Condition(condition, true)) == "wpp":
                 self.i.next_line()
                 false = self.read_indent(indent_level=indent_level + 1)
@@ -188,7 +189,6 @@ class Lexer:
 
     def read_condition(self, keyword, indent_level: int = 0) -> object:
         """Read condition of conditional expression."""
-        # TODO: tests
         m = {"jeżeli": "to", "dopóki": "wykonuj"}
         args = self.read_args(indent_level=indent_level)
         if not isinstance(args[-1], str) or args[-1] != m[keyword]:
@@ -266,7 +266,7 @@ class Lexer:
         except TypeError:
             i = 0
         if self.i.col > i:
-            self.read(lambda c: c == " ", eol=False)
+            self.read(lambda c: c == " " or c == "\t", eol=False)
         c = self.i.peek()
 
         if isinstance(c, EOL):
@@ -296,7 +296,7 @@ class Lexer:
         if self.is_digit(c):
             return self.read_number()
 
-        elif c != " ":
+        elif c not in {" ", "\t"}:
             col = self.i.col
             keyword = self.read_keyword()
             if self.is_keyword(keyword):
@@ -354,21 +354,23 @@ class Lexer:
 
     def read_indent_size(self):
         """Read indent size from stream."""
-        # TODO: tests
         size = 0
-        while self.i.peek() == " ":
+        self.indent_char = self.i.peek()
+        while self.i.peek() == self.indent_char:
             self.i.next()
             size += 1
-        if size <= 1:
+        if size == 0:
+            return None
+        if size <= 1 and self.indent_char == " ":
             self.i.throw(f"Invalid indentation, should be at least 2, not {size}")
         self.indent_size = size
 
     def read_indent(self, indent_level: int = 1) -> list:
         """Read indented expressions while valid indentation and returns list of them."""
-        # TODO: tests
         expressions = []
         while (
             self.i.peek() == " "
+            or self.i.peek() == "\t"
             or self.i.peek() == "#"
             or isinstance(self.i.peek(), EOL)
         ):
@@ -385,13 +387,13 @@ class Lexer:
                     if c == "#":
                         self.i.next_line()
                         continue
-                    if c != " ":
+                    if c != self.indent_char:
                         if i % self.indent_size == 0:
                             self.i.col = 0
                             return expressions
-                        self.i.throw(f"Unconsistent indentation size")
-            if self.i.peek() == " ":
-                self.i.throw(f"Unconsistent indentation size")
+                        self.i.throw(f"Inconsistent indentation size")
+            if self.i.peek() == " " or self.i.peek() == "\t":
+                self.i.throw(f"Inconsistent indentation size")
             e = self.read_next(indent_level=indent_level)
             expressions.append(e)
         return expressions

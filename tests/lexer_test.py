@@ -3,9 +3,25 @@
 import pytest
 import pseudo
 
-from pseudo.pseudo_types import Operation, Operator, Int
+from pseudo.pseudo_types import Operation, Operator, Int, Statement
+from pseudo.stream import Stream, EOL, EndOfFile
 
 __author__ = "Patryk Niedźwiedziński"
+
+
+def compare_list(first: list, second: list) -> bool:
+    """
+    Compare two list if they are exact the same.
+
+    Args:
+        - first: list
+        - second: list
+    """
+
+    if len(first) != len(second):
+        return False
+
+    return all([a == b for a, b in zip(first, second)])
 
 
 @pytest.fixture
@@ -79,38 +95,60 @@ def test_update_args(lexer):
 
 def test_read_number(lexer):
     """Checks Lexer.read_number"""
-    lexer.i = pseudo.stream.Stream("123")
+    lexer.i = Stream("123")
     if 123 != lexer.read_number().value:
         raise AssertionError
-    lexer.i = pseudo.stream.Stream("abc")
+    lexer.i = Stream("abc")
     if lexer.read_number() is not None:
         raise AssertionError
 
 
 def test_read_string(lexer):
     """Checks Lexer.read_string"""
-    lexer.i = pseudo.stream.Stream('"abc"')
+    lexer.i = Stream('"abc"')
     if "abc" != lexer.read_string().value:
         raise AssertionError
 
 
 def test_keyword(lexer):
     """Checks Lexer.read_keyword"""
-    lexer.i = pseudo.stream.Stream("pisz x")
+    lexer.i = Stream("pisz x")
     if "pisz" != lexer.read_keyword():
+        raise AssertionError
+
+
+def test_read_condition(lexer):
+    """Checks Lexer.read_condition"""
+    # TODO: Fix test
+    lexer.i = Stream("  prawda to")
+    lexer.i.col = 2
+
+    if lexer.read_condition("jeżeli") != Bool(1):
+        raise AssertionError
+
+    lexer.i = Stream(" prawda wykonuj")
+    lexer.i.col = 0
+
+    if lexer.read_condition("dopóki") != Bool(1):
         raise AssertionError
 
 
 def test_read_args(lexer):
     """Checks Lexer.read_args"""
-    lexer.i = pseudo.stream.Stream(" 12")
-    if 12 != lexer.read_args().value:
+    lexer.i = Stream("    12")
+    lexer.i.col = 3
+    if not compare_list(lexer.read_args(), [Int(12)]):
         raise AssertionError
-    lexer.i = pseudo.stream.Stream("2+2*2")
-    if 6 != lexer.read_args().eval():
+    lexer.i = Stream("2+2*2")
+    if not compare_list(
+        lexer.read_args(), [Int(2), Operator("+"), Int(2), Operator("*"), Int(2)]
+    ):
         raise AssertionError
-    lexer.i = pseudo.stream.Stream("(2+2)*2")
-    if 8 != lexer.read_args().eval():
+    lexer.i = Stream("(2+2)*2")
+    if not compare_list(
+        lexer.read_args(),
+        [Operation(Operator("+"), Int(2), Int(2)), Operator("*"), Int(2)],
+    ):
         raise AssertionError
 
 
@@ -122,5 +160,82 @@ def test_read_expression(lexer):
         ).eval()
         != 6
     ):
+        raise AssertionError
+
+
+def test_read_next(lexer):
+    """checks Lexer.read_next"""
+    lexer.i = Stream(
+        """
+pisz 4
+"""
+    )
+
+    if lexer.read_next() != EOL():
+        raise AssertionError
+
+    if lexer.read_next() != Statement("pisz", Int(4)):
+        raise AssertionError
+
+    if lexer.read_next() != EOL():
+        raise AssertionError
+
+    try:
+        if lexer.read_next() == EOL():
+            raise AssertionError
+    except EndOfFile:
+        pass
+
+
+def test_read_indent(lexer):
+    """Checks Lexer.read_indent"""
+    lexer.i = Stream(
+        """    pisz 4
+
+    pisz 5"""
+    )
+    if not compare_list(
+        lexer.read_indent(),
+        [
+            Statement("pisz", args=Int(4)),
+            EOL(),
+            EOL(),
+            Statement("pisz", args=Int(5)),
+            EOL(),
+        ],
+    ):
+        raise AssertionError
+
+    lexer.i = Stream("\tpisz 4\n\n\tpisz 5")
+    lexer.indent_char = None
+    lexer.indent_size = None
+
+    if not compare_list(
+        lexer.read_indent(),
+        [
+            Statement("pisz", args=Int(4)),
+            EOL(),
+            EOL(),
+            Statement("pisz", args=Int(5)),
+            EOL(),
+        ],
+    ):
+        raise AssertionError
+
+
+def test_read_indent_size(lexer):
+    """Checks Lexer.read_indent_size"""
+    lexer.i = Stream("    test")
+    lexer.read_indent_size()
+
+    if lexer.indent_size != 4 or lexer.indent_char != " ":
+        raise AssertionError
+
+    lexer.i = Stream("\ttest")
+    lexer.indent_char = None
+    lexer.indent_size = None
+    lexer.read_indent_size()
+
+    if lexer.indent_size != 1 or lexer.indent_char != "\t":
         raise AssertionError
 
