@@ -39,8 +39,9 @@ jobs:
       - run:
           name: run tests
           command: |
-            ./cc-test-reporter before-build;
-            pipenv run pytest --cov=pseudo tests/;
+            ./cc-test-reporter before-build
+            pipenv run pytest --cov=pseudo tests/
+            coverage xml
             ./cc-test-reporter after-build -t coverage.py --exit-code $?
       #- store_artifacts:
       #    path: test-reports
