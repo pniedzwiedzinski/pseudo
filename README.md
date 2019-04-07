@@ -4,6 +4,10 @@
 
 A prototype of pseudocode interpreter.
 
+[![CircleCI](https://circleci.com/gh/pniedzwiedzinski/pseudo/tree/master.svg?style=svg)](https://circleci.com/gh/pniedzwiedzinski/pseudo/tree/master)
+[![Maintainability](https://api.codeclimate.com/v1/badges/f204e006912933370b41/maintainability)](https://codeclimate.com/github/pniedzwiedzinski/pseudo/maintainability)
+[![Test Coverage](https://api.codeclimate.com/v1/badges/f204e006912933370b41/test_coverage)](https://codeclimate.com/github/pniedzwiedzinski/pseudo/test_coverage)
+
 ## Goal
 
 Goal of this project is to enable property and other kinds of testing in pseudocode exercises.

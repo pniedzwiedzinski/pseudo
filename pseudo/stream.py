@@ -69,7 +69,7 @@ class Stream:
         """Returns true if next line is end of file and next char is end of line."""
         if not self.eol():
             return False
-        if self.line > len(self.input):
+        if self.line == len(self.input) - 1:
             return True
         return False
 

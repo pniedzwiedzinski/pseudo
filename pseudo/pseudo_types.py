@@ -184,6 +184,12 @@ class Statement:
         elif self.value == "koniec":
             exit()
 
+    def __eq__(self, other):
+        try:
+            return self.value == other.value and self.args == other.args
+        except AttributeError:
+            return False
+
     def __repr__(self):
         return f'Statement("{self.value}", args={self.args})'
 
@@ -281,6 +287,23 @@ class Condition:
             for x in self.false:
                 x.eval()
 
+    def __eq__(self, other):
+        if not isinstance(other, Condition):
+            return False
+        if self.condition != other.condition:
+            return False
+        if len(self.true) != len(other.true):
+            return False
+        if len(self.false) != len(other.false):
+            return False
+        for a, b in zip(self.true, other.true):
+            if a != b: 
+                return False
+        for a, b in zip(self.false, other.false):
+            if a != b:
+                return False
+        return True
+
     def __repr__(self):
         return f"Condition({self.condition}, {self.true}, {self.false})"
 
@@ -316,8 +339,8 @@ class EOL:
     def eval(self):
         pass
 
-    # def __eq__(self, other):
-    #     return isinstance(other, EOL)
+    def __eq__(self, other):
+        return isinstance(other, EOL)
 
     def __repr__(self):
         return f"EOL()"

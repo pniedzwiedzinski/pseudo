@@ -1,0 +1,48 @@
+version: 2
+jobs:
+  build:
+    docker:
+      - image: circleci/python:3.7
+
+    working_directory: ~/repo
+
+    steps:
+      - checkout
+
+      # Download and cache dependencies
+
+      - restore_cache:
+          keys:
+            - cache-{{ checksum "Pipfile.lock" }}
+            - cache-
+
+      - run:
+          name: Setup Code Climate test-reporter
+          command:
+            "curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter &&
+            chmod +x ./cc-test-reporter"
+
+      - run:
+          name: Install pipenv
+          command: sudo pip install pipenv
+
+      - run:
+          name: Install dependencies
+          command: pipenv sync --dev
+
+      - save_cache:
+          key: cache-{{ checksum "Pipfile.lock" }}
+          paths:
+            - ~/.local
+            - ~/.cache
+
+      - run:
+          name: run tests
+          command: |
+            ./cc-test-reporter before-build
+            pipenv run pytest --cov=pseudo tests/
+            pipenv run coverage xml
+            ./cc-test-reporter after-build -t coverage.py --exit-code $?
+      #- store_artifacts:
+      #    path: test-reports
+      #    destination: test-reports

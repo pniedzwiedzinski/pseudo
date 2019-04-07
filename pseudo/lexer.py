@@ -48,6 +48,7 @@ class Lexer:
         self.keywords = {"pisz", "koniec", "czytaj", "jeżeli", "to", "wpp", "dopóki", "wykonuj"}
         self.operators = {"+", "-", "*", ":", "<", ">", "=", "!"}
         self.operator_keywords = {"div", "mod"}
+        self.indent_char = None
         self.indent_size = None
 
     def is_keyword(self, string) -> bool:
@@ -73,9 +74,12 @@ class Lexer:
 
     def is_operator(self, c) -> bool:
         """Checks if given char is an allowed operator."""
-        return c in self.operators or c in self.operator_keywords
+        try:
+            return c in self.operators or c in self.operator_keywords
+        except TypeError:
+            return False
 
-    def is_not_keyword_end(self, c) -> bool:
+    def is_keyword_end(self, c) -> bool:
         """
         Checks if given char breaks parsing a keyword.
 
@@ -83,8 +87,10 @@ class Lexer:
         `asd1` - This is one keyword.
         `asd1+asd2` - This is two keywords with `+` in between them.
         """
-        # TODO: Fix name (double not)
-        return not (self.is_operator(c) or c == " " or c in {"(",")","[","]","{","}"})
+        try:
+            return not (self.is_operator(c) or c == " " or c in {"(",")","[","]","{","}"})
+        except TypeError:
+            return False
 
     def update_args(self, args, i):
         """Update args with new operation instance."""
@@ -143,7 +149,7 @@ class Lexer:
             return Bool(0)
         self.i.throw(f"Could not parse '{keyword}' to bool.")
 
-    def read_if(self, indent_level: int) -> Condition:
+    def read_if(self, indent_level: int = 0) -> Condition:
         """Read if statement."""
         #TODO: tests
         condition = self.read_condition("jeżeli", indent_level=indent_level)
@@ -160,9 +166,9 @@ class Lexer:
                     if i % self.indent_size == 0:
                         self.i.col = 0
                         return Condition(condition, true, false=false)
-                    self.i.throw(f"Unconsistent indentation size")
+                    self.i.throw(f"Inconsistent indentation size")
             if self.i.peek() == " ":
-                self.i.throw(f"Unconsistent indentation size")
+                self.i.throw(f"Inconsistent indentation size")
             if self.read_next(prev=Condition(condition, true)) == "wpp":
                 self.i.next_line()
                 false = self.read_indent(indent_level=indent_level + 1)
@@ -172,8 +178,9 @@ class Lexer:
             self.i.col, self.i.line = c, l
         return Condition(condition, true, false=false)
 
-    def read_while(self, indent_level: int) -> Loop:
+    def read_while(self, indent_level: int = 0) -> Loop:
         """Read while statement."""
+        #TODO: test
         condition = self.read_condition("dopóki", indent_level=indent_level)
         self.i.next_line()
         expressions = self.read_indent(indent_level=indent_level + 1)
@@ -183,12 +190,11 @@ class Lexer:
 
     def read_keyword(self) -> str:
         """Read a keyword from the stream."""
-        keyword = self.read(self.is_not_keyword_end)
+        keyword = self.read(self.is_keyword_end)
         return keyword
 
     def read_condition(self, keyword, indent_level: int = 0) -> object:
         """Read condition of conditional expression."""
-        # TODO: tests
         m = {"jeżeli": "to", "dopóki": "wykonuj"}
         args = self.read_args(indent_level=indent_level)
         if not isinstance(args[-1], str) or args[-1] != m[keyword]:
@@ -266,7 +272,7 @@ class Lexer:
         except TypeError:
             i = 0
         if self.i.col > i:
-            self.read(lambda c: c == " ", eol=False)
+            self.read(lambda c: c == " " or c == "\t", eol=False)
         c = self.i.peek()
 
         if isinstance(c, EOL):
@@ -296,7 +302,7 @@ class Lexer:
         if self.is_digit(c):
             return self.read_number()
 
-        elif c != " ":
+        elif c not in {" ", "\t"}:
             col = self.i.col
             keyword = self.read_keyword()
             if self.is_keyword(keyword):
@@ -354,21 +360,23 @@ class Lexer:
 
     def read_indent_size(self):
         """Read indent size from stream."""
-        # TODO: tests
         size = 0
-        while self.i.peek() == " ":
+        self.indent_char = self.i.peek()
+        while self.i.peek() == self.indent_char:
             self.i.next()
             size += 1
-        if size <= 1:
+        if size == 0:
+            return None
+        if size <= 1 and self.indent_char == " ":
             self.i.throw(f"Invalid indentation, should be at least 2, not {size}")
         self.indent_size = size
 
     def read_indent(self, indent_level: int = 1) -> list:
         """Read indented expressions while valid indentation and returns list of them."""
-        # TODO: tests
         expressions = []
         while (
             self.i.peek() == " "
+            or self.i.peek() == "\t"
             or self.i.peek() == "#"
             or isinstance(self.i.peek(), EOL)
         ):
@@ -381,17 +389,20 @@ class Lexer:
                 for i in range(self.indent_size * indent_level):
                     c = self.i.next()
                     if isinstance(c, EOL):
-                        continue
+                        break
                     if c == "#":
                         self.i.next_line()
                         continue
-                    if c != " ":
+                    if c != self.indent_char:
                         if i % self.indent_size == 0:
                             self.i.col = 0
                             return expressions
-                        self.i.throw(f"Unconsistent indentation size")
-            if self.i.peek() == " ":
-                self.i.throw(f"Unconsistent indentation size")
-            e = self.read_next(indent_level=indent_level)
+                        self.i.throw(f"Inconsistent indentation size")
+            if self.i.peek() == " " or self.i.peek() == "\t":
+                self.i.throw(f"Inconsistent indentation size")
+            try:
+                e = self.read_next(indent_level=indent_level)
+            except EndOfFile:
+                return expressions
             expressions.append(e)
         return expressions
