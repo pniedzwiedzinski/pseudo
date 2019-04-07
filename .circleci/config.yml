@@ -23,6 +23,10 @@ jobs:
             chmod +x ./cc-test-reporter"
 
       - run:
+          name: Install pipenv
+          command: pip install pipenv
+
+      - run:
           name: Install dependencies
           command: pipenv sync --dev
 
