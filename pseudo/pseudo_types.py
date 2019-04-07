@@ -287,6 +287,21 @@ class Condition:
             for x in self.false:
                 x.eval()
 
+    def __eq__(self, other):
+        if self.condition != other.condition:
+            return False
+        if len(self.true) != len(other.true):
+            return False
+        if len(self.false) != len(other.false):
+            return False
+        for a, b in zip(self.true, other.true):
+            if a != b: 
+                return False
+        for a, b in zip(self.false, other.false):
+            if a != b:
+                return False
+        return True
+
     def __repr__(self):
         return f"Condition({self.condition}, {self.true}, {self.false})"
 

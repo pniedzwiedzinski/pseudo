@@ -74,9 +74,12 @@ class Lexer:
 
     def is_operator(self, c) -> bool:
         """Checks if given char is an allowed operator."""
-        return c in self.operators or c in self.operator_keywords
+        try:
+            return c in self.operators or c in self.operator_keywords
+        except TypeError:
+            return False
 
-    def is_not_keyword_end(self, c) -> bool:
+    def is_keyword_end(self, c) -> bool:
         """
         Checks if given char breaks parsing a keyword.
 
@@ -84,8 +87,10 @@ class Lexer:
         `asd1` - This is one keyword.
         `asd1+asd2` - This is two keywords with `+` in between them.
         """
-        # TODO: Fix name (double not)
-        return not (self.is_operator(c) or c == " " or c in {"(",")","[","]","{","}"})
+        try:
+            return not (self.is_operator(c) or c == " " or c in {"(",")","[","]","{","}"})
+        except TypeError:
+            return False
 
     def update_args(self, args, i):
         """Update args with new operation instance."""
@@ -175,6 +180,7 @@ class Lexer:
 
     def read_while(self, indent_level: int) -> Loop:
         """Read while statement."""
+        #TODO: test
         condition = self.read_condition("dopóki", indent_level=indent_level)
         self.i.next_line()
         expressions = self.read_indent(indent_level=indent_level + 1)
@@ -184,7 +190,7 @@ class Lexer:
 
     def read_keyword(self) -> str:
         """Read a keyword from the stream."""
-        keyword = self.read(self.is_not_keyword_end)
+        keyword = self.read(self.is_keyword_end)
         return keyword
 
     def read_condition(self, keyword, indent_level: int = 0) -> object:

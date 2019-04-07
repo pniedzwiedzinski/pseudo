@@ -3,7 +3,7 @@
 import pytest
 import pseudo
 
-from pseudo.pseudo_types import Operation, Operator, Int, Statement
+from pseudo.pseudo_types import Operation, Operator, Int, Statement, Bool, Condition
 from pseudo.stream import Stream, EOL, EndOfFile
 
 __author__ = "Patryk Niedźwiedziński"
@@ -74,12 +74,12 @@ def test_is_operator(lexer):
         raise AssertionError
 
 
-def test_is_not_keyword_end(lexer):
+def test_is_keyword_end(lexer):
     """Checks Lexer.is_not_keyword_end"""
     if not (
-        lexer.is_not_keyword_end("a") is True
-        and lexer.is_not_keyword_end("+") is False
-        and lexer.is_not_keyword_end("!") is False
+        lexer.is_keyword_end("a") is True
+        and lexer.is_keyword_end("+") is False
+        and lexer.is_keyword_end("!") is False
     ):
         raise AssertionError
 
@@ -110,7 +110,23 @@ def test_read_string(lexer):
         raise AssertionError
 
 
-def test_keyword(lexer):
+def test_read_if(lexer):
+    """Checks Lexer.read_if"""
+    lexer.i = Stream(
+        """jeżeli prawda to
+    pisz 4
+wpp
+    pisz 3"""
+    )
+    lexer.col = 7
+
+    if lexer.read_if != Condition(
+        Bool(1), [Statement("pisz", args=Int(4))], [Statement("pisz", args=Int(3))]
+    ):
+        raise AssertionError
+
+
+def test_read_keyword(lexer):
     """Checks Lexer.read_keyword"""
     lexer.i = Stream("pisz x")
     if "pisz" != lexer.read_keyword():
