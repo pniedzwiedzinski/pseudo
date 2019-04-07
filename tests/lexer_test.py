@@ -116,12 +116,15 @@ def test_read_if(lexer):
         """jeżeli prawda to
     pisz 4
 wpp
-    pisz 3"""
+    pisz 3
+    """
     )
-    lexer.col = 7
+    lexer.i.col = 7
 
-    if lexer.read_if != Condition(
-        Bool(1), [Statement("pisz", args=Int(4))], [Statement("pisz", args=Int(3))]
+    if lexer.read_if() != Condition(
+        Bool(1),
+        [Statement("pisz", args=Int(4)), EOL()],
+        [Statement("pisz", args=Int(3)), EOL()],
     ):
         raise AssertionError
 
@@ -136,14 +139,14 @@ def test_read_keyword(lexer):
 def test_read_condition(lexer):
     """Checks Lexer.read_condition"""
     # TODO: Fix test
-    lexer.i = Stream("  prawda to")
-    lexer.i.col = 2
+    lexer.i = Stream("jeżeli prawda to")
+    lexer.i.col = 7
 
     if lexer.read_condition("jeżeli") != Bool(1):
         raise AssertionError
 
-    lexer.i = Stream(" prawda wykonuj")
-    lexer.i.col = 0
+    lexer.i = Stream("dopóki prawda wykonuj")
+    lexer.i.col = 7
 
     if lexer.read_condition("dopóki") != Bool(1):
         raise AssertionError
@@ -193,9 +196,6 @@ pisz 4
     if lexer.read_next() != Statement("pisz", Int(4)):
         raise AssertionError
 
-    if lexer.read_next() != EOL():
-        raise AssertionError
-
     try:
         if lexer.read_next() == EOL():
             raise AssertionError
@@ -210,15 +210,10 @@ def test_read_indent(lexer):
 
     pisz 5"""
     )
+
     if not compare_list(
         lexer.read_indent(),
-        [
-            Statement("pisz", args=Int(4)),
-            EOL(),
-            EOL(),
-            Statement("pisz", args=Int(5)),
-            EOL(),
-        ],
+        [Statement("pisz", args=Int(4)), EOL(), EOL(), Statement("pisz", args=Int(5))],
     ):
         raise AssertionError
 
@@ -228,13 +223,7 @@ def test_read_indent(lexer):
 
     if not compare_list(
         lexer.read_indent(),
-        [
-            Statement("pisz", args=Int(4)),
-            EOL(),
-            EOL(),
-            Statement("pisz", args=Int(5)),
-            EOL(),
-        ],
+        [Statement("pisz", args=Int(4)), EOL(), EOL(), Statement("pisz", args=Int(5))],
     ):
         raise AssertionError
 

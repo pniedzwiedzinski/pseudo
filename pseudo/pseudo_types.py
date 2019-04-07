@@ -288,6 +288,8 @@ class Condition:
                 x.eval()
 
     def __eq__(self, other):
+        if not isinstance(other, Condition):
+            return False
         if self.condition != other.condition:
             return False
         if len(self.true) != len(other.true):

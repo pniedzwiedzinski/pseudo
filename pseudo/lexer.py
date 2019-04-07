@@ -149,7 +149,7 @@ class Lexer:
             return Bool(0)
         self.i.throw(f"Could not parse '{keyword}' to bool.")
 
-    def read_if(self, indent_level: int) -> Condition:
+    def read_if(self, indent_level: int = 0) -> Condition:
         """Read if statement."""
         #TODO: tests
         condition = self.read_condition("jeżeli", indent_level=indent_level)
@@ -178,7 +178,7 @@ class Lexer:
             self.i.col, self.i.line = c, l
         return Condition(condition, true, false=false)
 
-    def read_while(self, indent_level: int) -> Loop:
+    def read_while(self, indent_level: int = 0) -> Loop:
         """Read while statement."""
         #TODO: test
         condition = self.read_condition("dopóki", indent_level=indent_level)
@@ -389,7 +389,7 @@ class Lexer:
                 for i in range(self.indent_size * indent_level):
                     c = self.i.next()
                     if isinstance(c, EOL):
-                        continue
+                        break
                     if c == "#":
                         self.i.next_line()
                         continue
@@ -400,6 +400,9 @@ class Lexer:
                         self.i.throw(f"Inconsistent indentation size")
             if self.i.peek() == " " or self.i.peek() == "\t":
                 self.i.throw(f"Inconsistent indentation size")
-            e = self.read_next(indent_level=indent_level)
+            try:
+                e = self.read_next(indent_level=indent_level)
+            except EndOfFile:
+                return expressions
             expressions.append(e)
         return expressions
