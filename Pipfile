@@ -9,6 +9,8 @@ pytest = "*"
 black = "*"
 sphinx = "*"
 sphinx-rtd-theme = "*"
+coverage = "*"
+pytest-cov = "*"
 
 [packages]
 

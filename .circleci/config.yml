@@ -10,14 +10,23 @@ jobs:
       - checkout
 
       # Download and cache dependencies
-      
+
       - restore_cache:
           keys:
             - cache-{{ checksum "Pipfile.lock" }}
             - cache-
+
+      - run:
+          name: Setup Code Climate test-reporter
+          command: |
+          # download test reporter as a static binary
+            curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
+            chmod +x ./cc-test-reporter
+
       - run:
           name: Install dependencies
           command: pipenv sync --dev
+
       - save_cache:
           key: cache-{{ checksum "Pipfile.lock" }}
           paths:
@@ -27,7 +36,9 @@ jobs:
       - run:
           name: run tests
           command: |
-            pipenv run pytest
+            ./cc-test-reporter before-build
+            pipenv run pytest --cov=pseudo tests/
+            ./cc-test-reporter after-build --coverage-input-type clover --exit-code $?
 
       #- store_artifacts:
       #    path: test-reports
