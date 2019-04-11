@@ -1,6 +1,6 @@
 #!/bin/bash
 set -x
-brew install golang
+sudo brew install golang
 
 export GOPATH=$HOME/go # don't forget to change your path correctly!
 export GOROOT=/usr/local/opt/go/libexec
