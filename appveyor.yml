@@ -68,8 +68,6 @@ test_script:
 after_test:
   # If tests are successful, create binary packages for the project.
   - "%CMD_IN_ENV% pyinstaller pdc.py"
-  - if NOT %APPVEYOR_REPO_BRANCH% == master exit
-  - if %APPVEYOR_REPO_TAG% == false exit
   - dist\\pdc\\pdc --version > version.txt
   - ps: $env:VERSION= Get-Content version.txt
   - set ZIP_NAME=dist/pdc-%VERSION%-windows-%PYTHON_ARCH%.zip
@@ -78,7 +76,9 @@ after_test:
   - "set GOPATH=C:\\gopath"
   - "set PATH=%GOPATH%\\bin;%PATH%"
   - ps: "go get github.com/tcnksm/ghr"
-  - ghr -t %GITHUB_TOKEN% -u pniedzwiedzinski -r pseudo -c %APPVEYOR_REPO_COMMIT% %VERSION% %ZIP_NAME%
+  - echo %APPVEYOR_REPO_BRANCH%
+  - echo %APPVEYOR_REPO_TAG%
+  - if %APPVEYOR_REPO_TAG% == true if %APPVEYOR_REPO_BRANCH% == master ghr -t %GITHUB_TOKEN% -u pniedzwiedzinski -r pseudo -c %APPVEYOR_REPO_COMMIT% %VERSION% %ZIP_NAME%
 
 artifacts:
   # Archive the generated packages in the ci.appveyor.com build report.
