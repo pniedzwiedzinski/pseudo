@@ -49,7 +49,7 @@ jobs:
           command: |
             pipenv run pyinstaller pdc.py
             export VERSION=$(./dist/pdc/pdc --version)
-            tar -czf ./dist/pdc-$(VERSION)-linux.tar.gz ./dist/pdc/*
+            tar -czf ./dist/pdc-${VERSION}-linux.tar.gz ./dist/pdc/*
 
       - store_artifacts:
           path: dist

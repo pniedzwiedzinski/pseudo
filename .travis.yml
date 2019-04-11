@@ -9,5 +9,5 @@ script: python3 -m pytest
 after_success:
   - pyinstaller pdc.py
   - export VERSION=$(./dist/pdc/pdc --version)
-  - tar -czf ./dist/pdc-$(VERSION)-darwin.tar.gz ./dist/pdc/*
+  - tar -czf ./dist/pdc-${VERSION}-darwin.tar.gz ./dist/pdc/*
   - ./scripts/travis_deploy.sh

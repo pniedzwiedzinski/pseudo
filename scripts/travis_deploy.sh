@@ -1,4 +1,10 @@
 #!/bin/bash
+
+if [ -z "$CI" ]; then
+    echo "Will only continue on CI"
+    exit
+fi
+
 set -x
 sudo brew install golang
 
@@ -9,6 +15,7 @@ export PATH=$PATH:$GOPATH/bin
 export PATH=$PATH:$GOROOT/bin
 
 go get github.com/tcnksm/ghr
+ghr --help
 
 if ["$TRAVIS_BRANCH" -eq "master"]; then
     echo "Deploy..."
