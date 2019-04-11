@@ -48,7 +48,7 @@ jobs:
           name: Build for Linux
           command: |
             pipenv run pyinstaller pdc.py
-            tar -czf ./dist/pdc/* ./dist/pdc-linux.tar.gz
+            tar -czf ./dist/pdc-linux.tar.gz ./dist/pdc/*
 
       - store_artifacts:
           path: dist/pdc-linux.tar.gz

@@ -6,4 +6,4 @@ os:
 install: ./scripts/install_dependencies.sh
 
 script: python3 -m pytest
-script: tar -czf ./dist/pdc/* ./dist/pdc-darwin.tar.gz
+script: tar -czf ./dist/pdc-darwin.tar.gz ./dist/pdc/*
