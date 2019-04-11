@@ -4,7 +4,10 @@
 
 A prototype of pseudocode interpreter.
 
-[![CircleCI](https://circleci.com/gh/pniedzwiedzinski/pseudo/tree/master.svg?style=svg)](https://circleci.com/gh/pniedzwiedzinski/pseudo/tree/master)
+- Linux: [![CircleCI](https://circleci.com/gh/pniedzwiedzinski/pseudo/tree/master.svg?style=svg)](https://circleci.com/gh/pniedzwiedzinski/pseudo/tree/master)
+- MacOs: [![TravisCI](https://travis-ci.com/pniedzwiedzinski/pseudo.svg?branch=master)](https://travis-ci.com/pniedzwiedzinski/pseudo)
+- Windows: ![Appveyor](https://ci.appveyor.com/api/projects/status/mb619aaflsyamen8/branch/master?svg=true)
+
 [![Maintainability](https://api.codeclimate.com/v1/badges/f204e006912933370b41/maintainability)](https://codeclimate.com/github/pniedzwiedzinski/pseudo/maintainability)
 [![Test Coverage](https://api.codeclimate.com/v1/badges/f204e006912933370b41/test_coverage)](https://codeclimate.com/github/pniedzwiedzinski/pseudo/test_coverage)
 
@@ -18,7 +21,7 @@ There are two options of installing pseudo
 
 ### 1. pip
 
-python3.6 or greater
+python3.6 or greater. On windows you might need to have `pypiwin32` installed
 
 ```bash
 pip3 install git+https://github.com/pniedzwiedzinski/pseudo.git

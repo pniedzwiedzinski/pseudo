@@ -25,17 +25,40 @@ Example:
 """
 
 import sys
-
+import click
 from pseudo.lexer import Lexer, EndOfFile
 
 __author__ = "Patryk Niedźwiedziński"
-__version__ = "0.7.2"
+__version__ = "0.7.3"
 
 
-def main():
+@click.command()
+@click.option("--version", "-v", help="Display version", is_flag=True)
+@click.argument("file", type=click.Path(exists=True), required=False)
+def main(file, version):
+    """Run pseudocode file."""
+
+    if version:
+        print(__version__)
+        sys.exit()
+
+    if file is None:
+        click.echo('⚠️  Error: Missing argument "FILE".')
+        sys.exit()
+    instructions = []
+
     x = None
-    with open(sys.argv[1]) as fp:
+    with open(file) as fp:
         text_input = fp.read()
+
+    instructions = compile(text_input)
+
+    for i in instructions:
+        i.eval()
+
+
+def compile(text_input: str) -> list:
+    """Compile from string to list of operations."""
 
     lexer = Lexer(text_input)
 
@@ -44,4 +67,5 @@ def main():
             x = lexer.read_next(prev=x)
         except EndOfFile:
             break
-        x.eval()
+        instructions.append(x)
+    return instructions

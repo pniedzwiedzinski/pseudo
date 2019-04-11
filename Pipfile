@@ -4,15 +4,14 @@ url = "https://pypi.org/simple"
 verify_ssl = true
 
 [dev-packages]
-setuptools = "*"
-pytest = "*"
-black = "*"
+black = "==19.3b0"
 sphinx = "*"
 sphinx-rtd-theme = "*"
-coverage = "*"
-pytest-cov = "*"
 
 [packages]
-
-[requires]
-python_version = "3.7"
+setuptools = "*"
+pytest = "*"
+coverage = "*"
+pytest-cov = "*"
+pyinstaller = "*"
+click = "*"
