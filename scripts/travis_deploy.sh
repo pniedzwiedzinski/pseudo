@@ -7,7 +7,7 @@ fi
 
 set -x
 
-if [ "$TRAVIS_BRANCH" -eq "master" ]; then
+if [ "$TRAVIS_BRANCH" = "master" ]; then
     export GOPATH=$HOME/go # don't forget to change your path correctly!
     export GOROOT=/usr/local/opt/go/libexec
     mkdir -p $GOPATH $GOPATH/src $GOPATH/pkg $GOPATH/bin
