@@ -6,7 +6,6 @@ if [ -z "$CI" ]; then
 fi
 
 set -x
-brew install golang
 
 export GOPATH=$HOME/go # don't forget to change your path correctly!
 export GOROOT=/usr/local/opt/go/libexec
@@ -16,8 +15,7 @@ export PATH=$PATH:$GOROOT/bin
 
 go get github.com/tcnksm/ghr
 
-if ["$TRAVIS_BRANCH" -eq "master"]; then
-    echo "Deploy..."
-    echo $TRAVIS_REPO_SLUG
-    ghr -t ${GITHUB_TOKEN} -u ${CIRCLE_PROJECT_USERNAME} -r ${CIRCLE_PROJECT_REPONAME} -c ${CIRCLE_SHA1} ${VERSION} ./dist/pdc-$(VERSION)-darwin.tar.gz
+if [ "$TRAVIS_BRANCH" -eq "master" ]; then
+    echo "Starting deployment of pseudo@$VERSION"
+    ghr -t ${GITHUB_TOKEN} -u pniedzwiedzinski -r pseudo -c ${TRAVIS_COMMIT} ${VERSION} ./dist/pdc-$(VERSION)-darwin.tar.gz
 fi
