@@ -70,9 +70,10 @@ after_test:
   - "%CMD_IN_ENV% pyinstaller pdc.py"
   - ps: ls .
   - ps: ls dist
-  - ps: "Compress-Archive -Path dist/pdc/* -CompressionLevel Optimal -DestinationPath dist/pdc-windows.zip"
+  - ps: "Compress-Archive -Path dist/pdc/* -CompressionLevel Optimal -DestinationPath dist/pdc-windows%PYTHON_ARCH%.zip"
   - ps: "mkdir \\gopath"
-  - ps: "echo %GOPATH%"
+  - ps: "set"
+  - ps: "ECHO %GOPATH%"
   - ps: "set GOPATH=C:\\gopath"
   - ps: "echo %GOPATH%"
   - ps: "go get github.com/tcnksm/ghr"
