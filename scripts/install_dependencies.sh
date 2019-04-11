@@ -1,4 +1,4 @@
 #!/bin/bash
 
-sudo pip install pipenv
+sudo python3 -m pip install pipenv
 pipenv install --dev --system
