@@ -1,0 +1,8 @@
+language: python
+
+os:
+  - osx
+
+install: ./scripts/install_dependencies.sh
+
+script: pytest
