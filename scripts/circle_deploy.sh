@@ -11,7 +11,7 @@ wget https://dl.google.com/go/go1.12.3.linux-amd64.tar.gz
 sudo tar -C /usr/local -xzf go1.12.3.linux-amd64.tar.gz
 export PATH=$PATH:/usr/local/go/bin
 go get github.com/tcnksm/ghr
-/usr/local/bin/ghr --help
+/usr/local/go/bin/ghr --help
 if [[ $CIRCLE_BRANCH != "master" ]]; then
     echo "Will only continue for master builds"
     exit
@@ -19,7 +19,7 @@ fi
 
 echo "Starting deployment..."
 
-/usr/local/bin/ghr -t ${GITHUB_TOKEN} -u ${CIRCLE_PROJECT_USERNAME} -r ${CIRCLE_PROJECT_REPONAME} -c ${CIRCLE_SHA1} ${VERSION} ./dist/pdc-${VERSION}-linux.tar.gz
+/usr/local/go/bin/ghr -t ${GITHUB_TOKEN} -u ${CIRCLE_PROJECT_USERNAME} -r ${CIRCLE_PROJECT_REPONAME} -c ${CIRCLE_SHA1} ${VERSION} ./dist/pdc-${VERSION}-linux.tar.gz
 
 # build package and upload to pypi index
 # echo "[distutils]" >> ~/.pypirc
