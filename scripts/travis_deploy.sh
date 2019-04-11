@@ -6,7 +6,7 @@ if [ -z "$CI" ]; then
 fi
 
 set -x
-sudo brew install golang
+brew install golang
 
 export GOPATH=$HOME/go # don't forget to change your path correctly!
 export GOROOT=/usr/local/opt/go/libexec
