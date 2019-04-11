@@ -18,7 +18,7 @@ There are two options of installing pseudo
 
 ### 1. pip
 
-python3.6 or greater
+python3.6 or greater. On windows you might need to have `pypiwin32` installed
 
 ```bash
 pip3 install git+https://github.com/pniedzwiedzinski/pseudo.git

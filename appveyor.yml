@@ -56,6 +56,7 @@ install:
   # target Python version and architecture
   - "%CMD_IN_ENV% pip install pipenv"
   - "%CMD_IN_ENV% pipenv install --system"
+  - "%CMD_IN_ENV% pip install pypiwin32"
 
 # build_script:
 # Build the compiled extension
