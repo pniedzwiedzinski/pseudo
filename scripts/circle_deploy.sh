@@ -5,18 +5,19 @@ if [ -z "$CI" ]; then
     exit
 fi
 
-if [[ $CIRCLE_BRANCH != "master" ]]; then
-    echo "Will only continue for master builds"
-    exit
-fi
-
-echo "Starting deployment..."
 
 wget https://dl.google.com/go/go1.12.3.linux-amd64.tar.gz
 
 tar -C /usr/local -xzf go1.12.3.linux-amd64.tar.gz
 export PATH=$PATH:/usr/local/go/bin
 go get github.com/tcnksm/ghr
+
+if [[ $CIRCLE_BRANCH != "master" ]]; then
+    echo "Will only continue for master builds"
+    exit
+fi
+
+echo "Starting deployment..."
 
 ghr -t ${GITHUB_TOKEN} -u ${CIRCLE_PROJECT_USERNAME} -r ${CIRCLE_PROJECT_REPONAME} -c ${CIRCLE_SHA1} ${VERSION} ./dist/pdc-$(VERSION)-linux.tar.gz
 

@@ -6,4 +6,8 @@ os:
 install: ./scripts/install_dependencies.sh
 
 script: python3 -m pytest
-after_success: tar -czf ./dist/pdc-darwin.tar.gz ./dist/pdc/*
+after_success:
+  - pyinstaller pdc.py
+  - export VERSION=$(./dist/pdc/pdc --version)
+  - tar -czf ./dist/pdc-$(VERSION)-darwin.tar.gz ./dist/pdc/*
+  - ./scripts/travis_deploy.sh
