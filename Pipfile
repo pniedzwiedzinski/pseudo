@@ -11,6 +11,7 @@ sphinx = "*"
 sphinx-rtd-theme = "*"
 coverage = "*"
 pytest-cov = "*"
+pyinstaller = "*"
 
 [packages]
 

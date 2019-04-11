@@ -4,3 +4,10 @@ pseudo.egg-info
 .pytest_cache
 .coverage
 coverage.xml
+
+build
+dist
+
+*.spec
+
+.DS_Store

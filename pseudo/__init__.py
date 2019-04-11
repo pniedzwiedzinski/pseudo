@@ -33,6 +33,8 @@ __version__ = "0.7.2"
 
 
 def main():
+    instructions = []
+
     x = None
     with open(sys.argv[1]) as fp:
         text_input = fp.read()
@@ -44,4 +46,6 @@ def main():
             x = lexer.read_next(prev=x)
         except EndOfFile:
             break
-        x.eval()
+        instructions.append(x)
+    for i in instructions:
+        i.eval()
