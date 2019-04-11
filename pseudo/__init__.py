@@ -29,7 +29,7 @@ import click
 from pseudo.lexer import Lexer, EndOfFile
 
 __author__ = "Patryk Niedźwiedziński"
-__version__ = "0.7.2"
+__version__ = "0.7.3"
 
 
 @click.command()
@@ -51,6 +51,15 @@ def main(file, version):
     with open(file) as fp:
         text_input = fp.read()
 
+    instructions = compile(text_input)
+
+    for i in instructions:
+        i.eval()
+
+
+def compile(text_input: str) -> list:
+    """Compile from string to list of operations."""
+
     lexer = Lexer(text_input)
 
     while True:
@@ -59,6 +68,4 @@ def main(file, version):
         except EndOfFile:
             break
         instructions.append(x)
-    for i in instructions:
-        i.eval()
-
+    return instructions
