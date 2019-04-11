@@ -5,4 +5,4 @@ os:
 
 install: ./scripts/install_dependencies.sh
 
-script: pytest
+script: python3 -m pytest
