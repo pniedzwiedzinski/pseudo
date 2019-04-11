@@ -70,7 +70,10 @@ after_test:
   - "%CMD_IN_ENV% pyinstaller pdc.py"
   - ps: ls .
   - ps: ls dist
-  - ps: 'Compress-Archive -Path dist/pdc/* -CompressionLevel Optimal -DestinationPath "dist/pdc-windows$PYTHON_ARCH.zip"'
+  - dist\\pdc\\pdc --version > version.txt
+  - ps: $env:VERSION= Get-Content version.txt
+  - set ZIP_NAME=dist/pdc-%VERSION%-windows-%PYTHON_ARCH%.zip
+  - ps: 'Compress-Archive -Path dist/pdc/* -CompressionLevel Optimal -DestinationPath "$env:ZIP_NAME"'
   - "mkdir \\gopath"
   - "set"
   - "ECHO %GOPATH%"
