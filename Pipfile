@@ -6,7 +6,7 @@ verify_ssl = true
 [dev-packages]
 setuptools = "*"
 pytest = "*"
-black = "*"
+black = "==19.3b0"
 sphinx = "*"
 sphinx-rtd-theme = "*"
 coverage = "*"
@@ -16,4 +16,4 @@ pyinstaller = "*"
 [packages]
 
 [requires]
-python_version = "3.7"
+python_version = ">3.6"
