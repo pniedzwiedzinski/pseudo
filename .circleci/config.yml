@@ -43,6 +43,13 @@ jobs:
             pipenv run pytest --cov=pseudo tests/
             pipenv run coverage xml
             ./cc-test-reporter after-build -t coverage.py --exit-code $?
-      #- store_artifacts:
-      #    path: test-reports
-      #    destination: test-reports
+
+      - run:
+          name: Build for Linux
+          command: |
+            pipenv run pyinstaller pdc.py
+            tar -czf ./dist/pdc/* ./dist/pdc-linux.tar.gz
+
+      - store_artifacts:
+          path: dist/pdc-linux.tar.gz
+          destination: dist/pdc-linux.tar.gz

@@ -70,6 +70,7 @@ after_test:
   - "%CMD_IN_ENV% pyinstaller pdc.py"
   - ps: ls .
   - ps: ls dist
+  - ps: "Compress-Archive -Path dist/pdc/* -CompressionLevel Optimal -DestinationPath dist/pdc-windows.zip"
 
 artifacts:
   # Archive the generated packages in the ci.appveyor.com build report.
