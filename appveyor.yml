@@ -73,7 +73,8 @@ after_test:
   - ps: "Compress-Archive -Path dist/pdc/* -CompressionLevel Optimal -DestinationPath dist/pdc-windows.zip"
   - ps: ".\\scripts\\install_go.ps1 -version 1.12.3"
   - ps: "go get github.com/tcnksm/ghr"
-  - ps: "ghr --help"
+  - ps: "ls C:\\go1.12.3\\bin"
+  - ps: ""
 
 artifacts:
   # Archive the generated packages in the ci.appveyor.com build report.
