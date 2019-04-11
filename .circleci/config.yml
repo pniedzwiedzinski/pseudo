@@ -48,8 +48,13 @@ jobs:
           name: Build for Linux
           command: |
             pipenv run pyinstaller pdc.py
-            tar -czf ./dist/pdc-linux.tar.gz ./dist/pdc/*
+            VERSION=$(./dist/pdc/pdc --version)
+            tar -czf ./dist/pdc-$(VERSION)-linux.tar.gz ./dist/pdc/*
 
       - store_artifacts:
-          path: dist/pdc-linux.tar.gz
-          destination: dist/pdc-linux.tar.gz
+          path: dist
+          destination: dist
+
+      - run:
+          name: Check deployment
+          command: ./scripts/circle_deploy.sh
