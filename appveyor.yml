@@ -1,3 +1,5 @@
+build: off
+
 environment:
   global:
     # SDK v7.0 MSVC Express 2008's SetEnv.cmd script will fail if the
@@ -53,7 +55,7 @@ install:
   # pip will build them from source using the MSVC compiler matching the
   # target Python version and architecture
   - "%CMD_IN_ENV% pip install pipenv"
-  - "%CMD_IN_ENV% pipenv install --dev --system"
+  - "%CMD_IN_ENV% pipenv install --system"
 
 # build_script:
 # Build the compiled extension
