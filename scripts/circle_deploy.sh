@@ -1,11 +1,19 @@
 #!/usr/bin/env bash
 
+set -x
+set -eo pipefail
+
 if [ -z "$CI" ]; then
     echo "Will only continue on CI"
     exit
 fi
 
+if [[ $CIRCLE_BRANCH != "master" ]]; then
+    echo "Will only continue for master builds"
+    exit
+fi
 
+export VERSION=$(./dist/pdc/pdc --version)
 wget https://dl.google.com/go/go1.12.3.linux-amd64.tar.gz
 
 sudo tar -C /usr/local -xzf go1.12.3.linux-amd64.tar.gz
@@ -13,11 +21,6 @@ export PATH=$PATH:/usr/local/go/bin
 export PATH=$PATH:$HOME/go/bin
 
 go get github.com/tcnksm/ghr
-
-if [[ $CIRCLE_BRANCH != "master" ]]; then
-    echo "Will only continue for master builds"
-    exit
-fi
 
 echo "Starting deployment of pseudo@$VERSION"
 
