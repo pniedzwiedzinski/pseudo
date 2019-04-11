@@ -72,8 +72,10 @@ after_test:
   - ps: ls dist
   - ps: "Compress-Archive -Path dist/pdc/* -CompressionLevel Optimal -DestinationPath dist/pdc-windows.zip"
   - ps: ".\\scripts\\install_go.ps1 -version 1.12.3"
+  - ps: "mkdir \\gopath"
+  - ps: "set GOPATH=C:\\gopath"
   - ps: "go get github.com/tcnksm/ghr"
-  - ps: "ls C:\\go1.12.3\\bin"
+  - ps: "ls C:\\gopath\\bin"
   - ps: ""
 
 artifacts:
