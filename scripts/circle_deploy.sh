@@ -11,6 +11,7 @@ wget https://dl.google.com/go/go1.12.3.linux-amd64.tar.gz
 sudo tar -C /usr/local -xzf go1.12.3.linux-amd64.tar.gz
 export PATH=$PATH:/usr/local/go/bin
 go get github.com/tcnksm/ghr
+go --help
 /usr/local/go/bin/ghr --help
 if [[ $CIRCLE_BRANCH != "master" ]]; then
     echo "Will only continue for master builds"

@@ -15,7 +15,6 @@ export PATH=$PATH:$GOPATH/bin
 export PATH=$PATH:$GOROOT/bin
 
 go get github.com/tcnksm/ghr
-ghr --help
 
 if ["$TRAVIS_BRANCH" -eq "master"]; then
     echo "Deploy..."
