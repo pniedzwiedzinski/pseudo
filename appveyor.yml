@@ -71,11 +71,11 @@ after_test:
   - ps: ls .
   - ps: ls dist
   - ps: "Compress-Archive -Path dist/pdc/* -CompressionLevel Optimal -DestinationPath dist/pdc-windows%PYTHON_ARCH%.zip"
-  - ps: "mkdir \\gopath"
-  - ps: "set"
-  - ps: "ECHO %GOPATH%"
-  - ps: "set GOPATH=C:\\gopath"
-  - ps: "echo %GOPATH%"
+  - "mkdir \\gopath"
+  - "set"
+  - "ECHO %GOPATH%"
+  - "set GOPATH='C:\\gopath'"
+  - "echo %GOPATH%"
   - ps: "go get github.com/tcnksm/ghr"
   - ps: "ls C:\\gopath"
   - ps: ""
