@@ -18,5 +18,5 @@ if [ "$TRAVIS_TAG" != "" ]; then
     go get github.com/tcnksm/ghr
 
     echo "Starting deployment of pseudo@$VERSION"
-    ghr -t ${GITHUB_TOKEN} -u pniedzwiedzinski -r pseudo -c ${TRAVIS_COMMIT} ${VERSION} ./dist/pdc-$(VERSION)-darwin.tar.gz
+    ghr -t ${GITHUB_TOKEN} -u pniedzwiedzinski -r pseudo -c ${TRAVIS_COMMIT} ${VERSION} ./dist/pdc-${VERSION}-darwin.tar.gz
 fi
