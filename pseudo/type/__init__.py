@@ -5,50 +5,13 @@ This module contains classes for types in AST.
 
 __author__ = "Patryk Niedźwiedziński"
 
+from pseudo.type.numbers import Int
+from pseudo.type.base import Value
+
 VAR = {}
 
 GROUP_1 = {"*", "div", "mod"}
 GROUP_2 = {"-", "+"}
-
-
-class Value:
-    """
-    Node containing a value.
-
-    Attributes:
-        - value: Value of instance.
-    """
-
-    def __init__(self, value):
-        self.value = value
-
-    def eval(self):
-        return self.value
-
-    def __eq__(self, other):
-        try:
-            return self.value == other.value
-        except AttributeError:
-            return False
-
-    def __repr__(self):
-        return f"Value({repr(self.value)})"
-
-    def __str__(self):
-        return str(self.value)
-
-
-class Int(Value):
-    """Int value node."""
-
-    def __init__(self, value):
-        self.value = int(value)
-
-    def __eq__(self, other):
-        return self.value == other.value
-
-    def __repr__(self):
-        return f"Int({repr(self.value)})"
 
 
 class String(Value):
@@ -297,7 +260,7 @@ class Condition:
         if len(self.false) != len(other.false):
             return False
         for a, b in zip(self.true, other.true):
-            if a != b: 
+            if a != b:
                 return False
         for a, b in zip(self.false, other.false):
             if a != b:

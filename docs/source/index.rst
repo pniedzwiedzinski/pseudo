@@ -11,7 +11,7 @@ Welcome to pseudo's documentation!
 .. automodule:: pseudo.lexer
     :members:
 
-.. automodule:: pseudo.pseudo_types
+.. automodule:: pseudo.type
     :members:
 
 .. automodule:: pseudo.stream

@@ -29,7 +29,7 @@ import click
 from pseudo.lexer import Lexer, EndOfFile
 
 __author__ = "Patryk Niedźwiedziński"
-__version__ = "0.7.3"
+__version__ = "0.7.4"
 
 
 @click.command()
@@ -44,10 +44,9 @@ def main(file, version):
 
     if file is None:
         click.echo('⚠️  Error: Missing argument "FILE".')
-        sys.exit()
+        sys.exit(1)
     instructions = []
 
-    x = None
     with open(file) as fp:
         text_input = fp.read()
 
@@ -61,6 +60,9 @@ def compile(text_input: str) -> list:
     """Compile from string to list of operations."""
 
     lexer = Lexer(text_input)
+
+    x = None
+    instructions = []
 
     while True:
         try:

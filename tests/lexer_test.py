@@ -3,7 +3,7 @@
 import pytest
 import pseudo
 
-from pseudo.pseudo_types import Operation, Operator, Int, Statement, Bool, Condition
+from pseudo.type import Operation, Operator, Int, Statement, Bool, Condition
 from pseudo.stream import Stream, EOL, EndOfFile
 
 __author__ = "Patryk Niedźwiedziński"
@@ -33,11 +33,14 @@ def lexer():
 
 def test_is_keyword(lexer):
     """Check Lexer.is_keyword"""
-    if not (
-        lexer.is_keyword("pisz") is True
-        and lexer.is_keyword("oo") is False
-        and lexer.is_keyword("koniec") is True
-    ):
+    if lexer.is_keyword("pisz") is False:
+        print(lexer.is_keyword("pisz"))
+        raise AssertionError
+    if lexer.is_keyword("oo") is True:
+        print(lexer.is_keyword("oo"))
+        raise AssertionError
+    if lexer.is_keyword("koniec") is False:
+        print(lexer.is_keyword("koniec"))
         raise AssertionError
 
 
@@ -49,16 +52,6 @@ def test_is_alphabet(lexer):
         and lexer.is_alphabet("1") is False
         and lexer.is_alphabet("*") is False
         and lexer.is_alphabet(1) is False
-    ):
-        raise AssertionError
-
-
-def test_is_digit(lexer):
-    """Check Lexer.is_digit"""
-    if not (
-        lexer.is_digit("1") is True
-        and lexer.is_digit("a") is False
-        and lexer.is_digit('"') is False
     ):
         raise AssertionError
 
@@ -86,10 +79,10 @@ def test_is_keyword_end(lexer):
 
 def test_update_args(lexer):
     """Checks Lexer.update_args"""
-    if not (
-        lexer.update_args([Int(2), Operator("+"), Int(2)], 1)
-        == [Operation(Operator("+"), Int(2), Int(2))]
-    ):
+    if lexer.update_args([Int(2), Operator("+"), Int(2)], 1) != [
+        Operation(Operator("+"), Int(2), Int(2))
+    ]:
+        print(lexer.update_args([Int(2), Operator("+"), Int(2)], 1))
         raise AssertionError
 
 
@@ -205,26 +198,46 @@ pisz 4
 
 def test_read_indent(lexer):
     """Checks Lexer.read_indent"""
+    lexer.i = Stream("    pisz 4")
+
+    lexer.read_indent()
+
+    if lexer.i.col != 4:
+        raise AssertionError
+
+
+def test_read_indent_block(lexer):
+    """Checks Lexer.read_indent_block"""
     lexer.i = Stream(
         """    pisz 4
 
+    # pisz 2
     pisz 5"""
     )
-
+    indent_block = lexer.read_indent_block()
     if not compare_list(
-        lexer.read_indent(),
-        [Statement("pisz", args=Int(4)), EOL(), EOL(), Statement("pisz", args=Int(5))],
+        indent_block,
+        [
+            Statement("pisz", args=Int(4)),
+            EOL(),
+            EOL(),
+            EOL(),
+            Statement("pisz", args=Int(5)),
+        ],
     ):
+        print(indent_block)
         raise AssertionError
 
     lexer.i = Stream("\tpisz 4\n\n\tpisz 5")
     lexer.indent_char = None
     lexer.indent_size = None
 
+    indent_block = lexer.read_indent_block()
     if not compare_list(
-        lexer.read_indent(),
+        indent_block,
         [Statement("pisz", args=Int(4)), EOL(), EOL(), Statement("pisz", args=Int(5))],
     ):
+        print(indent_block)
         raise AssertionError
 
 
