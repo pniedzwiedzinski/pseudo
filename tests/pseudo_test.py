@@ -1,5 +1,6 @@
 import os
 import subprocess
+import platform
 
 from pseudo import compile, main, __version__
 from pseudo.type import Int, Statement
@@ -14,15 +15,24 @@ def test_compile():
 def test_main():
     with open("t1.pdc", "w") as fp:
         fp.write("pisz 4")
-    if subprocess.getoutput("python3 pdc.py t1.pdc") != "4":
-        print(subprocess.getoutput("python3 pdc.py t1.pdc"))
+    cmd = "python3 pdc.py t1.pdc"
+    if platform.system() == "Windows":
+        cmd = "%CMD_IN_ENV% " + cmd
+    if subprocess.getoutput(cmd) != "4":
+        print(subprocess.getoutput(cmd))
         raise AssertionError
     os.remove("t1.pdc")
 
-    if subprocess.getoutput("python3 pdc.py -v") != __version__:
-        print(subprocess.getoutput("python3 pdc.py -v"))
+    cmd = "python3 pdc.py -v"
+    if platform.system() == "Windows":
+        cmd = "%CMD_IN_ENV% " + cmd
+    if subprocess.getoutput(cmd) != __version__:
+        print(subprocess.getoutput(cmd))
         raise AssertionError
 
-    if subprocess.run(["python3", "pdc.py"]).returncode == 0:
-        print(subprocess.run(["python3", "pdc.py"]).returncode)
+    cmd = ["python3", "pdc.py"]
+    if platform.system() == "Windows":
+        cmd.insert(0, "%CMD_IN_ENV%")
+    if subprocess.run(cmd).returncode == 0:
+        print(subprocess.run(cmd).returncode)
         raise AssertionError
