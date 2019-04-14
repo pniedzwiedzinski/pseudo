@@ -5,7 +5,7 @@ This module contains class of stream object used to iterate over input.
 from typing import Union
 from sys import exit
 
-from pseudo.pseudo_types import EOL
+from pseudo.type import EOL
 
 __author__ = "Patryk Niedźwiedziński"
 

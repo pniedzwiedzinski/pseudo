@@ -3,7 +3,7 @@
 import pytest
 import pseudo
 
-from pseudo.pseudo_types import Operation, Operator, Int, Statement, Bool, Condition
+from pseudo.type import Operation, Operator, Int, Statement, Bool, Condition
 from pseudo.stream import Stream, EOL, EndOfFile
 
 __author__ = "Patryk Niedźwiedziński"
@@ -49,16 +49,6 @@ def test_is_alphabet(lexer):
         and lexer.is_alphabet("1") is False
         and lexer.is_alphabet("*") is False
         and lexer.is_alphabet(1) is False
-    ):
-        raise AssertionError
-
-
-def test_is_digit(lexer):
-    """Check Lexer.is_digit"""
-    if not (
-        lexer.is_digit("1") is True
-        and lexer.is_digit("a") is False
-        and lexer.is_digit('"') is False
     ):
         raise AssertionError
 

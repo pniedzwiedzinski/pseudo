@@ -3,7 +3,8 @@ This module contains Lexer class using to tokenize stream.
 """
 
 from pseudo.stream import Stream, EndOfFile
-from pseudo.pseudo_types import (
+from pseudo.type.numbers import is_digit
+from pseudo.type import (
     String,
     Int,
     Operation,
@@ -65,13 +66,6 @@ class Lexer:
         except TypeError:
             return False
 
-    @staticmethod
-    def is_digit(c) -> bool:
-        """Checks if given char is a digit."""
-        try:
-            return ord(c) >= 48 and ord(c) <= 57
-        except TypeError:
-            return False
 
     def is_operator(self, c) -> bool:
         """Checks if given char is an allowed operator."""
@@ -123,7 +117,7 @@ class Lexer:
 
     def read_number(self) -> Int:
         """Read a number from the stream."""
-        number = self.read(self.is_digit)
+        number = self.read(is_digit)
         try:
             int(number)
         except ValueError:
@@ -300,7 +294,7 @@ class Lexer:
             self.i.next()
             return self.read_operator(c)
 
-        if self.is_digit(c):
+        if is_digit(c):
             return self.read_number()
 
         elif c not in {" ", "\t"}:

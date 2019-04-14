@@ -2,7 +2,7 @@ import os
 import subprocess
 
 from pseudo import compile, main, __version__
-from pseudo.pseudo_types import Int, Statement
+from pseudo.type import Int, Statement
 
 
 def test_compile():
