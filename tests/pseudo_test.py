@@ -17,7 +17,7 @@ def test_main():
         fp.write("pisz 4")
     cmd = "python3 pdc.py t1.pdc"
     if platform.system() == "Windows":
-        del cmd[6]
+        cmd.replace("3", "")
     if subprocess.getoutput(cmd) != "4":
         print(subprocess.getoutput(cmd))
         raise AssertionError
@@ -25,14 +25,14 @@ def test_main():
 
     cmd = "python3 pdc.py -v"
     if platform.system() == "Windows":
-        del cmd[6]
+        cmd.replace("3", "")
     if subprocess.getoutput(cmd) != __version__:
         print(subprocess.getoutput(cmd))
         raise AssertionError
 
     cmd = ["python3", "pdc.py"]
     if platform.system() == "Windows":
-        del cmd[0][6]
+        cmd[0].replace("3", "")
     if subprocess.run(cmd).returncode == 0:
         print(subprocess.run(cmd).returncode)
         raise AssertionError
