@@ -211,23 +211,33 @@ def test_read_indent_block(lexer):
     lexer.i = Stream(
         """    pisz 4
 
+    # pisz 2
     pisz 5"""
     )
-
+    indent_block = lexer.read_indent_block()
     if not compare_list(
-        lexer.read_indent_block(),
-        [Statement("pisz", args=Int(4)), EOL(), EOL(), Statement("pisz", args=Int(5))],
+        indent_block,
+        [
+            Statement("pisz", args=Int(4)),
+            EOL(),
+            EOL(),
+            EOL(),
+            Statement("pisz", args=Int(5)),
+        ],
     ):
+        print(indent_block)
         raise AssertionError
 
     lexer.i = Stream("\tpisz 4\n\n\tpisz 5")
     lexer.indent_char = None
     lexer.indent_size = None
 
+    indent_block = lexer.read_indent_block()
     if not compare_list(
-        lexer.read_indent_block(),
+        indent_block,
         [Statement("pisz", args=Int(4)), EOL(), EOL(), Statement("pisz", args=Int(5))],
     ):
+        print(indent_block)
         raise AssertionError
 
 

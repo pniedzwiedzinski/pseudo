@@ -18,7 +18,7 @@ from pseudo.type import (
     Condition,
     Loop
 )
-from pseudo.exceptions import IndentationBlockEnd
+from pseudo.exceptions import IndentationBlockEnd, Comment
 
 __author__ = "Patryk Niedźwiedziński"
 
@@ -278,7 +278,7 @@ class Lexer:
 
         if c == "#":
             self.i.next_line()
-            return self.read_next()
+            return EOL()
 
         if c in {"(", ")", "]"}:
             self.i.next()
@@ -376,8 +376,7 @@ class Lexer:
             if isinstance(c, EOL):
                 break
             if c == "#":
-                self.i.next_line()
-                return None
+                raise Comment
             if c != self.indent_char:
                 if i % self.indent_size == 0:
                     self.i.col = 0
@@ -399,6 +398,9 @@ class Lexer:
                 self.read_indent(indent_level)
             except IndentationBlockEnd:
                 break
+            except Comment:
+                self.i.next_line()
+                continue
             try:
                 e = self.read_next(indent_level=indent_level)
             except EndOfFile:
