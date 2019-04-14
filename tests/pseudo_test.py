@@ -13,17 +13,11 @@ def test_compile():
 def test_main():
     with open("t1.pdc", "w") as fp:
         fp.write("pisz 4")
-    if (
-        subprocess.run(["python3", "pdc.py", "t1.pdc"], capture_output=True).stdout
-        != b"4"
-    ):
+    if subprocess.getoutput("python3 pdc.py t1.pdc") != "4":
         raise AssertionError
     os.remove("t1.pdc")
 
-    if (
-        str(subprocess.run(["python3", "pdc.py", "-v"], capture_output=True).stdout)
-        != f"b'{__version__}\\n'"
-    ):
+    if str(subprocess.getoutput("python3 pdc.py -v")) != __version__:
         raise AssertionError
 
     if subprocess.run(["python3", "pdc.py"]).returncode == 0:
