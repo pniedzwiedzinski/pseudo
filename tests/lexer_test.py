@@ -205,6 +205,16 @@ pisz 4
 
 def test_read_indent(lexer):
     """Checks Lexer.read_indent"""
+    lexer.i = Stream("    pisz 4")
+
+    lexer.read_indent()
+
+    if lexer.i.col != 4:
+        raise AssertionError
+
+
+def test_read_indent_block(lexer):
+    """Checks Lexer.read_indent_block"""
     lexer.i = Stream(
         """    pisz 4
 
@@ -212,7 +222,7 @@ def test_read_indent(lexer):
     )
 
     if not compare_list(
-        lexer.read_indent(),
+        lexer.read_indent_block(),
         [Statement("pisz", args=Int(4)), EOL(), EOL(), Statement("pisz", args=Int(5))],
     ):
         raise AssertionError
@@ -222,7 +232,7 @@ def test_read_indent(lexer):
     lexer.indent_size = None
 
     if not compare_list(
-        lexer.read_indent(),
+        lexer.read_indent_block(),
         [Statement("pisz", args=Int(4)), EOL(), EOL(), Statement("pisz", args=Int(5))],
     ):
         raise AssertionError

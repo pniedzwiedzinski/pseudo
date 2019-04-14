@@ -17,6 +17,7 @@ from pseudo.pseudo_types import (
     Condition,
     Loop
 )
+from pseudo.exceptions import IndentationBlockEnd
 
 __author__ = "Patryk Niedźwiedziński"
 
@@ -154,7 +155,7 @@ class Lexer:
         #TODO: tests
         condition = self.read_condition("jeżeli", indent_level=indent_level)
         self.i.next_line()
-        true = self.read_indent(indent_level=indent_level + 1)
+        true = self.read_indent_block(indent_level=indent_level + 1)
         false = None
         if self.i.eof():
             return Condition(condition, true, false=false)
@@ -171,7 +172,7 @@ class Lexer:
                 self.i.throw(f"Inconsistent indentation size")
             if self.read_next(prev=Condition(condition, true)) == "wpp":
                 self.i.next_line()
-                false = self.read_indent(indent_level=indent_level + 1)
+                false = self.read_indent_block(indent_level=indent_level + 1)
             else:
                 self.i.col, self.i.line = c, l
         except EndOfFile:
@@ -183,7 +184,7 @@ class Lexer:
         #TODO: test
         condition = self.read_condition("dopóki", indent_level=indent_level)
         self.i.next_line()
-        expressions = self.read_indent(indent_level=indent_level + 1)
+        expressions = self.read_indent_block(indent_level=indent_level + 1)
         if expressions is None:
             self.i.throw(f"Expected indented code, instead got 'nil'")
         return Loop(condition, expressions)
@@ -371,7 +372,27 @@ class Lexer:
             self.i.throw(f"Invalid indentation, should be at least 2, not {size}")
         self.indent_size = size
 
-    def read_indent(self, indent_level: int = 1) -> list:
+    def read_indent(self, indent_level: int = 1) -> None:
+        """Read indented expressions while valid indentation and returns list of them."""
+        if self.indent_size is None:
+            self.read_indent_size()
+            return None
+        for i in range(self.indent_size * indent_level):
+            c = self.i.next()
+            if isinstance(c, EOL):
+                break
+            if c == "#":
+                self.i.next_line()
+                return None
+            if c != self.indent_char:
+                if i % self.indent_size == 0:
+                    self.i.col = 0
+                    raise IndentationBlockEnd
+                self.i.throw(f"Inconsistent indentation size")
+        if self.i.peek() == " " or self.i.peek() == "\t":
+            self.i.throw(f"Inconsistent indentation size")
+
+    def read_indent_block(self, indent_level: int = 1) -> list:
         """Read indented expressions while valid indentation and returns list of them."""
         expressions = []
         while (
@@ -380,29 +401,13 @@ class Lexer:
             or self.i.peek() == "#"
             or isinstance(self.i.peek(), EOL)
         ):
-            if self.i.peek() == "#":
-                self.i.next_line()
-                continue
-            if self.indent_size is None:
-                self.read_indent_size()
-            else:
-                for i in range(self.indent_size * indent_level):
-                    c = self.i.next()
-                    if isinstance(c, EOL):
-                        break
-                    if c == "#":
-                        self.i.next_line()
-                        continue
-                    if c != self.indent_char:
-                        if i % self.indent_size == 0:
-                            self.i.col = 0
-                            return expressions
-                        self.i.throw(f"Inconsistent indentation size")
-            if self.i.peek() == " " or self.i.peek() == "\t":
-                self.i.throw(f"Inconsistent indentation size")
+            try:
+                self.read_indent(indent_level)
+            except IndentationBlockEnd:
+                break
             try:
                 e = self.read_next(indent_level=indent_level)
             except EndOfFile:
-                return expressions
+                break
             expressions.append(e)
         return expressions
