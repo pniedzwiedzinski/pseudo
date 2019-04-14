@@ -29,7 +29,7 @@ import click
 from pseudo.lexer import Lexer, EndOfFile
 
 __author__ = "Patryk Niedźwiedziński"
-__version__ = "0.7.4a"
+__version__ = "0.7.4"
 
 
 @click.command()
