@@ -33,11 +33,14 @@ def lexer():
 
 def test_is_keyword(lexer):
     """Check Lexer.is_keyword"""
-    if not (
-        lexer.is_keyword("pisz") is True
-        and lexer.is_keyword("oo") is False
-        and lexer.is_keyword("koniec") is True
-    ):
+    if lexer.is_keyword("pisz") is False:
+        print(lexer.is_keyword("pisz"))
+        raise AssertionError
+    if lexer.is_keyword("oo") is True:
+        print(lexer.is_keyword("oo"))
+        raise AssertionError
+    if lexer.is_keyword("koniec") is False:
+        print(lexer.is_keyword("koniec"))
         raise AssertionError
 
 
@@ -76,10 +79,10 @@ def test_is_keyword_end(lexer):
 
 def test_update_args(lexer):
     """Checks Lexer.update_args"""
-    if not (
-        lexer.update_args([Int(2), Operator("+"), Int(2)], 1)
-        == [Operation(Operator("+"), Int(2), Int(2))]
-    ):
+    if lexer.update_args([Int(2), Operator("+"), Int(2)], 1) != [
+        Operation(Operator("+"), Int(2), Int(2))
+    ]:
+        print(lexer.update_args([Int(2), Operator("+"), Int(2)], 1))
         raise AssertionError
 
 

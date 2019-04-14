@@ -23,6 +23,7 @@ def test_next_line(stream):
     s = stream("1\n2")
     s.next_line()
     if "2" != s.peek():
+        print(s.peek())
         raise AssertionError
 
 
@@ -30,6 +31,7 @@ def test_next(stream):
     """Checks Stream.next"""
     s = stream("1\n")
     if "1" != s.next():
+        print(s.next())
         raise AssertionError
 
 
