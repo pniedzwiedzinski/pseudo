@@ -15,24 +15,19 @@ def test_compile():
 def test_main():
     with open("t1.pdc", "w") as fp:
         fp.write("pisz 4")
-    cmd = "python3 pdc.py t1.pdc"
-    if platform.system() == "Windows":
-        cmd = "%CMD_IN_ENV% " + cmd
+
+    cmd = "python pdc.py t1.pdc"
     if subprocess.getoutput(cmd) != "4":
         print(subprocess.getoutput(cmd))
         raise AssertionError
     os.remove("t1.pdc")
 
-    cmd = "python3 pdc.py -v"
-    if platform.system() == "Windows":
-        cmd = "%CMD_IN_ENV% " + cmd
+    cmd = "python pdc.py -v"
     if subprocess.getoutput(cmd) != __version__:
         print(subprocess.getoutput(cmd))
         raise AssertionError
 
-    cmd = ["python3", "pdc.py"]
-    if platform.system() == "Windows":
-        cmd.insert(0, "%CMD_IN_ENV%")
+    cmd = ["python", "pdc.py"]
     if subprocess.run(cmd).returncode == 0:
         print(subprocess.run(cmd).returncode)
         raise AssertionError
