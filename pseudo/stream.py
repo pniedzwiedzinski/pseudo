@@ -82,7 +82,7 @@ class Stream:
         else:
             print(f"\t'{self.input[self.line-1]}'")
         print(f"{error}")
-        exit()
+        exit(1)
 
 
 class EndOfFile(Exception):

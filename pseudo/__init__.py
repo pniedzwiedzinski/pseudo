@@ -29,7 +29,7 @@ import click
 from pseudo.lexer import Lexer, EndOfFile
 
 __author__ = "Patryk Niedźwiedziński"
-__version__ = "0.7.3"
+__version__ = "0.7.4a"
 
 
 @click.command()
@@ -44,7 +44,7 @@ def main(file, version):
 
     if file is None:
         click.echo('⚠️  Error: Missing argument "FILE".')
-        sys.exit()
+        sys.exit(1)
     instructions = []
 
     with open(file) as fp:

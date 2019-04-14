@@ -54,3 +54,14 @@ def test_eof(stream):
     s.next()
     if not s.eof():
         raise AssertionError
+
+
+def test_throw(stream):
+    """Checks Stream.throw"""
+    s = stream("test")
+    try:
+        s.throw("Error")
+    except SystemExit:
+        pass
+    else:
+        raise AssertionError
