@@ -47,7 +47,6 @@ def main(file, version):
         sys.exit()
     instructions = []
 
-    x = None
     with open(file) as fp:
         text_input = fp.read()
 
@@ -61,6 +60,9 @@ def compile(text_input: str) -> list:
     """Compile from string to list of operations."""
 
     lexer = Lexer(text_input)
+
+    x = None
+    instructions = []
 
     while True:
         try:
