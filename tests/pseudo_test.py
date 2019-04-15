@@ -1,4 +1,5 @@
 import os
+import codecs
 import subprocess
 import platform
 
@@ -28,7 +29,7 @@ dla i:=3,...,5 wykonuj
 
 
 def test_main():
-    with open("t1.pdc", "w") as fp:
+    with codecs.open("t1.pdc", encoding="utf-8", mode="w") as fp:
         fp.write(script)
     cmd = "python3 pdc.py t1.pdc"
     if platform.system() == "Windows":

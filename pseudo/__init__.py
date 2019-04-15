@@ -21,7 +21,7 @@ Example:
         expression = lex.read_next()
         print(expression)
 
-    If lexer reach the end of input, the `parser.lexer.EndOfFile` exception will be raised.
+    If lexer reach the end of input, the `pseudo.stream.EndOfFile` exception will be raised.
 """
 
 import sys
@@ -29,6 +29,7 @@ import os
 import click
 import datetime
 import traceback
+import codecs
 from pseudo.lexer import Lexer, EndOfFile
 from pseudo.utils import append
 
@@ -52,25 +53,28 @@ def main(file, version):
         sys.exit(1)
     instructions = []
 
-    with open(file) as fp:
+    with codecs.open(file, encoding="utf-8") as fp:
         text_input = fp.read()
 
-    instructions = compile(text_input)
+    try:
+        instructions = compile(text_input)
 
-    for i in instructions:
-        try:
+        for i in instructions:
             i.eval()
-        except Exception:
-            now = datetime.datetime.now().strftime("%H-%M-%S-%d-%m-%Y")
+    except Exception:
+        now = datetime.datetime.now().strftime("%H-%M-%S-%d-%m-%Y")
+        try:
             os.mkdir("crash")
-            with open(f"crash/{now}.log", "w") as fp:
-                fp.write(traceback.format_exc())
-            print("⚠️  Error: \n\tRuntime error has occurred!\n")
-            print(
-                "Wow! You encountered a bug! Please tell me how did you do that on https://github.com/pniedzwiedzinski/pseudo/issues\n"
-            )
-            print(f"Error message was copied to {os.getcwd()}/crash/{now}.log")
-            exit(1)
+        except FileExistsError:
+            pass
+        with open(f"crash/{now}.log", "w") as fp:
+            fp.write(traceback.format_exc())
+        print("⚠️  Error: \n\tRuntime error has occurred!\n")
+        print(
+            "Wow! You encountered a bug! Please tell me how did you do that on https://github.com/pniedzwiedzinski/pseudo/issues\n"
+        )
+        print(f"Error message was copied to {os.getcwd()}/crash/{now}.log")
+        exit(1)
 
 
 def compile(text_input: str) -> list:
