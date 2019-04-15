@@ -7,24 +7,13 @@ __author__ = "Patryk Niedźwiedziński"
 
 from pseudo.type.numbers import Int
 from pseudo.type.string import String
+from pseudo.type.bool import Bool
 from pseudo.type.base import Value, EOL
 
 VAR = {}
 
 GROUP_1 = {"*", "div", "mod"}
 GROUP_2 = {"-", "+"}
-
-
-class Bool(Value):
-    """Bool value node."""
-
-    def __str__(self):
-        if self.value:
-            return "prawda"
-        return "fałsz"
-
-    def __repr__(self):
-        return f"Bool({self.value})"
 
 
 class Operator(Value):

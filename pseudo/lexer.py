@@ -6,6 +6,7 @@ from pseudo.stream import Stream, EndOfFile
 from pseudo.utils import append
 from pseudo.type.numbers import is_digit, read_number
 from pseudo.type.string import read_string
+from pseudo.type.bool import read_bool
 from pseudo.type import (
     String,
     Int,
@@ -110,13 +111,7 @@ class Lexer:
             expression += self.i.next()
         return expression
 
-    def read_bool(self, keyword: str) -> Bool:
-        """Parse bool str to Bool object."""
-        if keyword == "prawda":
-            return Bool(1)
-        if keyword == "fałsz":
-            return Bool(0)
-        self.i.throw(f"Could not parse '{keyword}' to bool.")
+
 
     def read_if(self, indent_level: int = 0) -> Condition:
         """Read if statement."""
@@ -335,7 +330,7 @@ class Lexer:
             if keyword in self.operator_keywords:
                 return Operator(keyword)
             if keyword == "prawda" or keyword == "fałsz":
-                return self.read_bool(keyword)
+                return read_bool(keyword)
             indices = []
             while self.i.peek() == "[":
                 self.i.next()
