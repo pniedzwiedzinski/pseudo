@@ -22,19 +22,21 @@ class Variable(Value):
         self.indices = indices
 
     def setter(self, value: Value):
+        if not self.indices:
+            VAR[self.value] = value.eval()
+            return None
+
         if self.value not in VAR:
             VAR[self.value] = {}
         v = VAR[self.value]
+
         for key in self.indices[:-1]:
             try:
                 v = v[key.eval()]
             except KeyError:
                 v[key.eval()] = {}
                 v = v[key.eval()]
-        if len(self.indices) > 0:
-            v[self.indices[-1].eval()] = value.eval()
-        else:
-            VAR[self.value] = value.eval()
+        v[self.indices[-1].eval()] = value.eval()
 
     def getter(self):
         try:
