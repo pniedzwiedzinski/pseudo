@@ -6,31 +6,14 @@ This module contains classes for types in AST.
 __author__ = "Patryk Niedźwiedziński"
 
 from pseudo.type.numbers import Int
-from pseudo.type.base import Value
+from pseudo.type.string import String
+from pseudo.type.bool import Bool
+from pseudo.type.variable import Variable, Assignment
+from pseudo.type.base import Value, EOL
 
-VAR = {}
 
 GROUP_1 = {"*", "div", "mod"}
 GROUP_2 = {"-", "+"}
-
-
-class String(Value):
-    """String value node."""
-
-    def __repr__(self):
-        return f'String("{self.value}")'
-
-
-class Bool(Value):
-    """Bool value node."""
-
-    def __str__(self):
-        if self.value:
-            return "prawda"
-        return "fałsz"
-
-    def __repr__(self):
-        return f"Bool({self.value})"
 
 
 class Operator(Value):
@@ -160,72 +143,6 @@ class Statement:
         return self.__repr__()
 
 
-class Variable(Value):
-    """
-    Node for representing variables.
-
-    Attributes:
-        - value: Name of the variable.
-        - indices: List of indices.
-    """
-
-    def __init__(self, value, indices=[]):
-        self.value = value
-        self.indices = indices
-
-    def eval(self):
-        try:
-            var = VAR[self.value]
-            for key in self.indices:
-                var = var.__getitem__(key.eval())
-            return var
-        except KeyError:
-            return "nil"
-
-    def __repr__(self):
-        return f'Variable("{self.value}", {self.indices})'
-
-    def __str__(self):
-        return self.__repr__()
-
-
-class Assignment:
-    """
-    Node for representing assignments.
-
-    Attributes:
-        - target: Target variable.
-        - value: Value to assign.
-    """
-
-    def __init__(self, target, value):
-        self.target = target
-        self.value = value
-
-    def eval(self):
-        try:
-            v = VAR[self.target.value]
-        except KeyError:
-            VAR[self.target.value] = {}
-            v = VAR[self.target.value]
-        for key in self.target.indices[:-1]:
-            try:
-                v = v[key.eval()]
-            except KeyError:
-                v[key.eval()] = {}
-                v = v[key.eval()]
-        if len(self.target.indices) > 0:
-            v[self.target.indices[-1].eval()] = self.value.eval()
-        else:
-            VAR[self.target.value] = self.value.eval()
-
-    def __repr__(self):
-        return f"Assignment({self.target}, {self.value})"
-
-    def __str__(self):
-        return self.__repr__()
-
-
 class Condition:
     """
     Node for representing conditional expressions (if).
@@ -292,21 +209,3 @@ class Loop:
     def __repr__(self):
         return f"Loop({self.condition}, {self.expressions})"
 
-
-class EOL:
-    """Representation of newline."""
-
-    def __init__(self):
-        pass
-
-    def eval(self):
-        pass
-
-    def __eq__(self, other):
-        return isinstance(other, EOL)
-
-    def __repr__(self):
-        return f"EOL()"
-
-    def __str__(self):
-        return "EOL"

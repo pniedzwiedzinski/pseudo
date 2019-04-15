@@ -69,6 +69,9 @@ dopóki i<=n wykonuj
         pisz "nie"
     pisz "\n"
     i:=i+1
+
+dla a:=1,...,5 wykonuj
+    pisz a
 ```
 
 ## Features
@@ -82,7 +85,7 @@ dopóki i<=n wykonuj
 - [x] `koniec`
 - [x] conditional statement
 - [x] while loop
-- [ ] for loop
+- [x] for loop
 - [x] arrays
 - [ ] functions
 

@@ -21,15 +21,21 @@ Example:
         expression = lex.read_next()
         print(expression)
 
-    If lexer reach the end of input, the `parser.lexer.EndOfFile` exception will be raised.
+    If lexer reach the end of input, the `pseudo.stream.EndOfFile` exception will be raised.
 """
 
 import sys
+import os
 import click
+import datetime
+import traceback
+import codecs
 from pseudo.lexer import Lexer, EndOfFile
+from pseudo.utils import append
+
 
 __author__ = "Patryk Niedźwiedziński"
-__version__ = "0.7.4"
+__version__ = "0.8.0"
 
 
 @click.command()
@@ -47,13 +53,32 @@ def main(file, version):
         sys.exit(1)
     instructions = []
 
-    with open(file) as fp:
+    with codecs.open(file, encoding="utf-8") as fp:
         text_input = fp.read()
+    run(text_input)
 
-    instructions = compile(text_input)
 
-    for i in instructions:
-        i.eval()
+def run(text_input: str):
+    """Run pseudocode string"""
+    try:
+        instructions = compile(text_input)
+
+        for i in instructions:
+            i.eval()
+    except Exception:
+        now = datetime.datetime.now().strftime("%H-%M-%S-%d-%m-%Y")
+        try:
+            os.mkdir("crash")
+        except FileExistsError:
+            pass
+        with open(f"crash/{now}.log", "w") as fp:
+            fp.write(traceback.format_exc())
+        print("⚠️  Error: \n\tRuntime error has occurred!\n")
+        print(
+            "Wow! You encountered a bug! Please tell me how did you do that on https://github.com/pniedzwiedzinski/pseudo/issues\n"
+        )
+        print(f"Error message was copied to {os.getcwd()}/crash/{now}.log")
+        exit(1)
 
 
 def compile(text_input: str) -> list:
@@ -69,5 +94,5 @@ def compile(text_input: str) -> list:
             x = lexer.read_next(prev=x)
         except EndOfFile:
             break
-        instructions.append(x)
+        instructions = append(instructions, x)
     return instructions

@@ -28,3 +28,22 @@ class Value:
 
     def __str__(self):
         return str(self.value)
+
+
+class EOL:
+    """Representation of newline."""
+
+    def __init__(self):
+        pass
+
+    def eval(self):
+        pass
+
+    def __eq__(self, other):
+        return isinstance(other, EOL)
+
+    def __repr__(self):
+        return f"EOL()"
+
+    def __str__(self):
+        return "EOL"
