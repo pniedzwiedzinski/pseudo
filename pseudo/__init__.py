@@ -28,6 +28,7 @@ import sys
 import os
 import click
 import datetime
+import traceback
 from pseudo.lexer import Lexer, EndOfFile
 from pseudo.utils import append
 
@@ -59,10 +60,10 @@ def main(file, version):
     for i in instructions:
         try:
             i.eval()
-        except Exception as err:
+        except Exception:
             now = datetime.datetime.now().strftime("%H-%M-%S-%d-%m-%Y")
             with open(f"crash/{now}.log", "w") as fp:
-                fp.write(str(err))
+                fp.write(traceback.format_exc())
             print("⚠️  Error: \n\tRuntime error has occurred!\n")
             print(
                 "Wow! You encountered a bug! Please tell me how did you do that on https://github.com/pniedzwiedzinski/pseudo/issues\n"
