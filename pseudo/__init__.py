@@ -62,6 +62,7 @@ def main(file, version):
             i.eval()
         except Exception:
             now = datetime.datetime.now().strftime("%H-%M-%S-%d-%m-%Y")
+            os.mkdir("crash")
             with open(f"crash/{now}.log", "w") as fp:
                 fp.write(traceback.format_exc())
             print("⚠️  Error: \n\tRuntime error has occurred!\n")
