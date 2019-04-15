@@ -55,7 +55,11 @@ def main(file, version):
 
     with codecs.open(file, encoding="utf-8") as fp:
         text_input = fp.read()
+    run(text_input)
 
+
+def run(text_input: str):
+    """Run pseudocode string"""
     try:
         instructions = compile(text_input)
 

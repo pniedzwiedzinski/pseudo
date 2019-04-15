@@ -82,7 +82,7 @@ dopóki i<=n wykonuj
 - [x] `koniec`
 - [x] conditional statement
 - [x] while loop
-- [ ] for loop
+- [x] for loop
 - [x] arrays
 - [ ] functions
 
