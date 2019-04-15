@@ -12,13 +12,28 @@ def test_compile():
         raise AssertionError
 
 
+script = """
+a := 1
+jeżeli a=1 to
+    pisz a
+
+dopóki a < 2 wykonuj
+    a:=a+1
+pisz a
+
+dla i:=3,...,5 wykonuj
+    dla x:=3,...,5 wykonuj
+        pisz x
+"""
+
+
 def test_main():
     with open("t1.pdc", "w") as fp:
-        fp.write("pisz 4")
+        fp.write(script)
     cmd = "python3 pdc.py t1.pdc"
     if platform.system() == "Windows":
         cmd = cmd.replace("3", "")
-    if subprocess.getoutput(cmd) != "4":
+    if subprocess.getoutput(cmd) != "12345345345":
         print(cmd)
         print(subprocess.getoutput(cmd))
         raise AssertionError

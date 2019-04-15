@@ -138,18 +138,23 @@ def test_read_for(lexer):
         """dla i:=1,...,5 wykonuj
     pisz i"""
     )
+    lexer.i.col = 4
 
     loop = lexer.read_for()
-    if loop != [
-        Assignment(Variable("i"), Int(1)),
-        Loop(
-            Operation("<=", Variable("i"), Int(5)),
-            [
-                Statement("pisz", args=[Variable("i")]),
-                Assignment(Variable("i"), Operation("+", Variable("i"), 1)),
-            ],
-        ),
-    ]:
+    if compare_list(
+        loop,
+        [
+            Assignment(Variable("i"), Int(1)),
+            Loop(
+                Operation("<=", Variable("i"), Int(5)),
+                [
+                    Statement("pisz", args=Variable("i")),
+                    Assignment(Variable("i"), Operation("+", Variable("i"), 1)),
+                ],
+            ),
+        ],
+    ):
+        print(loop)
         raise AssertionError
 
 

@@ -3,6 +3,7 @@ This module contains Lexer class using to tokenize stream.
 """
 
 from pseudo.stream import Stream, EndOfFile
+from pseudo.utils import append
 from pseudo.type.numbers import is_digit
 from pseudo.type import (
     String,
@@ -231,7 +232,7 @@ class Lexer:
         while not self.i.eol():
             arg = self.read_next(indent_level=indent_level)
             if not isinstance(arg, Value):
-                args.append(arg)
+                args = append(args, arg)
                 continue
             if isinstance(arg, Operator):
                 if len(args) == 0:
@@ -244,7 +245,7 @@ class Lexer:
                 self.i.throw(f"Invalid character '{operator}'")
             if arg == Value("]"):
                 break
-            args.append(arg)
+            args = append(args, arg)
         return args
 
     def read_expression(self, args: list, bracket: bool = None) -> object:
@@ -443,5 +444,5 @@ class Lexer:
                 e = self.read_next(indent_level=indent_level)
             except EndOfFile:
                 break
-            expressions.append(e)
+            expressions = append(expressions, e)
         return expressions
