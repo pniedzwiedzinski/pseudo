@@ -6,7 +6,7 @@ This module contains classes for types in AST.
 __author__ = "Patryk Niedźwiedziński"
 
 from pseudo.type.numbers import Int
-from pseudo.type.base import Value
+from pseudo.type.base import Value, EOL
 
 VAR = {}
 
@@ -173,6 +173,23 @@ class Variable(Value):
         self.value = value
         self.indices = indices
 
+    def setter(self, value):
+        try:
+            v = VAR[self.value]
+        except KeyError:
+            VAR[self.value] = {}
+            v = VAR[self.value]
+        for key in self.indices[:-1]:
+            try:
+                v = v[key.eval()]
+            except KeyError:
+                v[key.eval()] = {}
+                v = v[key.eval()]
+        if len(self.indices) > 0:
+            v[self.indices[-1].eval()] = value.eval()
+        else:
+            VAR[self.value] = value.eval()
+
     def eval(self):
         try:
             var = VAR[self.value]
@@ -203,21 +220,7 @@ class Assignment:
         self.value = value
 
     def eval(self):
-        try:
-            v = VAR[self.target.value]
-        except KeyError:
-            VAR[self.target.value] = {}
-            v = VAR[self.target.value]
-        for key in self.target.indices[:-1]:
-            try:
-                v = v[key.eval()]
-            except KeyError:
-                v[key.eval()] = {}
-                v = v[key.eval()]
-        if len(self.target.indices) > 0:
-            v[self.target.indices[-1].eval()] = self.value.eval()
-        else:
-            VAR[self.target.value] = self.value.eval()
+        self.target.setter(self.value)
 
     def __repr__(self):
         return f"Assignment({self.target}, {self.value})"
@@ -292,21 +295,3 @@ class Loop:
     def __repr__(self):
         return f"Loop({self.condition}, {self.expressions})"
 
-
-class EOL:
-    """Representation of newline."""
-
-    def __init__(self):
-        pass
-
-    def eval(self):
-        pass
-
-    def __eq__(self, other):
-        return isinstance(other, EOL)
-
-    def __repr__(self):
-        return f"EOL()"
-
-    def __str__(self):
-        return "EOL"
