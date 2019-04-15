@@ -8,9 +8,9 @@ __author__ = "Patryk Niedźwiedziński"
 from pseudo.type.numbers import Int
 from pseudo.type.string import String
 from pseudo.type.bool import Bool
+from pseudo.type.variable import Variable, Assignment
 from pseudo.type.base import Value, EOL
 
-VAR = {}
 
 GROUP_1 = {"*", "div", "mod"}
 GROUP_2 = {"-", "+"}
@@ -138,75 +138,6 @@ class Statement:
 
     def __repr__(self):
         return f'Statement("{self.value}", args={self.args})'
-
-    def __str__(self):
-        return self.__repr__()
-
-
-class Variable(Value):
-    """
-    Node for representing variables.
-
-    Attributes:
-        - value: Name of the variable.
-        - indices: List of indices.
-    """
-
-    def __init__(self, value, indices=[]):
-        self.value = value
-        self.indices = indices
-
-    def setter(self, value):
-        try:
-            v = VAR[self.value]
-        except KeyError:
-            VAR[self.value] = {}
-            v = VAR[self.value]
-        for key in self.indices[:-1]:
-            try:
-                v = v[key.eval()]
-            except KeyError:
-                v[key.eval()] = {}
-                v = v[key.eval()]
-        if len(self.indices) > 0:
-            v[self.indices[-1].eval()] = value.eval()
-        else:
-            VAR[self.value] = value.eval()
-
-    def eval(self):
-        try:
-            var = VAR[self.value]
-            for key in self.indices:
-                var = var.__getitem__(key.eval())
-            return var
-        except KeyError:
-            return "nil"
-
-    def __repr__(self):
-        return f'Variable("{self.value}", {self.indices})'
-
-    def __str__(self):
-        return self.__repr__()
-
-
-class Assignment:
-    """
-    Node for representing assignments.
-
-    Attributes:
-        - target: Target variable.
-        - value: Value to assign.
-    """
-
-    def __init__(self, target, value):
-        self.target = target
-        self.value = value
-
-    def eval(self):
-        self.target.setter(self.value)
-
-    def __repr__(self):
-        return f"Assignment({self.target}, {self.value})"
 
     def __str__(self):
         return self.__repr__()

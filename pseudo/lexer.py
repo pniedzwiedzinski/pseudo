@@ -4,22 +4,19 @@ This module contains Lexer class using to tokenize stream.
 
 from pseudo.stream import Stream, EndOfFile
 from pseudo.utils import append
-from pseudo.type.numbers import is_digit, read_number
-from pseudo.type.string import read_string
-from pseudo.type.bool import read_bool
+from pseudo.type.numbers import Int, is_digit, read_number
+from pseudo.type.string import String, read_string
+from pseudo.type.bool import Bool, read_bool
 from pseudo.type import (
-    String,
-    Int,
     Operation,
     Operator,
     Statement,
     EOL,
     Variable,
     Assignment,
-    Bool,
     Value,
     Condition,
-    Loop
+    Loop,
 )
 from pseudo.exceptions import IndentationBlockEnd, Comment
 
@@ -39,6 +36,8 @@ class Lexer:
         - keywords: A set of all keywords in pseudo.
         - operators: A set of operators in pseudo.
         - operator_keywords: A set of operators written as string.
+        - range_symbol: String used to define range in for loop.
+        - indent_char: Character of indentation (" " or "\t").
         - indent_size: Size of indentation using in particular file.
 
     Usage::
@@ -50,7 +49,17 @@ class Lexer:
     def __init__(self, inp):
         """Inits Lexer with input."""
         self.i = Stream(inp)
-        self.keywords = {"pisz", "koniec", "czytaj", "jeżeli", "to", "wpp", "dopóki", "wykonuj", "dla"}
+        self.keywords = {
+            "pisz",
+            "koniec",
+            "czytaj",
+            "jeżeli",
+            "to",
+            "wpp",
+            "dopóki",
+            "wykonuj",
+            "dla",
+        }
         self.operators = {"+", "-", "*", ":", "<", ">", "=", "!"}
         self.operator_keywords = {"div", "mod"}
         self.range_symbol = "..."
@@ -60,8 +69,6 @@ class Lexer:
     def is_keyword(self, string) -> bool:
         """Checks if given string is a keyword."""
         return string in self.keywords or string == self.range_symbol
-
-
 
     def is_operator(self, c) -> bool:
         """Checks if given char is an allowed operator."""
@@ -79,9 +86,13 @@ class Lexer:
         `asd1+asd2` - This is two keywords with `+` in between them.
         """
         try:
-            return not (self.is_operator(c) or c == " " or c in {"(",")","[","]","{","}", ","})
+            return (
+                self.is_operator(c)
+                or c == " "
+                or c in {"(", ")", "[", "]", "{", "}", ","}
+            )
         except TypeError:
-            return False
+            return True
 
     def update_args(self, args, i):
         """Update args with new operation instance."""
@@ -111,11 +122,9 @@ class Lexer:
             expression += self.i.next()
         return expression
 
-
-
     def read_if(self, indent_level: int = 0) -> Condition:
         """Read if statement."""
-        #TODO: tests
+        # TODO: tests
         condition = self.read_condition("jeżeli", indent_level=indent_level)
         self.i.next_line()
         true = self.read_indent_block(indent_level=indent_level + 1)
@@ -144,7 +153,7 @@ class Lexer:
 
     def read_while(self, indent_level: int = 0) -> Loop:
         """Read while statement."""
-        #TODO: test
+        # TODO: test
         condition = self.read_condition("dopóki", indent_level=indent_level)
         self.i.next_line()
         expressions = self.read_indent_block(indent_level=indent_level + 1)
@@ -175,13 +184,18 @@ class Lexer:
             self.i.throw(f"Expected assignment symbol")
         a, b = self.read_range()
         self.i.next_line()
-        expressions = self.read_indent_block(indent_level+1)
-        expressions.append(Assignment(condition, Operation(Operator("+"), condition, Int(1))))
-        return [Assignment(condition, a), Loop(Operation(Operator("<="), condition, b), expressions)]
+        expressions = self.read_indent_block(indent_level + 1)
+        expressions.append(
+            Assignment(condition, Operation(Operator("+"), condition, Int(1)))
+        )
+        return [
+            Assignment(condition, a),
+            Loop(Operation(Operator("<="), condition, b), expressions),
+        ]
 
     def read_keyword(self) -> str:
         """Read a keyword from the stream."""
-        keyword = self.read(self.is_keyword_end)
+        keyword = self.read(lambda c: not self.is_keyword_end(c))
         return keyword
 
     def read_condition(self, keyword, indent_level: int = 0) -> object:
@@ -238,7 +252,7 @@ class Lexer:
                             args = self.update_args(args, i + 2)
                     except IndexError:
                         args = self.update_args(args, i)
-                elif len(args) < i+1 and not isinstance(args[i+1], Operator):
+                elif len(args) < i + 1 and not isinstance(args[i + 1], Operator):
                     self.i.throw(f"Undefined operation ☹️")
                 i += 1
         return args[0]

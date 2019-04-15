@@ -18,6 +18,7 @@ def stream():
     return _s
 
 
+@pytest.mark.timeout(2)
 def test_next_line(stream):
     """Checks Stream.next_line"""
     s = stream("1\n2")
@@ -27,6 +28,7 @@ def test_next_line(stream):
         raise AssertionError
 
 
+@pytest.mark.timeout(2)
 def test_next(stream):
     """Checks Stream.next"""
     s = stream("1\n")
@@ -35,6 +37,7 @@ def test_next(stream):
         raise AssertionError
 
 
+@pytest.mark.timeout(2)
 def test_eol(stream):
     """Checks Stream.eol"""
     s = stream("\n1\n")
@@ -48,6 +51,7 @@ def test_eol(stream):
         raise AssertionError
 
 
+@pytest.mark.timeout(2)
 def test_eof(stream):
     """Checks Stream.eof"""
     s = stream("1")
@@ -58,6 +62,7 @@ def test_eof(stream):
         raise AssertionError
 
 
+@pytest.mark.timeout(2)
 def test_throw(stream):
     """Checks Stream.throw"""
     s = stream("test")

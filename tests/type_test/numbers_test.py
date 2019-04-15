@@ -2,10 +2,12 @@
 
 __author__ = "Patryk Niedźwiedziński"
 
+import pytest
 from pseudo.type.numbers import is_digit, read_number
 from pseudo.stream import Stream
 
 
+@pytest.mark.timeout(2)
 def test_is_digit():
     """Check is_digit"""
     if is_digit("1") is False:
@@ -19,6 +21,7 @@ def test_is_digit():
         raise AssertionError
 
 
+@pytest.mark.timeout(2)
 def test_read_number(lexer):
     """Checks read_number"""
     lexer.i = Stream("123")

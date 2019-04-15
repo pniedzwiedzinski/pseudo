@@ -1,6 +1,6 @@
 """This module contains unit tests for lexer module."""
 
-
+import pytest
 import pseudo
 
 from pseudo.type import (
@@ -34,6 +34,7 @@ def compare_list(first: list, second: list) -> bool:
     return all([a == b for a, b in zip(first, second)])
 
 
+@pytest.mark.timeout(2)
 def test_is_keyword(lexer):
     """Check Lexer.is_keyword"""
     if lexer.is_keyword("pisz") is False:
@@ -47,6 +48,7 @@ def test_is_keyword(lexer):
         raise AssertionError
 
 
+@pytest.mark.timeout(2)
 def test_is_operator(lexer):
     """Checks Lexer.is_operator"""
     if not (
@@ -58,16 +60,21 @@ def test_is_operator(lexer):
         raise AssertionError
 
 
+@pytest.mark.timeout(2)
 def test_is_keyword_end(lexer):
     """Checks Lexer.is_not_keyword_end"""
-    if not (
-        lexer.is_keyword_end("a") is True
-        and lexer.is_keyword_end("+") is False
-        and lexer.is_keyword_end("!") is False
-    ):
+    if lexer.is_keyword_end("a") is True:
+        print(lexer.is_keyword_end("a"))
+        raise AssertionError
+    if lexer.is_keyword_end("+") is False:
+        print(lexer.is_keyword_end("+"))
+        raise AssertionError
+    if lexer.is_keyword_end("!") is False:
+        print(lexer.is_keyword_end("!"))
         raise AssertionError
 
 
+@pytest.mark.timeout(2)
 def test_update_args(lexer):
     """Checks Lexer.update_args"""
     if lexer.update_args([Int(2), Operator("+"), Int(2)], 1) != [
@@ -77,6 +84,7 @@ def test_update_args(lexer):
         raise AssertionError
 
 
+@pytest.mark.timeout(2)
 def test_read_if(lexer):
     """Checks Lexer.read_if"""
     lexer.i = Stream(
@@ -96,6 +104,7 @@ wpp
         raise AssertionError
 
 
+@pytest.mark.timeout(2)
 def test_read_for(lexer):
     """Checks Lexer.read_for"""
     lexer.i = Stream(
@@ -122,6 +131,7 @@ def test_read_for(lexer):
         raise AssertionError
 
 
+@pytest.mark.timeout(2)
 def test_read_keyword(lexer):
     """Checks Lexer.read_keyword"""
     lexer.i = Stream("pisz x")
@@ -129,6 +139,7 @@ def test_read_keyword(lexer):
         raise AssertionError
 
 
+@pytest.mark.timeout(2)
 def test_read_condition(lexer):
     """Checks Lexer.read_condition"""
     # TODO: Fix test
@@ -145,6 +156,7 @@ def test_read_condition(lexer):
         raise AssertionError
 
 
+@pytest.mark.timeout(2)
 def test_read_args(lexer):
     """Checks Lexer.read_args"""
     lexer.i = Stream("    12")
@@ -164,6 +176,7 @@ def test_read_args(lexer):
         raise AssertionError
 
 
+@pytest.mark.timeout(2)
 def test_read_expression(lexer):
     """Checks Lexer.read_expression"""
     if (
@@ -175,6 +188,7 @@ def test_read_expression(lexer):
         raise AssertionError
 
 
+@pytest.mark.timeout(2)
 def test_read_next(lexer):
     """checks Lexer.read_next"""
     lexer.i = Stream(
@@ -196,6 +210,7 @@ pisz 4
         pass
 
 
+@pytest.mark.timeout(2)
 def test_read_indent(lexer):
     """Checks Lexer.read_indent"""
     lexer.i = Stream("    pisz 4")
@@ -206,6 +221,7 @@ def test_read_indent(lexer):
         raise AssertionError
 
 
+@pytest.mark.timeout(2)
 def test_read_indent_block(lexer):
     """Checks Lexer.read_indent_block"""
     lexer.i = Stream(
@@ -241,6 +257,7 @@ def test_read_indent_block(lexer):
         raise AssertionError
 
 
+@pytest.mark.timeout(2)
 def test_read_indent_size(lexer):
     """Checks Lexer.read_indent_size"""
     lexer.i = Stream("    test")
