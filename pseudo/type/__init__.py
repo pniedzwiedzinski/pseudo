@@ -6,19 +6,13 @@ This module contains classes for types in AST.
 __author__ = "Patryk Niedźwiedziński"
 
 from pseudo.type.numbers import Int
+from pseudo.type.string import String
 from pseudo.type.base import Value, EOL
 
 VAR = {}
 
 GROUP_1 = {"*", "div", "mod"}
 GROUP_2 = {"-", "+"}
-
-
-class String(Value):
-    """String value node."""
-
-    def __repr__(self):
-        return f'String("{self.value}")'
 
 
 class Bool(Value):

@@ -1,6 +1,6 @@
 """This module contains unit tests for lexer module."""
 
-import pytest
+
 import pseudo
 
 from pseudo.type import (
@@ -34,13 +34,6 @@ def compare_list(first: list, second: list) -> bool:
     return all([a == b for a, b in zip(first, second)])
 
 
-@pytest.fixture
-def lexer():
-    """Returns lexer object."""
-    lex = pseudo.lexer.Lexer("")
-    return lex
-
-
 def test_is_keyword(lexer):
     """Check Lexer.is_keyword"""
     if lexer.is_keyword("pisz") is False:
@@ -51,18 +44,6 @@ def test_is_keyword(lexer):
         raise AssertionError
     if lexer.is_keyword("koniec") is False:
         print(lexer.is_keyword("koniec"))
-        raise AssertionError
-
-
-def test_is_alphabet(lexer):
-    """Check Lexer.is_alphabet"""
-    if not (
-        lexer.is_alphabet("a") is True
-        and lexer.is_alphabet("A") is True
-        and lexer.is_alphabet("1") is False
-        and lexer.is_alphabet("*") is False
-        and lexer.is_alphabet(1) is False
-    ):
         raise AssertionError
 
 
@@ -93,23 +74,6 @@ def test_update_args(lexer):
         Operation(Operator("+"), Int(2), Int(2))
     ]:
         print(lexer.update_args([Int(2), Operator("+"), Int(2)], 1))
-        raise AssertionError
-
-
-def test_read_number(lexer):
-    """Checks Lexer.read_number"""
-    lexer.i = Stream("123")
-    if 123 != lexer.read_number().value:
-        raise AssertionError
-    lexer.i = Stream("abc")
-    if lexer.read_number() is not None:
-        raise AssertionError
-
-
-def test_read_string(lexer):
-    """Checks Lexer.read_string"""
-    lexer.i = Stream('"abc"')
-    if "abc" != lexer.read_string().value:
         raise AssertionError
 
 

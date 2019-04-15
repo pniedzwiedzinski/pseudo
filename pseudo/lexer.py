@@ -4,7 +4,8 @@ This module contains Lexer class using to tokenize stream.
 
 from pseudo.stream import Stream, EndOfFile
 from pseudo.utils import append
-from pseudo.type.numbers import is_digit
+from pseudo.type.numbers import is_digit, read_number
+from pseudo.type.string import read_string
 from pseudo.type import (
     String,
     Int,
@@ -59,14 +60,6 @@ class Lexer:
         """Checks if given string is a keyword."""
         return string in self.keywords or string == self.range_symbol
 
-    @staticmethod
-    def is_alphabet(c) -> bool:
-        """Checks if given char is from alphabet."""
-        try:
-            ascii = ord(c)
-            return (ascii >= 65 and ascii <= 90) or (ascii >= 97 and ascii <= 122)
-        except TypeError:
-            return False
 
 
     def is_operator(self, c) -> bool:
@@ -116,27 +109,6 @@ class Lexer:
                 break
             expression += self.i.next()
         return expression
-
-    def read_number(self) -> Int:
-        """Read a number from the stream."""
-        number = self.read(is_digit)
-        try:
-            int(number)
-        except ValueError:
-            return None
-        return Int(number)
-
-    def read_string(self) -> String:
-        """Read a string from the stream."""
-        self.i.next()
-        string = self.read(lambda c: c != '"')
-        try:
-            string_end = self.i.next() == '"'
-        except IndexError:
-            string_end = False
-        if not string_end:
-            self.i.throw(f"Could not parse string")
-        return String(string)
 
     def read_bool(self, keyword: str) -> Bool:
         """Parse bool str to Bool object."""
@@ -323,14 +295,14 @@ class Lexer:
             return Value(c)
 
         if c == '"' or c == "'":
-            return self.read_string()
+            return read_string()
 
         if self.is_operator(c):
             self.i.next()
             return self.read_operator(c)
 
         if is_digit(c):
-            return self.read_number()
+            return read_number(self)
 
         elif c not in {" ", "\t"}:
             col = self.i.col
