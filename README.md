@@ -69,6 +69,9 @@ dopóki i<=n wykonuj
         pisz "nie"
     pisz "\n"
     i:=i+1
+
+dla a:=1,...,5 wykonuj
+    pisz a
 ```
 
 ## Features

@@ -35,7 +35,7 @@ from pseudo.utils import append
 
 
 __author__ = "Patryk Niedźwiedziński"
-__version__ = "0.8.0a"
+__version__ = "0.8.0"
 
 
 @click.command()
