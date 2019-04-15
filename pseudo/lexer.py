@@ -3,6 +3,7 @@ This module contains Lexer class using to tokenize stream.
 """
 
 from pseudo.stream import Stream, EndOfFile
+from pseudo.utils import append
 from pseudo.type.numbers import is_digit
 from pseudo.type import (
     String,
@@ -47,15 +48,16 @@ class Lexer:
     def __init__(self, inp):
         """Inits Lexer with input."""
         self.i = Stream(inp)
-        self.keywords = {"pisz", "koniec", "czytaj", "jeżeli", "to", "wpp", "dopóki", "wykonuj"}
+        self.keywords = {"pisz", "koniec", "czytaj", "jeżeli", "to", "wpp", "dopóki", "wykonuj", "dla"}
         self.operators = {"+", "-", "*", ":", "<", ">", "=", "!"}
         self.operator_keywords = {"div", "mod"}
+        self.range_symbol = "..."
         self.indent_char = None
         self.indent_size = None
 
     def is_keyword(self, string) -> bool:
         """Checks if given string is a keyword."""
-        return string in self.keywords
+        return string in self.keywords or string == self.range_symbol
 
     @staticmethod
     def is_alphabet(c) -> bool:
@@ -83,7 +85,7 @@ class Lexer:
         `asd1+asd2` - This is two keywords with `+` in between them.
         """
         try:
-            return not (self.is_operator(c) or c == " " or c in {"(",")","[","]","{","}"})
+            return not (self.is_operator(c) or c == " " or c in {"(",")","[","]","{","}", ","})
         except TypeError:
             return False
 
@@ -183,6 +185,33 @@ class Lexer:
             self.i.throw(f"Expected indented code, instead got 'nil'")
         return Loop(condition, expressions)
 
+    def read_range(self) -> tuple:
+        """Read range `a,...,b`"""
+        a = self.read_args()
+        a = self.read_expression(a)
+        r = self.read_next()
+        if not isinstance(r, str) or r != self.range_symbol:
+            self.i.throw(f"Expected {self.range_symbol}, but {r} was given")
+        self.i.next()
+        b = self.read_condition("dopóki")
+        return (a, b)
+
+    def read_for(self, indent_level: int = 0) -> Loop:
+        """Read for statement."""
+        self.read_white_chars()
+        condition = self.read_next()
+        if not isinstance(condition, Variable):
+            self.i.throw(f"Expected Variable, but {type(condition)} was given")
+        self.read_white_chars()
+        assign = self.read_operator(self.i.next())
+        if not isinstance(assign, str) or (assign != ":=" and assign != "<-"):
+            self.i.throw(f"Expected assignment symbol")
+        a, b = self.read_range()
+        self.i.next_line()
+        expressions = self.read_indent_block(indent_level+1)
+        expressions.append(Assignment(condition, Operation(Operator("+"), condition, Int(1))))
+        return [Assignment(condition, a), Loop(Operation(Operator("<="), condition, b), expressions)]
+
     def read_keyword(self) -> str:
         """Read a keyword from the stream."""
         keyword = self.read(self.is_keyword_end)
@@ -203,18 +232,20 @@ class Lexer:
         while not self.i.eol():
             arg = self.read_next(indent_level=indent_level)
             if not isinstance(arg, Value):
-                args.append(arg)
+                args = append(args, arg)
                 continue
             if isinstance(arg, Operator):
                 if len(args) == 0:
                     args.append(Int(0))
+            if arg == Value(","):
+                break
             if arg == Value(")"):
                 if bracket:
                     break
                 self.i.throw(f"Invalid character '{operator}'")
             if arg == Value("]"):
                 break
-            args.append(arg)
+            args = append(args, arg)
         return args
 
     def read_expression(self, args: list, bracket: bool = None) -> object:
@@ -258,6 +289,10 @@ class Lexer:
                 return Operator(c + self.i.next())
         return Operator(c)
 
+    def read_white_chars(self) -> None:
+        """Read white chars from stream."""
+        self.read(lambda c: c == " " or c == "\t", eol=False)
+
     def read_next(self, prev: object = None, indent_level: int = 0) -> object:
         """Read next elements from the stream and guess the type."""
         if self.i.eof():
@@ -267,7 +302,7 @@ class Lexer:
         except TypeError:
             i = 0
         if self.i.col > i:
-            self.read(lambda c: c == " " or c == "\t", eol=False)
+            self.read_white_chars()
         c = self.i.peek()
 
         if isinstance(c, EOL):
@@ -280,7 +315,7 @@ class Lexer:
             self.i.next_line()
             return EOL()
 
-        if c in {"(", ")", "]"}:
+        if c in {"(", ")", "]", ","}:
             self.i.next()
             if c == "(":
                 args = self.read_args(bracket=True)
@@ -301,6 +336,8 @@ class Lexer:
             col = self.i.col
             keyword = self.read_keyword()
             if self.is_keyword(keyword):
+                if keyword == self.range_symbol:
+                    return keyword
                 if keyword == "wpp":
                     if isinstance(prev, Condition):
                         return keyword
@@ -311,6 +348,8 @@ class Lexer:
                     return self.read_if(indent_level)
                 if keyword == "dopóki":
                     return self.read_while(indent_level)
+                if keyword == "dla":
+                    return self.read_for(indent_level)
                 arg = self.read_args()
                 arg = self.read_expression(arg)
                 if keyword == "czytaj":
@@ -405,5 +444,5 @@ class Lexer:
                 e = self.read_next(indent_level=indent_level)
             except EndOfFile:
                 break
-            expressions.append(e)
+            expressions = append(expressions, e)
         return expressions

@@ -7,7 +7,9 @@ coverage.xml
 
 build
 dist
+crash
 
+t*.pdc
 *.spec
 
 .DS_Store

@@ -3,7 +3,17 @@
 import pytest
 import pseudo
 
-from pseudo.type import Operation, Operator, Int, Statement, Bool, Condition
+from pseudo.type import (
+    Operation,
+    Operator,
+    Int,
+    Statement,
+    Bool,
+    Condition,
+    Loop,
+    Variable,
+    Assignment,
+)
 from pseudo.stream import Stream, EOL, EndOfFile
 
 __author__ = "Patryk Niedźwiedziński"
@@ -119,6 +129,32 @@ wpp
         [Statement("pisz", args=Int(4)), EOL()],
         [Statement("pisz", args=Int(3)), EOL()],
     ):
+        raise AssertionError
+
+
+def test_read_for(lexer):
+    """Checks Lexer.read_for"""
+    lexer.i = Stream(
+        """dla i:=1,...,5 wykonuj
+    pisz i"""
+    )
+    lexer.i.col = 4
+
+    loop = lexer.read_for()
+    if compare_list(
+        loop,
+        [
+            Assignment(Variable("i"), Int(1)),
+            Loop(
+                Operation("<=", Variable("i"), Int(5)),
+                [
+                    Statement("pisz", args=Variable("i")),
+                    Assignment(Variable("i"), Operation("+", Variable("i"), 1)),
+                ],
+            ),
+        ],
+    ):
+        print(loop)
         raise AssertionError
 
 
@@ -256,4 +292,3 @@ def test_read_indent_size(lexer):
 
     if lexer.indent_size != 1 or lexer.indent_char != "\t":
         raise AssertionError
-
