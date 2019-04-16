@@ -162,10 +162,11 @@ class Lexer:
         return Loop(condition, expressions)
 
     def read_range(self) -> tuple:
-        """Read range `a,...,b`"""
+        """Read range `a ,..., b`"""
         a = self.read_args()
         a = self.read_expression(a)
         r = self.read_next()
+
         if not isinstance(r, str) or r != self.range_symbol:
             self.i.throw(f"Expected {self.range_symbol}, but {r} was given")
         self.i.next()
@@ -176,12 +177,14 @@ class Lexer:
         """Read for statement."""
         self.read_white_chars()
         condition = self.read_next()
+
         if not isinstance(condition, Variable):
             self.i.throw(f"Expected Variable, but {type(condition)} was given")
         self.read_white_chars()
         assign = self.read_operator(self.i.next())
         if not isinstance(assign, str) or (assign != ":=" and assign != "<-"):
             self.i.throw(f"Expected assignment symbol")
+
         a, b = self.read_range()
         self.i.next_line()
         expressions = self.read_indent_block(indent_level + 1)
@@ -237,6 +240,10 @@ class Lexer:
         args = []
         while not self.i.eol():
             arg = self.read_next(indent_level=indent_level)
+
+            if arg == self.range_symbol:
+                self.i.col -= len(self.range_symbol)
+                break
             if not isinstance(arg, Value):
                 args = append(args, arg)
                 continue
@@ -251,6 +258,7 @@ class Lexer:
                 self.i.throw(f"Invalid character '{operator}'")
             if arg == Value("]"):
                 break
+
             args = append(args, arg)
         return args
 

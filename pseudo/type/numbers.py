@@ -11,9 +11,6 @@ class Int(Value):
     def __init__(self, value):
         self.value = int(value)
 
-    def __eq__(self, other):
-        return self.value == other.value
-
     def __repr__(self):
         return f"Int({repr(self.value)})"
 

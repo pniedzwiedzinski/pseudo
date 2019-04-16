@@ -41,8 +41,9 @@ __version__ = "0.8.1a"
 
 @click.command()
 @click.option("--version", "-v", help="Display version", is_flag=True)
+@click.option("--range-symbol", default="...")
 @click.argument("file", type=click.Path(exists=True), required=False)
-def main(file, version):
+def main(file, version, range_symbol):
     """Run pseudocode file."""
 
     if version:
@@ -56,13 +57,13 @@ def main(file, version):
 
     with codecs.open(file, encoding="utf-8") as fp:
         text_input = fp.read()
-    run(text_input)
+    run(text_input, range_symbol)
 
 
-def run(text_input: str):
+def run(text_input: str, range_symbol: str = "..."):
     """Run pseudocode string"""
     try:
-        instructions = compile(text_input)
+        instructions = compile(text_input, range_symbol)
 
         for i in instructions:
             i.eval()
@@ -82,10 +83,11 @@ def run(text_input: str):
         exit(1)
 
 
-def compile(text_input: str) -> list:
+def compile(text_input: str, range_symbol: str = "...") -> list:
     """Compile from string to list of operations."""
 
     lexer = Lexer(text_input)
+    lexer.range_symbol = range_symbol
 
     x = None
     instructions = []
