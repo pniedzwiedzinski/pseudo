@@ -70,11 +70,14 @@ class Operator(Value):
         return False
 
     def __eq__(self, o):
-        if self.value in GROUP_1 and o.value in GROUP_1:
-            return True
-        if self.value in GROUP_2 and o.value in GROUP_2:
-            return True
-        return False
+        try:
+            if self.value in GROUP_1 and o.value in GROUP_1:
+                return True
+            if self.value in GROUP_2 and o.value in GROUP_2:
+                return True
+            return False
+        except AttributeError:
+            return False
 
     def __repr__(self):
         return self.value
@@ -92,7 +95,10 @@ class Operation:
         return self.operator.eval(self.left, self.right)
 
     def __eq__(self, other):
-        return self.__dict__ == other.__dict__
+        try:
+            return self.__dict__ == other.__dict__
+        except AttributeError:
+            return False
 
     def __repr__(self):
         return f"({self.left}{self.operator}{self.right})"

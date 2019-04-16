@@ -162,10 +162,11 @@ class Lexer:
         return Loop(condition, expressions)
 
     def read_range(self) -> tuple:
-        """Read range `a,...,b`"""
+        """Read range `a ,..., b`"""
         a = self.read_args()
         a = self.read_expression(a)
         r = self.read_next()
+
         if not isinstance(r, str) or r != self.range_symbol:
             self.i.throw(f"Expected {self.range_symbol}, but {r} was given")
         self.i.next()
@@ -176,12 +177,14 @@ class Lexer:
         """Read for statement."""
         self.read_white_chars()
         condition = self.read_next()
+
         if not isinstance(condition, Variable):
             self.i.throw(f"Expected Variable, but {type(condition)} was given")
         self.read_white_chars()
         assign = self.read_operator(self.i.next())
         if not isinstance(assign, str) or (assign != ":=" and assign != "<-"):
             self.i.throw(f"Expected assignment symbol")
+
         a, b = self.read_range()
         self.i.next_line()
         expressions = self.read_indent_block(indent_level + 1)
@@ -198,6 +201,31 @@ class Lexer:
         keyword = self.read(lambda c: not self.is_keyword_end(c))
         return keyword
 
+    def read_builtin(self, keyword: str, indent_level: int, prev: object) -> object:
+        """Read builtin statement, expression from input stream i.e.: if, while etc"""
+        if keyword == self.range_symbol:
+            return keyword
+        if keyword == "wpp":
+            if isinstance(prev, Condition):
+                return keyword
+            self.i.throw(f"Unexpected keyword '{keyword}'")
+        if keyword == "to" or keyword == "wykonuj":
+            return keyword
+        if keyword == "jeżeli":
+            return self.read_if(indent_level)
+        if keyword == "dopóki":
+            return self.read_while(indent_level)
+        if keyword == "dla":
+            return self.read_for(indent_level)
+        arg = self.read_args()
+        arg = self.read_expression(arg)
+        if keyword == "czytaj":
+            if not isinstance(arg, Variable):
+                self.i.throw("Statement 'czytaj' requires variable as argument")
+        if isinstance(arg, Statement):
+            self.i.throw(f"Statement '{keyword}' cannot take '{arg}' as argument")
+        return Statement(keyword, args=arg)
+
     def read_condition(self, keyword, indent_level: int = 0) -> object:
         """Read condition of conditional expression."""
         m = {"jeżeli": "to", "dopóki": "wykonuj"}
@@ -212,6 +240,10 @@ class Lexer:
         args = []
         while not self.i.eol():
             arg = self.read_next(indent_level=indent_level)
+
+            if arg == self.range_symbol:
+                self.i.col -= len(self.range_symbol)
+                break
             if not isinstance(arg, Value):
                 args = append(args, arg)
                 continue
@@ -226,6 +258,7 @@ class Lexer:
                 self.i.throw(f"Invalid character '{operator}'")
             if arg == Value("]"):
                 break
+
             args = append(args, arg)
         return args
 
@@ -252,7 +285,7 @@ class Lexer:
                             args = self.update_args(args, i + 2)
                     except IndexError:
                         args = self.update_args(args, i)
-                elif len(args) < i + 1 and not isinstance(args[i + 1], Operator):
+                elif len(args) > i + 1 and not isinstance(args[i + 1], Operator):
                     self.i.throw(f"Undefined operation ☹️")
                 i += 1
         return args[0]
@@ -276,20 +309,15 @@ class Lexer:
 
     def read_next(self, prev: object = None, indent_level: int = 0) -> object:
         """Read next elements from the stream and guess the type."""
-        if self.i.eof():
-            raise EndOfFile
-        try:
-            i = indent_level * self.indent_size
-        except TypeError:
+        i = self.indent_size
+        if self.indent_size is None:
             i = 0
-        if self.i.col > i:
+        if self.i.col > i * indent_level:
             self.read_white_chars()
         c = self.i.peek()
 
         if isinstance(c, EOL):
             self.i.next_line()
-            if self.i.eof():
-                raise EndOfFile
             return c
 
         if c == "#":
@@ -317,30 +345,7 @@ class Lexer:
             col = self.i.col
             keyword = self.read_keyword()
             if self.is_keyword(keyword):
-                if keyword == self.range_symbol:
-                    return keyword
-                if keyword == "wpp":
-                    if isinstance(prev, Condition):
-                        return keyword
-                    self.i.throw(f"Unexpected keyword '{keyword}'")
-                if keyword == "to" or keyword == "wykonuj":
-                    return keyword
-                if keyword == "jeżeli":
-                    return self.read_if(indent_level)
-                if keyword == "dopóki":
-                    return self.read_while(indent_level)
-                if keyword == "dla":
-                    return self.read_for(indent_level)
-                arg = self.read_args()
-                arg = self.read_expression(arg)
-                if keyword == "czytaj":
-                    if not isinstance(arg, Variable):
-                        self.i.throw("Statement 'czytaj' requires variable as argument")
-                if isinstance(arg, Statement):
-                    self.i.throw(
-                        f"Statement '{keyword}' cannot take '{arg}' as argument"
-                    )
-                return Statement(keyword, args=arg)
+                return self.read_builtin(keyword, indent_level, prev)
             if keyword in self.operator_keywords:
                 return Operator(keyword)
             if keyword == "prawda" or keyword == "fałsz":
@@ -351,7 +356,7 @@ class Lexer:
                 arg = self.read_args()
                 exp = self.read_expression(arg)
                 indices.append(exp)
-            if col == i:
+            if col == i * indent_level:
                 operator = self.read_next()
                 if isinstance(operator, EOL):
                     return Variable(keyword, indices)

@@ -35,6 +35,8 @@ class Stream:
     def next_line(self):
         """Move cursor to next line."""
         self.line += 1
+        if self.line > len(self.input):
+            raise EndOfFile
         self.col = 0
 
     def next(self) -> str:
