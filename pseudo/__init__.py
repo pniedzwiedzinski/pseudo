@@ -41,7 +41,11 @@ __version__ = "0.8.1a"
 
 @click.command()
 @click.option("--version", "-v", help="Display version", is_flag=True)
-@click.option("--range-symbol", default="...")
+@click.option(
+    "--range-symbol",
+    default="...",
+    help="Set range symbol in for loop (default: '...')",
+)
 @click.argument("file", type=click.Path(exists=True), required=False)
 def main(file, version, range_symbol):
     """Run pseudocode file."""
