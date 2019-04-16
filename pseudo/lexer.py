@@ -285,7 +285,7 @@ class Lexer:
                             args = self.update_args(args, i + 2)
                     except IndexError:
                         args = self.update_args(args, i)
-                elif len(args) < i + 1 and not isinstance(args[i + 1], Operator):
+                elif len(args) > i + 1 and not isinstance(args[i + 1], Operator):
                     self.i.throw(f"Undefined operation ☹️")
                 i += 1
         return args[0]

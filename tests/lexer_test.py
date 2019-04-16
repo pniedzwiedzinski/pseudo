@@ -187,6 +187,13 @@ def test_read_expression(lexer):
         != 6
     ):
         raise AssertionError
+    
+    try:
+        lexer.read_expression([Int(2), Bool(1)])
+    except SystemExit:
+        pass
+    else:
+        raise AssertionError
 
 
 @pytest.mark.timeout(2)
