@@ -30,12 +30,13 @@ import click
 import datetime
 import traceback
 import codecs
+import gc
 from pseudo.lexer import Lexer, EndOfFile
 from pseudo.utils import append
 
 
 __author__ = "Patryk Niedźwiedziński"
-__version__ = "0.8.0"
+__version__ = "0.8.1a"
 
 
 @click.command()
@@ -95,4 +96,6 @@ def compile(text_input: str) -> list:
         except EndOfFile:
             break
         instructions = append(instructions, x)
+    del lexer
+    gc.collect()
     return instructions

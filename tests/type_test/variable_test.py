@@ -22,15 +22,17 @@ def test_getter(test):
 
     test(v, 3)
 
+    test(Variable("o").getter(), "nil")
+
 
 @pytest.mark.timeout(2)
 def test_setter(test):
     """Checks Variable.setter"""
-    Variable("a").setter(Int(1))
+    Variable("c").setter(Int(1))
 
-    test(VAR["a"], 1)
+    test(VAR["c"], 1)
 
-    Variable("b", indices=[Int(1), Int(5)]).setter(Int(3))
+    Variable("d", indices=[Int(1), Int(5)]).setter(Int(3))
 
-    test(VAR["b"][1][5], 3)
+    test(VAR["d"][1][5], 3)
 

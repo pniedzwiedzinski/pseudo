@@ -85,23 +85,24 @@ def test_update_args(lexer):
 
 
 @pytest.mark.timeout(2)
-def test_read_if(lexer):
+def test_read_if(lexer, test):
     """Checks Lexer.read_if"""
     lexer.i = Stream(
         """jeżeli prawda to
     pisz 4
 wpp
-    pisz 3
-    """
+    pisz 3"""
     )
     lexer.i.col = 7
 
-    if lexer.read_if() != Condition(
-        Bool(1),
-        [Statement("pisz", args=Int(4)), EOL()],
-        [Statement("pisz", args=Int(3)), EOL()],
-    ):
-        raise AssertionError
+    test(
+        lexer.read_if(),
+        Condition(
+            Bool(1),
+            [Statement("pisz", args=Int(4)), EOL()],
+            [Statement("pisz", args=Int(3)), EOL()],
+        ),
+    )
 
 
 @pytest.mark.timeout(2)
@@ -189,7 +190,7 @@ def test_read_expression(lexer):
 
 
 @pytest.mark.timeout(2)
-def test_read_next(lexer):
+def test_read_next(lexer, test):
     """checks Lexer.read_next"""
     lexer.i = Stream(
         """
@@ -197,15 +198,12 @@ pisz 4
 """
     )
 
-    if lexer.read_next() != EOL():
-        raise AssertionError
+    test(lexer.read_next(), EOL())
 
-    if lexer.read_next() != Statement("pisz", Int(4)):
-        raise AssertionError
+    test(lexer.read_next(), Statement("pisz", Int(4)))
 
     try:
-        if lexer.read_next() == EOL():
-            raise AssertionError
+        test(lexer.read_next(), EOL())
     except EndOfFile:
         pass
 
@@ -239,6 +237,7 @@ def test_read_indent_block(lexer):
             EOL(),
             EOL(),
             Statement("pisz", args=Int(5)),
+            EOL(),
         ],
     ):
         print(indent_block)
@@ -251,7 +250,13 @@ def test_read_indent_block(lexer):
     indent_block = lexer.read_indent_block()
     if not compare_list(
         indent_block,
-        [Statement("pisz", args=Int(4)), EOL(), EOL(), Statement("pisz", args=Int(5))],
+        [
+            Statement("pisz", args=Int(4)),
+            EOL(),
+            EOL(),
+            Statement("pisz", args=Int(5)),
+            EOL(),
+        ],
     ):
         print(indent_block)
         raise AssertionError

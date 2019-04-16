@@ -198,6 +198,31 @@ class Lexer:
         keyword = self.read(lambda c: not self.is_keyword_end(c))
         return keyword
 
+    def read_builtin(self, keyword: str, indent_level: int, prev: object) -> object:
+        """Read builtin statement, expression from input stream i.e.: if, while etc"""
+        if keyword == self.range_symbol:
+            return keyword
+        if keyword == "wpp":
+            if isinstance(prev, Condition):
+                return keyword
+            self.i.throw(f"Unexpected keyword '{keyword}'")
+        if keyword == "to" or keyword == "wykonuj":
+            return keyword
+        if keyword == "jeżeli":
+            return self.read_if(indent_level)
+        if keyword == "dopóki":
+            return self.read_while(indent_level)
+        if keyword == "dla":
+            return self.read_for(indent_level)
+        arg = self.read_args()
+        arg = self.read_expression(arg)
+        if keyword == "czytaj":
+            if not isinstance(arg, Variable):
+                self.i.throw("Statement 'czytaj' requires variable as argument")
+        if isinstance(arg, Statement):
+            self.i.throw(f"Statement '{keyword}' cannot take '{arg}' as argument")
+        return Statement(keyword, args=arg)
+
     def read_condition(self, keyword, indent_level: int = 0) -> object:
         """Read condition of conditional expression."""
         m = {"jeżeli": "to", "dopóki": "wykonuj"}
@@ -276,20 +301,15 @@ class Lexer:
 
     def read_next(self, prev: object = None, indent_level: int = 0) -> object:
         """Read next elements from the stream and guess the type."""
-        if self.i.eof():
-            raise EndOfFile
-        try:
-            i = indent_level * self.indent_size
-        except TypeError:
+        i = self.indent_size
+        if self.indent_size is None:
             i = 0
-        if self.i.col > i:
+        if self.i.col > i * indent_level:
             self.read_white_chars()
         c = self.i.peek()
 
         if isinstance(c, EOL):
             self.i.next_line()
-            if self.i.eof():
-                raise EndOfFile
             return c
 
         if c == "#":
@@ -317,30 +337,7 @@ class Lexer:
             col = self.i.col
             keyword = self.read_keyword()
             if self.is_keyword(keyword):
-                if keyword == self.range_symbol:
-                    return keyword
-                if keyword == "wpp":
-                    if isinstance(prev, Condition):
-                        return keyword
-                    self.i.throw(f"Unexpected keyword '{keyword}'")
-                if keyword == "to" or keyword == "wykonuj":
-                    return keyword
-                if keyword == "jeżeli":
-                    return self.read_if(indent_level)
-                if keyword == "dopóki":
-                    return self.read_while(indent_level)
-                if keyword == "dla":
-                    return self.read_for(indent_level)
-                arg = self.read_args()
-                arg = self.read_expression(arg)
-                if keyword == "czytaj":
-                    if not isinstance(arg, Variable):
-                        self.i.throw("Statement 'czytaj' requires variable as argument")
-                if isinstance(arg, Statement):
-                    self.i.throw(
-                        f"Statement '{keyword}' cannot take '{arg}' as argument"
-                    )
-                return Statement(keyword, args=arg)
+                return self.read_builtin(keyword, indent_level, prev)
             if keyword in self.operator_keywords:
                 return Operator(keyword)
             if keyword == "prawda" or keyword == "fałsz":
@@ -351,7 +348,7 @@ class Lexer:
                 arg = self.read_args()
                 exp = self.read_expression(arg)
                 indices.append(exp)
-            if col == i:
+            if col == i * indent_level:
                 operator = self.read_next()
                 if isinstance(operator, EOL):
                     return Variable(keyword, indices)

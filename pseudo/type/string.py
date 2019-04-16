@@ -15,12 +15,9 @@ class String(Value):
 def read_string(lexer) -> String:
     """Read a string from the stream."""
     lexer.i.next()
-    string = lexer.read(lambda c: c != '"')
-    try:
-        string_end = lexer.i.next() == '"'
-    except IndexError:
-        string_end = False
-    if not string_end:
+    string = lexer.read(lambda c: c != '"' and c != "'")
+
+    if lexer.i.next() != '"' and lexer.i.next() != "'":
         lexer.i.throw(f"Could not parse string")
     return String(string)
 

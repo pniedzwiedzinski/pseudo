@@ -6,8 +6,15 @@ from pseudo.stream import Stream
 
 
 @pytest.mark.timeout(2)
-def test_read_string(lexer):
+def test_read_string(lexer, test):
     """Checks Lexer.read_string"""
     lexer.i = Stream('"abc"')
-    if "abc" != read_string(lexer).value:
+    test(read_string(lexer).value, "abc")
+
+    lexer.i = Stream('"abc')
+    try:
+        print(read_string(lexer))
+    except SystemExit:
+        pass
+    else:
         raise AssertionError

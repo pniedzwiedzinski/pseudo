@@ -4,11 +4,11 @@ import subprocess
 import platform
 
 from pseudo import compile, main, __version__
-from pseudo.type import Int, Statement
+from pseudo.type import Int, Statement, EOL
 
 
 def test_compile():
-    if compile("pisz 4") != [Statement("pisz", args=Int(4))]:
+    if compile("pisz 4") != [Statement("pisz", args=Int(4)), EOL()]:
         print(compile("pisz 4"))
         raise AssertionError
 
