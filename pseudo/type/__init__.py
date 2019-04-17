@@ -71,6 +71,8 @@ class Operator(Value):
 
     def __eq__(self, o):
         try:
+            if self.value == o.value:
+                return True
             if self.value in GROUP_1 and o.value in GROUP_1:
                 return True
             if self.value in GROUP_2 and o.value in GROUP_2:
@@ -79,8 +81,11 @@ class Operator(Value):
         except AttributeError:
             return False
 
+    def __str__(self):
+        return self.__repr__()
+
     def __repr__(self):
-        return self.value
+        return f"Operator({repr(self.value)})"
 
 
 class Operation:
@@ -101,7 +106,7 @@ class Operation:
             return False
 
     def __repr__(self):
-        return f"({self.left}{self.operator}{self.right})"
+        return f"Operation({self.operator}, {self.left}, {self.right})"
 
 
 class Statement:
@@ -147,51 +152,6 @@ class Statement:
 
     def __str__(self):
         return self.__repr__()
-
-
-class Condition:
-    """
-    Node for representing conditional expressions (if).
-
-    Attributes:
-        - condition: Condition to check
-        - true: List to evaluate if condition is true
-        - false: List to evaluate if condition is false (optional)
-    """
-
-    def __init__(self, condition, true, false=None):
-        self.condition = condition
-        self.true = true
-        self.false = false
-
-    def eval(self):
-        b = self.condition.eval()
-        if b and b != "nil":
-            for x in self.true:
-                x.eval()
-        elif self.false is not None:
-            for x in self.false:
-                x.eval()
-
-    def __eq__(self, other):
-        if not isinstance(other, Condition):
-            return False
-        if self.condition != other.condition:
-            return False
-        if len(self.true) != len(other.true):
-            return False
-        if len(self.false) != len(other.false):
-            return False
-        for a, b in zip(self.true, other.true):
-            if a != b:
-                return False
-        for a, b in zip(self.false, other.false):
-            if a != b:
-                return False
-        return True
-
-    def __repr__(self):
-        return f"Condition({self.condition}, {self.true}, {self.false})"
 
 
 class Loop:

@@ -7,6 +7,7 @@ from pseudo.utils import append
 from pseudo.type.numbers import Int, is_digit, read_number
 from pseudo.type.string import String, read_string
 from pseudo.type.bool import Bool, read_bool
+from pseudo.type.conditional import Condition, read_if
 from pseudo.type import (
     Operation,
     Operator,
@@ -15,7 +16,6 @@ from pseudo.type import (
     Variable,
     Assignment,
     Value,
-    Condition,
     Loop,
 )
 from pseudo.exceptions import IndentationBlockEnd, Comment
@@ -122,35 +122,6 @@ class Lexer:
             expression += self.i.next()
         return expression
 
-    def read_if(self, indent_level: int = 0) -> Condition:
-        """Read if statement."""
-        # TODO: tests
-        condition = self.read_condition("jeżeli", indent_level=indent_level)
-        self.i.next_line()
-        true = self.read_indent_block(indent_level=indent_level + 1)
-        false = None
-        if self.i.eof():
-            return Condition(condition, true, false=false)
-        c, l = self.i.col, self.i.line
-        try:
-            for i in range(indent_level * self.indent_size):
-                char = self.i.next()
-                if char != " ":
-                    if i % self.indent_size == 0:
-                        self.i.col = 0
-                        return Condition(condition, true, false=false)
-                    self.i.throw(f"Inconsistent indentation size")
-            if self.i.peek() == " ":
-                self.i.throw(f"Inconsistent indentation size")
-            if self.read_next(prev=Condition(condition, true)) == "wpp":
-                self.i.next_line()
-                false = self.read_indent_block(indent_level=indent_level + 1)
-            else:
-                self.i.col, self.i.line = c, l
-        except EndOfFile:
-            self.i.col, self.i.line = c, l
-        return Condition(condition, true, false=false)
-
     def read_while(self, indent_level: int = 0) -> Loop:
         """Read while statement."""
         # TODO: test
@@ -212,7 +183,7 @@ class Lexer:
         if keyword == "to" or keyword == "wykonuj":
             return keyword
         if keyword == "jeżeli":
-            return self.read_if(indent_level)
+            return read_if(self, indent_level)
         if keyword == "dopóki":
             return self.read_while(indent_level)
         if keyword == "dla":

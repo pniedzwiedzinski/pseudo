@@ -9,7 +9,6 @@ from pseudo.type import (
     Int,
     Statement,
     Bool,
-    Condition,
     Loop,
     Variable,
     Assignment,
@@ -82,27 +81,6 @@ def test_update_args(lexer):
     ]:
         print(lexer.update_args([Int(2), Operator("+"), Int(2)], 1))
         raise AssertionError
-
-
-@pytest.mark.timeout(2)
-def test_read_if(lexer, test):
-    """Checks Lexer.read_if"""
-    lexer.i = Stream(
-        """jeżeli prawda to
-    pisz 4
-wpp
-    pisz 3"""
-    )
-    lexer.i.col = 7
-
-    test(
-        lexer.read_if(),
-        Condition(
-            Bool(1),
-            [Statement("pisz", args=Int(4)), EOL()],
-            [Statement("pisz", args=Int(3)), EOL()],
-        ),
-    )
 
 
 @pytest.mark.timeout(2)
@@ -187,7 +165,7 @@ def test_read_expression(lexer):
         != 6
     ):
         raise AssertionError
-    
+
     try:
         lexer.read_expression([Int(2), Bool(1)])
     except SystemExit:
