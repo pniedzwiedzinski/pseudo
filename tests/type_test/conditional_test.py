@@ -3,7 +3,8 @@
 import pytest
 
 from pseudo.stream import Stream
-from pseudo.type import Statement, Operation, Operator
+from pseudo.type import Statement
+from pseudo.type.operation import Operation, Operator
 from pseudo.type.base import EOL
 from pseudo.type.bool import Bool
 from pseudo.type.numbers import Int

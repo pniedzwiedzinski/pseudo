@@ -3,16 +3,8 @@
 import pytest
 import pseudo
 
-from pseudo.type import (
-    Operation,
-    Operator,
-    Int,
-    Statement,
-    Bool,
-    Loop,
-    Variable,
-    Assignment,
-)
+from pseudo.type.operation import Operation, Operator
+from pseudo.type import Int, Statement, Bool, Loop, Variable, Assignment
 from pseudo.stream import Stream, EOL, EndOfFile
 
 __author__ = "Patryk Niedźwiedziński"
@@ -44,18 +36,6 @@ def test_is_keyword(lexer):
         raise AssertionError
     if lexer.is_keyword("koniec") is False:
         print(lexer.is_keyword("koniec"))
-        raise AssertionError
-
-
-@pytest.mark.timeout(2)
-def test_is_operator(lexer):
-    """Checks Lexer.is_operator"""
-    if not (
-        lexer.is_operator("*") is True
-        and lexer.is_operator("div") is True
-        and lexer.is_operator(":=") is False
-        and lexer.is_operator("pisz") is False
-    ):
         raise AssertionError
 
 

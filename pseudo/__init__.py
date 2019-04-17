@@ -31,7 +31,8 @@ import datetime
 import traceback
 import codecs
 import gc
-from pseudo.lexer import Lexer, EndOfFile
+from pseudo.lexer import Lexer
+from pseudo.stream import EndOfFile
 from pseudo.utils import append
 
 
