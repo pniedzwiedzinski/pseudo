@@ -22,4 +22,5 @@ formats: all
 python:
   version: 3.7
   install:
-    - requirements: Pipfile
+    - method: pip
+      path: .
