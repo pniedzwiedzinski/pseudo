@@ -1,11 +1,11 @@
 #!/usr/bin/env python
 
-import pseudo
+from pseudo import cli
 
-__doc__ = pseudo.__doc__
+__doc__ = cli.__doc__
 
 
 __author__ = "Patryk Niedźwiedziński"
 
 if __name__ == "__main__":
-    pseudo.main()
+    cli.pdc()

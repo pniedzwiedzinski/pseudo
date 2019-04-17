@@ -3,7 +3,8 @@ import codecs
 import subprocess
 import platform
 
-from pseudo import compile, main, __version__
+from pseudo import compile, __version__
+from pseudo.cli import pdc
 from pseudo.type import Int, Statement, EOL
 
 

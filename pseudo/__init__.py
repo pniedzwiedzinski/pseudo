@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 """pseudocode interpreter
 
 Writing actual code might be hard to understand for new-learners. Pseudocode is a tool
@@ -24,45 +22,18 @@ Example:
     If lexer reach the end of input, the `pseudo.stream.EndOfFile` exception will be raised.
 """
 
-import sys
-import os
-import click
+
+__author__ = "Patryk Niedźwiedziński"
+__version__ = "0.8.2a"
+
 import datetime
 import traceback
-import codecs
 import gc
+import os
+
 from pseudo.lexer import Lexer
 from pseudo.stream import EndOfFile
 from pseudo.utils import append
-
-
-__author__ = "Patryk Niedźwiedziński"
-__version__ = "0.8.1"
-
-
-@click.command()
-@click.option("--version", "-v", help="Display version", is_flag=True)
-@click.option(
-    "--range-symbol",
-    default="...",
-    help="Set range symbol in for loop (default: '...')",
-)
-@click.argument("file", type=click.Path(exists=True), required=False)
-def main(file, version, range_symbol):
-    """Run pseudocode file."""
-
-    if version:
-        print(__version__)
-        sys.exit()
-
-    if file is None:
-        click.echo('⚠️  Error: Missing argument "FILE".')
-        sys.exit(1)
-    instructions = []
-
-    with codecs.open(file, encoding="utf-8") as fp:
-        text_input = fp.read()
-    run(text_input, range_symbol)
 
 
 def run(text_input: str, range_symbol: str = "..."):
