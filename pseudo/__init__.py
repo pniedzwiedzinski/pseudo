@@ -1,5 +1,4 @@
-"""pseudocode interpreter
-
+"""
 Writing actual code might be hard to understand for new-learners. Pseudocode is a tool
 for writing algorithms without knowing how to code. This module contains classes and
 methods for parsing pseudocode to AST and then evaluating it.

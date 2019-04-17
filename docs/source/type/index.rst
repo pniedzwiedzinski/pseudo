@@ -1,0 +1,8 @@
+Type
+====
+
+.. toctree::
+
+    basic
+    advanced
+

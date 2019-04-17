@@ -1,21 +1,13 @@
-Welcome to pseudo's documentation!
-==================================
+Home
+====
 
 
 .. toctree::
-   :maxdepth: 2
-   :caption: Contents:
+    getting_started
+    type/index
 
 .. automodule:: pseudo
 
-.. automodule:: pseudo.lexer
-    :members:
-
-.. automodule:: pseudo.type
-    :members:
-
-.. automodule:: pseudo.stream
-    :members:
 
 
 Indices and tables
