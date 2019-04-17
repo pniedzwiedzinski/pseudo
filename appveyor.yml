@@ -55,6 +55,7 @@ install:
   # pip will build them from source using the MSVC compiler matching the
   # target Python version and architecture
   - "%CMD_IN_ENV% pip install pipenv"
+  - "%CMD_IN_ENV% pip install ."
   - "%CMD_IN_ENV% pipenv install --system"
   - "%CMD_IN_ENV% pip install pypiwin32 pywin32-ctypes"
 

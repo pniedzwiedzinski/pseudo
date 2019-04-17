@@ -3,7 +3,7 @@ language: generic
 os:
   - osx
 
-install: ./scripts/install_dependencies.sh
+install: python3 -m pip install . &&  ./scripts/install_dependencies.sh
 
 script: python3 -m pytest
 after_success:
