@@ -20,6 +20,7 @@ setup(
     entry_points={"console_scripts": ["pdc=pseudo:main"]},
     packages=find_packages(),
     tests_require=["pytest"],
+    install_requires=["click"],
     url="https://github.com/pniedzwiedzinski/pseudo",
     classifiers=[
         "Programming Language :: Python :: 3.6",
