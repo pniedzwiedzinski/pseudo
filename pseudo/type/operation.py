@@ -4,6 +4,7 @@ __author__ = "Patryk Niedźwiedziński"
 
 
 from pseudo.type.base import Value
+from pseudo.type.bool import Bool
 
 
 GROUP_1 = {"*", "div", "mod"}
@@ -28,30 +29,8 @@ class Operator(Value):
         if self.value == "mod":
             return left.eval() % right.eval()
 
-        if self.value == "=":
-            if left.eval() == right.eval():
-                return 1
-            return 0
-        if self.value == "!=":
-            if left.eval() != right.eval():
-                return 1
-            return 0
-        if self.value == ">":
-            if left.eval() > right.eval():
-                return 1
-            return 0
-        if self.value == "<":
-            if left.eval() < right.eval():
-                return 1
-            return 0
-        if self.value == "<=":
-            if left.eval() <= right.eval():
-                return 1
-            return 0
-        if self.value == ">=":
-            if left.eval() >= right.eval():
-                return 1
-            return 0
+        # Then operation is boolean
+        return Bool.eval_operation(self.value, left, right)
 
     def __lt__(self, o):
         if self.value in GROUP_2:
