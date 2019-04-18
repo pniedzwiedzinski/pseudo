@@ -7,24 +7,19 @@ from pseudo.utils import append
 from pseudo.type.numbers import Int, is_digit, read_number
 from pseudo.type.string import String, read_string
 from pseudo.type.bool import Bool, read_bool
-from pseudo.type import (
+from pseudo.type.conditional import Condition, read_if
+from pseudo.type.operation import (
     Operation,
     Operator,
-    Statement,
-    EOL,
-    Variable,
-    Assignment,
-    Value,
-    Condition,
-    Loop,
+    OPERATORS,
+    OPERATOR_KEYWORDS,
+    read_operator,
+    is_operator,
 )
+from pseudo.type import Statement, EOL, Variable, Assignment, Value, Loop
 from pseudo.exceptions import IndentationBlockEnd, Comment
 
 __author__ = "Patryk Niedźwiedziński"
-
-
-GROUP_1 = {"*", "div", "mod"}
-GROUP_2 = {"-", "+"}
 
 
 class Lexer:
@@ -34,8 +29,6 @@ class Lexer:
     Attributes:
         - i: A Stream instance with input code.
         - keywords: A set of all keywords in pseudo.
-        - operators: A set of operators in pseudo.
-        - operator_keywords: A set of operators written as string.
         - range_symbol: String used to define range in for loop.
         - indent_char: Character of indentation (" " or "\t").
         - indent_size: Size of indentation using in particular file.
@@ -60,8 +53,6 @@ class Lexer:
             "wykonuj",
             "dla",
         }
-        self.operators = {"+", "-", "*", ":", "<", ">", "=", "!"}
-        self.operator_keywords = {"div", "mod"}
         self.range_symbol = "..."
         self.indent_char = None
         self.indent_size = None
@@ -69,13 +60,6 @@ class Lexer:
     def is_keyword(self, string) -> bool:
         """Checks if given string is a keyword."""
         return string in self.keywords or string == self.range_symbol
-
-    def is_operator(self, c) -> bool:
-        """Checks if given char is an allowed operator."""
-        try:
-            return c in self.operators or c in self.operator_keywords
-        except TypeError:
-            return False
 
     def is_keyword_end(self, c) -> bool:
         """
@@ -87,9 +71,7 @@ class Lexer:
         """
         try:
             return (
-                self.is_operator(c)
-                or c == " "
-                or c in {"(", ")", "[", "]", "{", "}", ","}
+                is_operator(c) or c == " " or c in {"(", ")", "[", "]", "{", "}", ","}
             )
         except TypeError:
             return True
@@ -122,35 +104,6 @@ class Lexer:
             expression += self.i.next()
         return expression
 
-    def read_if(self, indent_level: int = 0) -> Condition:
-        """Read if statement."""
-        # TODO: tests
-        condition = self.read_condition("jeżeli", indent_level=indent_level)
-        self.i.next_line()
-        true = self.read_indent_block(indent_level=indent_level + 1)
-        false = None
-        if self.i.eof():
-            return Condition(condition, true, false=false)
-        c, l = self.i.col, self.i.line
-        try:
-            for i in range(indent_level * self.indent_size):
-                char = self.i.next()
-                if char != " ":
-                    if i % self.indent_size == 0:
-                        self.i.col = 0
-                        return Condition(condition, true, false=false)
-                    self.i.throw(f"Inconsistent indentation size")
-            if self.i.peek() == " ":
-                self.i.throw(f"Inconsistent indentation size")
-            if self.read_next(prev=Condition(condition, true)) == "wpp":
-                self.i.next_line()
-                false = self.read_indent_block(indent_level=indent_level + 1)
-            else:
-                self.i.col, self.i.line = c, l
-        except EndOfFile:
-            self.i.col, self.i.line = c, l
-        return Condition(condition, true, false=false)
-
     def read_while(self, indent_level: int = 0) -> Loop:
         """Read while statement."""
         # TODO: test
@@ -181,7 +134,7 @@ class Lexer:
         if not isinstance(condition, Variable):
             self.i.throw(f"Expected Variable, but {type(condition)} was given")
         self.read_white_chars()
-        assign = self.read_operator(self.i.next())
+        assign = read_operator(self.i)
         if not isinstance(assign, str) or (assign != ":=" and assign != "<-"):
             self.i.throw(f"Expected assignment symbol")
 
@@ -212,7 +165,7 @@ class Lexer:
         if keyword == "to" or keyword == "wykonuj":
             return keyword
         if keyword == "jeżeli":
-            return self.read_if(indent_level)
+            return read_if(self, indent_level)
         if keyword == "dopóki":
             return self.read_while(indent_level)
         if keyword == "dla":
@@ -290,19 +243,6 @@ class Lexer:
                 i += 1
         return args[0]
 
-    def read_operator(self, c):
-        """Return operator from input stream."""
-        if (c == ":" and self.i.peek() == "=") or (c == "<" and self.i.peek() == "-"):
-            self.i.next()
-            return ":="
-        if c == "!" and self.i.peek() == "=":
-            self.i.next()
-            return Operator("!=")
-        if self.i.peek() == "=":
-            if c in "<>":
-                return Operator(c + self.i.next())
-        return Operator(c)
-
     def read_white_chars(self) -> None:
         """Read white chars from stream."""
         self.read(lambda c: c == " " or c == "\t", eol=False)
@@ -334,9 +274,8 @@ class Lexer:
         if c == '"' or c == "'":
             return read_string()
 
-        if self.is_operator(c):
-            self.i.next()
-            return self.read_operator(c)
+        if is_operator(c):
+            return read_operator(self.i)
 
         if is_digit(c):
             return read_number(self)
@@ -346,7 +285,7 @@ class Lexer:
             keyword = self.read_keyword()
             if self.is_keyword(keyword):
                 return self.read_builtin(keyword, indent_level, prev)
-            if keyword in self.operator_keywords:
+            if keyword in OPERATOR_KEYWORDS:
                 return Operator(keyword)
             if keyword == "prawda" or keyword == "fałsz":
                 return read_bool(keyword)

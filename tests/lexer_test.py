@@ -3,17 +3,8 @@
 import pytest
 import pseudo
 
-from pseudo.type import (
-    Operation,
-    Operator,
-    Int,
-    Statement,
-    Bool,
-    Condition,
-    Loop,
-    Variable,
-    Assignment,
-)
+from pseudo.type.operation import Operation, Operator
+from pseudo.type import Int, Statement, Bool, Loop, Variable, Assignment
 from pseudo.stream import Stream, EOL, EndOfFile
 
 __author__ = "Patryk Niedźwiedziński"
@@ -49,18 +40,6 @@ def test_is_keyword(lexer):
 
 
 @pytest.mark.timeout(2)
-def test_is_operator(lexer):
-    """Checks Lexer.is_operator"""
-    if not (
-        lexer.is_operator("*") is True
-        and lexer.is_operator("div") is True
-        and lexer.is_operator(":=") is False
-        and lexer.is_operator("pisz") is False
-    ):
-        raise AssertionError
-
-
-@pytest.mark.timeout(2)
 def test_is_keyword_end(lexer):
     """Checks Lexer.is_not_keyword_end"""
     if lexer.is_keyword_end("a") is True:
@@ -82,27 +61,6 @@ def test_update_args(lexer):
     ]:
         print(lexer.update_args([Int(2), Operator("+"), Int(2)], 1))
         raise AssertionError
-
-
-@pytest.mark.timeout(2)
-def test_read_if(lexer, test):
-    """Checks Lexer.read_if"""
-    lexer.i = Stream(
-        """jeżeli prawda to
-    pisz 4
-wpp
-    pisz 3"""
-    )
-    lexer.i.col = 7
-
-    test(
-        lexer.read_if(),
-        Condition(
-            Bool(1),
-            [Statement("pisz", args=Int(4)), EOL()],
-            [Statement("pisz", args=Int(3)), EOL()],
-        ),
-    )
 
 
 @pytest.mark.timeout(2)
@@ -187,7 +145,7 @@ def test_read_expression(lexer):
         != 6
     ):
         raise AssertionError
-    
+
     try:
         lexer.read_expression([Int(2), Bool(1)])
     except SystemExit:

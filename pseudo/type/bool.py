@@ -13,6 +13,30 @@ class Bool(Value):
             return "prawda"
         return "fałsz"
 
+    @staticmethod
+    def eval_operation(operator: str, left: Value, right: Value):
+        """
+        Eval bool operation.
+
+        Args:
+            - operator: str, bool operator
+            - left: Value
+            - right: Value
+        """
+
+        if operator == "=":
+            return int(left.eval() == right.eval())
+        if operator == "!=":
+            return int(left.eval() != right.eval())
+        if operator == ">":
+            return int(left.eval() > right.eval())
+        if operator == "<":
+            return int(left.eval() < right.eval())
+        if operator == "<=":
+            return int(left.eval() <= right.eval())
+        if operator == ">=":
+            return int(left.eval() >= right.eval())
+
     def __repr__(self):
         return f"Bool({self.value})"
 
