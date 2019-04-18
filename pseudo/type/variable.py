@@ -5,9 +5,6 @@ __author__ = "Patryk Niedźwiedziński"
 from pseudo.type.base import Value
 
 
-VAR = {}
-
-
 class Variable(Value):
     """
     Node for representing variables.
@@ -21,34 +18,8 @@ class Variable(Value):
         self.value = value
         self.indices = indices
 
-    def setter(self, value: Value):
-        if not self.indices:
-            VAR[self.value] = value.eval()
-            return None
-
-        if self.value not in VAR:
-            VAR[self.value] = {}
-        v = VAR[self.value]
-
-        for key in self.indices[:-1]:
-            try:
-                v = v[key.eval()]
-            except KeyError:
-                v[key.eval()] = {}
-                v = v[key.eval()]
-        v[self.indices[-1].eval()] = value.eval()
-
-    def getter(self):
-        try:
-            var = VAR[self.value]
-            for key in self.indices:
-                var = var.__getitem__(key.eval())
-            return var
-        except KeyError:
-            return "nil"
-
-    def eval(self):
-        return self.getter()
+    def eval(self, r):
+        return r.get(self.value)
 
     def __repr__(self):
         return f'Variable("{self.value}", {self.indices})'
@@ -70,8 +41,8 @@ class Assignment:
         self.target = target
         self.value = value
 
-    def eval(self):
-        self.target.setter(self.value)
+    def eval(self, r):
+        r.save(self.target.value, self.value)
 
     def __repr__(self):
         return f"Assignment({self.target}, {self.value})"

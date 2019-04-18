@@ -22,12 +22,12 @@ class Condition:
         self.true = true
         self.false = false
 
-    def eval(self):
-        b = self.condition.eval()
+    def eval(self, r):
+        b = self.condition.eval(r)
         if b and b != "nil":
-            run(self.true)
+            run(self.true, r)
         elif self.false is not None:
-            run(self.false)
+            run(self.false, r)
 
     def __eq__(self, other):
         if not isinstance(other, Condition):

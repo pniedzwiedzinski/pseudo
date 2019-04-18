@@ -25,22 +25,11 @@ class Statement:
         self.value = value
         self.args = args
 
-    def eval(self):
+    def eval(self, r):
         if self.value == "pisz":
-            a = self.args.eval()
-            if a == "\\n":
-                print("")
-            else:
-                print(a, end="")
+            r.stdout(self.args.value)
         elif self.value == "czytaj":
-            inp = input(self.args.value + ": ")
-            try:
-                inp = int(inp)
-                inp = Int(inp)
-            except ValueError:
-                inp = String(inp)
-            x = Assignment(self.args, inp)
-            x.eval()
+            r.stdin(self.args.value)
         elif self.value == "koniec":
             exit()
 
@@ -70,10 +59,10 @@ class Loop:
         self.condition = condition
         self.expressions = expressions
 
-    def eval(self):
-        while self.condition.eval():
+    def eval(self, r):
+        while self.condition.eval(r):
             for e in self.expressions:
-                e.eval()
+                e.eval(r)
 
     def __repr__(self):
         return f"Loop({self.condition}, {self.expressions})"

@@ -136,12 +136,12 @@ def test_read_args(lexer):
 
 
 @pytest.mark.timeout(2)
-def test_read_expression(lexer):
+def test_read_expression(lexer, runtime):
     """Checks Lexer.read_expression"""
     if (
         lexer.read_expression(
             [Int(2), Operator("+"), Int(2), Operator("*"), Int(2)]
-        ).eval()
+        ).eval(runtime)
         != 6
     ):
         raise AssertionError
