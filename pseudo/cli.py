@@ -5,11 +5,11 @@ import sys
 import click
 import codecs
 
-import pseudo
+from pseudo import __version__, __doc__, compile
+from pseudo.run import run
 
 
 __author__ = "Patryk Niedźwiedziński"
-__doc__ = pseudo.__doc__
 
 
 @click.command()
@@ -24,14 +24,15 @@ def pdc(file, version, range_symbol):
     """Run pseudocode file."""
 
     if version:
-        print(pseudo.__version__)
+        print(__version__)
         sys.exit()
 
     if file is None:
         click.echo('⚠️  Error: Missing argument "FILE".')
         sys.exit(1)
-    instructions = []
 
     with codecs.open(file, encoding="utf-8") as fp:
         text_input = fp.read()
-    pseudo.run(text_input, range_symbol)
+
+    instructions = compile(text_input, range_symbol)
+    run(instructions)

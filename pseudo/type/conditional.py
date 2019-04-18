@@ -3,6 +3,7 @@
 __author__ = "Patryk Niedźwiedziński"
 
 
+from pseudo.run import run
 from pseudo.stream import EndOfFile
 
 
@@ -24,11 +25,9 @@ class Condition:
     def eval(self):
         b = self.condition.eval()
         if b and b != "nil":
-            for x in self.true:
-                x.eval()
+            run(self.true)
         elif self.false is not None:
-            for x in self.false:
-                x.eval()
+            run(self.false)
 
     def __eq__(self, other):
         if not isinstance(other, Condition):
@@ -54,7 +53,6 @@ def read_if(lexer, indent_level: int = 0) -> Condition:
         - indent_level: int, Indicates level of indentation passed to children.
     """
 
-    # TODO: tests
     condition = lexer.read_condition("jeżeli", indent_level=indent_level)
     lexer.i.next_line()
     true = lexer.read_indent_block(indent_level=indent_level + 1)
@@ -65,15 +63,7 @@ def read_if(lexer, indent_level: int = 0) -> Condition:
     c, l = lexer.i.col, lexer.i.line
 
     try:
-        for i in range(indent_level * lexer.indent_size):
-            char = lexer.i.next()
-            if char != " ":
-                if i % lexer.indent_size == 0:
-                    lexer.i.col = 0
-                    return Condition(condition, true, false=false)
-                lexer.i.throw(f"Inconsistent indentation size")
-        if lexer.i.peek() == " ":
-            lexer.i.throw(f"Inconsistent indentation size")
+        lexer.read_indent(indent_level)
         if lexer.read_next(prev=Condition(condition, true)) == "wpp":
             lexer.i.next_line()
             false = lexer.read_indent_block(indent_level=indent_level + 1)

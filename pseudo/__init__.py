@@ -25,37 +25,12 @@ Example:
 __author__ = "Patryk Niedźwiedziński"
 __version__ = "0.8.2a"
 
-import datetime
-import traceback
+
 import gc
-import os
 
 from pseudo.lexer import Lexer
 from pseudo.stream import EndOfFile
 from pseudo.utils import append
-
-
-def run(text_input: str, range_symbol: str = "..."):
-    """Run pseudocode string"""
-    try:
-        instructions = compile(text_input, range_symbol)
-
-        for i in instructions:
-            i.eval()
-    except Exception:
-        now = datetime.datetime.now().strftime("%H-%M-%S-%d-%m-%Y")
-        try:
-            os.mkdir("crash")
-        except FileExistsError:
-            pass
-        with open(f"crash/{now}.log", "w") as fp:
-            fp.write(traceback.format_exc())
-        print("⚠️  Error: \n\tRuntime error has occurred!\n")
-        print(
-            "Wow! You encountered a bug! Please tell me how did you do that on https://github.com/pniedzwiedzinski/pseudo/issues\n"
-        )
-        print(f"Error message was copied to {os.getcwd()}/crash/{now}.log")
-        exit(1)
 
 
 def compile(text_input: str, range_symbol: str = "...") -> list:
