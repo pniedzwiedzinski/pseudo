@@ -101,17 +101,17 @@ def read_operator(stream):
         - stream: Input stream
     """
     c = stream.next()
-    if (c == ":" and stream.peek() == "=") or (c == "<" and stream.peek() == "-"):
+    is_assignment = (c == ":" and stream.peek() == "=") or (
+        c == "<" and stream.peek() == "-"
+    )
+
+    if is_assignment:  # :=, <-
         stream.next()
         return ":="
 
-    if c == "!" and stream.peek() == "=":
-        stream.next()
-        return Operator("!=")
-
-    if stream.peek() == "=":
-        if c in "<>":
-            return Operator(c + stream.next())
+    is_comparison = stream.peek() == "=" and (c == "!" or c in "<>")
+    if is_comparison:  # !=, <= , >=
+        return Operator(c + stream.next())
 
     return Operator(c)
 
