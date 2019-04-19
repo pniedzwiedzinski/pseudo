@@ -59,6 +59,21 @@ class RunTime:
                 pointer = pointer[k.eval(self)]
         return pointer
 
+    def _simple_save(self, key: str, value: object, object_class = MemoryObject):
+        """
+        This function simply sets value in memory.
+
+        Args:
+            - key: str, Unique key under which value will be stored.
+            - value: object, Value to store.
+            - object_class: class, Class of value.
+        """
+
+        if key not in self.var:
+            self.var[key] = object_class(value.eval(self))
+        else:
+            self.var[key].setter(value.eval(self), self)
+
     def save(self, key: str, value: object, indices: list = [], object_class = MemoryObject):
         """
         This functions is used to save value in `var`.
@@ -73,13 +88,10 @@ class RunTime:
 
         # Simple variable set
         if not indices:
-            if key not in self.var:
-                self.var[key] = object_class(value.eval(self))
-            else:
-                self.var[key].setter(value.eval(self), self)
+            self._simple_save(key, value, object_class)
             return None
 
-        # Check if array exists
+        # Create array if does not exist
         if key not in self.var:
             self.var[key] = {}
         
