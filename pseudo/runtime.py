@@ -21,8 +21,8 @@ class MemoryObject:
         """This function updates value."""
         if self.const:
             r.throw(f"Variable is not settable")
-            return None
-        self.value = value
+        else:
+            self.value = value
 
     def getter(self):
         """This function returns value."""
@@ -75,7 +75,8 @@ class RunTime:
         if not indices:
             if key not in self.var:
                 self.var[key] = object_class(value.eval(self))
-            self.var[key].setter(value.eval(self), self)
+            else:
+                self.var[key].setter(value.eval(self), self)
             return None
 
         # Check if array exists
@@ -107,6 +108,10 @@ class RunTime:
             return v.getter()
         except KeyError:
             return "nil"
+
+    def delete(self, key: str):
+        """Remove from memory."""
+        del self.var[key]
 
     def stdin(self, key: str, indices: list = []):
         """Read from stdin and store it in `var`."""

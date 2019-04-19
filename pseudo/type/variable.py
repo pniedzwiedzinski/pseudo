@@ -3,6 +3,7 @@
 __author__ = "Patryk Niedźwiedziński"
 
 from pseudo.type.base import Value
+from pseudo.runtime import MemoryObject
 
 
 class Variable(Value):
@@ -28,6 +29,15 @@ class Variable(Value):
         return self.__repr__()
 
 
+class Increment:
+    """Representing incrementation of iterator."""
+    def __init__(self, key: str):
+        self.key = key
+
+    def eval(self, r):
+        r.var[self.key].incr(self.key)
+
+
 class Assignment:
     """
     Node for representing assignments.
@@ -37,12 +47,13 @@ class Assignment:
         - value: Value to assign.
     """
 
-    def __init__(self, target: Variable, value: Value):
+    def __init__(self, target: Variable, value: Value, object_class = MemoryObject):
         self.target = target
         self.value = value
+        self.object_class = object_class
 
     def eval(self, r):
-        r.save(self.target.value, self.value)
+        r.save(self.target.value, self.value, object_class=self.object_class)
 
     def __repr__(self):
         return f"Assignment({self.target}, {self.value})"

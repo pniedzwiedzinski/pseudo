@@ -45,25 +45,3 @@ class Statement:
     def __str__(self):
         return self.__repr__()
 
-
-class Loop:
-    """
-    Node for representing looped actions.
-
-    Attributes:
-        - condition: Condition to check if loop should be executed.
-        - expressions: List of expressions to execute if condition is positive.
-    """
-
-    def __init__(self, condition, expressions):
-        self.condition = condition
-        self.expressions = expressions
-
-    def eval(self, r):
-        while self.condition.eval(r):
-            for e in self.expressions:
-                e.eval(r)
-
-    def __repr__(self):
-        return f"Loop({self.condition}, {self.expressions})"
-

@@ -4,7 +4,8 @@ import pytest
 import pseudo
 
 from pseudo.type.operation import Operation, Operator
-from pseudo.type import Int, Statement, Bool, Loop, Variable, Assignment
+from pseudo.type.loop import Loop
+from pseudo.type import Int, Statement, Bool, Variable, Assignment
 from pseudo.stream import Stream, EOL, EndOfFile
 
 __author__ = "Patryk Niedźwiedziński"
