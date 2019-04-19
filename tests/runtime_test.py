@@ -2,6 +2,7 @@
 
 import pytest
 
+from pseudo.runtime import MemoryObject
 from pseudo.type.numbers import Int
 
 def test_set_nested_array(runtime, test):
@@ -14,17 +15,17 @@ def test_set_nested_array(runtime, test):
 
 def test_save(runtime, test):
     runtime.save("a", Int(1))
-    test(runtime.var["a"], 1)
+    test(runtime.var["a"].getter(), 1)
 
     runtime.save("b", Int(5), [Int(1), Int(1)])
-    test(runtime.var["b"][1][1], 5)
+    test(runtime.var["b"][1][1].getter(), 5)
 
 def test_get(runtime, test):
-    runtime.var["a"] = 1
+    runtime.var["a"] = MemoryObject(1)
 
     test(runtime.get("a"), 1)
 
-    runtime.var["b"] = {1: {2: 3}}
+    runtime.var["b"] = {1: {2: MemoryObject(3)}}
 
     test(runtime.get("b", [Int(1), Int(2)]), 3)
 

@@ -4,6 +4,30 @@ __author__ = "Patryk Niedźwiedziński"
 
 from sys import exit
 
+class MemoryObject:
+    """
+    This class is a representation of object in runtime memory.
+
+    Attributes:
+        - value: object, Stored object.
+        - const: bool, If true object is constant and cannot be changed.
+    """
+
+    def __init__(self, value: object, const: bool = False):
+        self.value = value
+        self.const = const
+
+    def setter(self, value: object, r):
+        """This function updates value."""
+        if self.const:
+            r.throw(f"Variable is not settable")
+            return None
+        self.value = value
+
+    def getter(self):
+        """This function returns value."""
+        return self.value
+
 class RunTime:
     """
     This class is a representation of computer resources like memory or processor.
@@ -35,7 +59,7 @@ class RunTime:
                 pointer = pointer[k.eval(self)]
         return pointer
 
-    def save(self, key: str, value: object, indices: list = []):
+    def save(self, key: str, value: object, indices: list = [], object_class = MemoryObject):
         """
         This functions is used to save value in `var`.
         
@@ -44,11 +68,14 @@ class RunTime:
             - value: object, Value to store.
             - indices: list of objects, If variable is an array. 
                 For example `T[a][b]` will have indices `[a, b]`.
+            - object_class: class, Class of value.
         """
 
         # Simple variable set
         if not indices:
-            self.var[key] = value.eval(self)
+            if key not in self.var:
+                self.var[key] = object_class(value.eval(self))
+            self.var[key].setter(value.eval(self), self)
             return None
 
         # Check if array exists
@@ -58,7 +85,10 @@ class RunTime:
         # Get pointer from nested array to wanted index
         v = self.set_nested_array(key, indices[:-1])
 
-        v[indices[-1].eval(self)] = value.eval(self)
+        try:
+            v[indices[-1].eval(self)].setter(value.eval(self), self)
+        except KeyError:
+            v[indices[-1].eval(self)] = object_class(value.eval(self))
 
     def get(self, key: str, indices: list = []):
         """
@@ -74,7 +104,7 @@ class RunTime:
             v = self.var[key]
             for k in indices:
                 v = v.__getitem__(k.eval(self))
-            return v
+            return v.getter()
         except KeyError:
             return "nil"
 
