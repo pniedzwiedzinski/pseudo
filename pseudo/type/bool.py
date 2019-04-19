@@ -14,7 +14,7 @@ class Bool(Value):
         return "fałsz"
 
     @staticmethod
-    def eval_operation(operator: str, left: Value, right: Value):
+    def eval_operation(operator: str, left: Value, right: Value, r):
         """
         Eval bool operation.
 
@@ -25,17 +25,17 @@ class Bool(Value):
         """
 
         if operator == "=":
-            return int(left.eval() == right.eval())
+            return int(left.eval(r) == right.eval(r))
         if operator == "!=":
-            return int(left.eval() != right.eval())
+            return int(left.eval(r) != right.eval(r))
         if operator == ">":
-            return int(left.eval() > right.eval())
+            return int(left.eval(r) > right.eval(r))
         if operator == "<":
-            return int(left.eval() < right.eval())
+            return int(left.eval(r) < right.eval(r))
         if operator == "<=":
-            return int(left.eval() <= right.eval())
+            return int(left.eval(r) <= right.eval(r))
         if operator == ">=":
-            return int(left.eval() >= right.eval())
+            return int(left.eval(r) >= right.eval(r))
 
     def __repr__(self):
         return f"Bool({self.value})"

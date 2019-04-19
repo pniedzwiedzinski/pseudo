@@ -14,7 +14,7 @@ class Value:
     def __init__(self, value):
         self.value = value
 
-    def eval(self):
+    def eval(self, r):
         return self.value
 
     def __eq__(self, other):
@@ -36,7 +36,7 @@ class EOL:
     def __init__(self):
         pass
 
-    def eval(self):
+    def eval(self, r):
         pass
 
     def __eq__(self, other):

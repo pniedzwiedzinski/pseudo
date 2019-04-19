@@ -17,20 +17,20 @@ OPERATOR_KEYWORDS = {"div", "mod"}
 class Operator(Value):
     """Opartor class for representing mathematical operator."""
 
-    def eval(self, left: Value, right: Value):
+    def eval(self, left: Value, right: Value, r):
         if self.value == "+":
-            return left.eval() + right.eval()
+            return left.eval(r) + right.eval(r)
         if self.value == "-":
-            return left.eval() - right.eval()
+            return left.eval(r) - right.eval(r)
         if self.value == "*":
-            return left.eval() * right.eval()
+            return left.eval(r) * right.eval(r)
         if self.value == "div":
-            return left.eval() // right.eval()
+            return left.eval(r) // right.eval(r)
         if self.value == "mod":
-            return left.eval() % right.eval()
+            return left.eval(r) % right.eval(r)
 
         # Then operation is boolean
-        return Bool.eval_operation(self.value, left, right)
+        return Bool.eval_operation(self.value, left, right, r)
 
     def __lt__(self, o):
         if self.value in GROUP_2:
@@ -103,8 +103,8 @@ class Operation:
         self.left = left
         self.right = right
 
-    def eval(self):
-        return self.operator.eval(self.left, self.right)
+    def eval(self, r):
+        return self.operator.eval(self.left, self.right, r)
 
     def __eq__(self, other):
         try:

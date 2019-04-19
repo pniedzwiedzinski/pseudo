@@ -3,9 +3,7 @@
 __author__ = "Patryk Niedźwiedziński"
 
 from pseudo.type.base import Value
-
-
-VAR = {}
+from pseudo.runtime import MemoryObject
 
 
 class Variable(Value):
@@ -21,40 +19,23 @@ class Variable(Value):
         self.value = value
         self.indices = indices
 
-    def setter(self, value: Value):
-        if not self.indices:
-            VAR[self.value] = value.eval()
-            return None
-
-        if self.value not in VAR:
-            VAR[self.value] = {}
-        v = VAR[self.value]
-
-        for key in self.indices[:-1]:
-            try:
-                v = v[key.eval()]
-            except KeyError:
-                v[key.eval()] = {}
-                v = v[key.eval()]
-        v[self.indices[-1].eval()] = value.eval()
-
-    def getter(self):
-        try:
-            var = VAR[self.value]
-            for key in self.indices:
-                var = var.__getitem__(key.eval())
-            return var
-        except KeyError:
-            return "nil"
-
-    def eval(self):
-        return self.getter()
+    def eval(self, r):
+        return r.get(self.value)
 
     def __repr__(self):
         return f'Variable("{self.value}", {self.indices})'
 
     def __str__(self):
         return self.__repr__()
+
+
+class Increment:
+    """Representing incrementation of iterator."""
+    def __init__(self, key: str):
+        self.key = key
+
+    def eval(self, r):
+        r.var[self.key].incr(self.key)
 
 
 class Assignment:
@@ -66,12 +47,13 @@ class Assignment:
         - value: Value to assign.
     """
 
-    def __init__(self, target: Variable, value: Value):
+    def __init__(self, target: Variable, value: Value, object_class = MemoryObject):
         self.target = target
         self.value = value
+        self.object_class = object_class
 
-    def eval(self):
-        self.target.setter(self.value)
+    def eval(self, r):
+        r.save(self.target.value, self.value, object_class=self.object_class)
 
     def __repr__(self):
         return f"Assignment({self.target}, {self.value})"

@@ -16,7 +16,9 @@ from pseudo.type.operation import (
     read_operator,
     is_operator,
 )
-from pseudo.type import Statement, EOL, Variable, Assignment, Value, Loop
+from pseudo.type.variable import Variable, Assignment, Increment
+from pseudo.type.loop import Loop, Iterator
+from pseudo.type import Statement, EOL, Value
 from pseudo.exceptions import IndentationBlockEnd, Comment
 
 __author__ = "Patryk Niedźwiedziński"
@@ -142,11 +144,12 @@ class Lexer:
         self.i.next_line()
         expressions = self.read_indent_block(indent_level + 1)
         expressions.append(
-            Assignment(condition, Operation(Operator("+"), condition, Int(1)))
+            Increment(condition.value)
         )
+
         return [
-            Assignment(condition, a),
-            Loop(Operation(Operator("<="), condition, b), expressions),
+            Assignment(condition, a, Iterator),
+            Loop(Operation(Operator("<="), condition, b), expressions, condition),
         ]
 
     def read_keyword(self) -> str:

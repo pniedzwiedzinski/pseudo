@@ -4,7 +4,8 @@ import pytest
 import pseudo
 
 from pseudo.type.operation import Operation, Operator
-from pseudo.type import Int, Statement, Bool, Loop, Variable, Assignment
+from pseudo.type.loop import Loop
+from pseudo.type import Int, Statement, Bool, Variable, Assignment
 from pseudo.stream import Stream, EOL, EndOfFile
 
 __author__ = "Patryk Niedźwiedziński"
@@ -136,12 +137,12 @@ def test_read_args(lexer):
 
 
 @pytest.mark.timeout(2)
-def test_read_expression(lexer):
+def test_read_expression(lexer, runtime):
     """Checks Lexer.read_expression"""
     if (
         lexer.read_expression(
             [Int(2), Operator("+"), Int(2), Operator("*"), Int(2)]
-        ).eval()
+        ).eval(runtime)
         != 6
     ):
         raise AssertionError

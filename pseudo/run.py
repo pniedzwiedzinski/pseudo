@@ -6,12 +6,14 @@ import datetime
 import traceback
 import os
 
+from pseudo.runtime import RunTime
 
-def run(instructions: list):
+
+def run(instructions: list, r: RunTime = RunTime()):
     """Run pseudocode string"""
     try:
         for i in instructions:
-            i.eval()
+            i.eval(r)
     except Exception:
         now = datetime.datetime.now().strftime("%H-%M-%S-%d-%m-%Y")
         try:
