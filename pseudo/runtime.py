@@ -98,6 +98,7 @@ class RunTime:
         # Get pointer from nested array to wanted index
         v = self.set_nested_array(key, indices[:-1])
 
+        #TODO: maybe refactor this
         try:
             v[indices[-1].eval(self)].setter(value.eval(self), self)
         except KeyError:

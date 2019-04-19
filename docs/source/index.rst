@@ -4,6 +4,7 @@ Home
 
 .. toctree::
     getting_started
+    runtime
     type/index
 
 .. automodule:: pseudo
