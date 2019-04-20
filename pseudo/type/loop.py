@@ -15,13 +15,12 @@ class Iterator(MemoryObject):
         MemoryObject.__init__(self, value, const=True)
 
     def setter(self, _, r):
-        print(r.var)
         r.throw("Cannot set value of iterator")
-    
+
     def incr(self, key):
         self.value += 1
 
-    
+
 class Loop:
     """
     Node for representing looped actions.
@@ -31,7 +30,7 @@ class Loop:
         - expressions: List of expressions to execute if condition is positive.
     """
 
-    def __init__(self, condition, expressions, iterator = None):
+    def __init__(self, condition, expressions, iterator=None):
         self.condition = condition
         self.expressions = expressions
         self.iterator = iterator

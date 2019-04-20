@@ -4,6 +4,7 @@ __author__ = "Patryk Niedźwiedziński"
 
 from sys import exit
 
+
 class MemoryObject:
     """
     This class is a representation of object in runtime memory.
@@ -28,6 +29,7 @@ class MemoryObject:
         """This function returns value."""
         return self.value
 
+
 class RunTime:
     """
     This class is a representation of computer resources like memory or processor.
@@ -51,7 +53,7 @@ class RunTime:
 
         pointer = self.var[key]
 
-        for k in indices: # For each index go to lower array
+        for k in indices:  # For each index go to lower array
             try:
                 pointer = pointer[k.eval(self)]
             except KeyError:
@@ -59,7 +61,7 @@ class RunTime:
                 pointer = pointer[k.eval(self)]
         return pointer
 
-    def _simple_save(self, key: str, value: object, object_class = MemoryObject):
+    def _simple_save(self, key: str, value: object, object_class=MemoryObject):
         """
         This function simply sets value in memory.
 
@@ -74,7 +76,9 @@ class RunTime:
         else:
             self.var[key].setter(value.eval(self), self)
 
-    def save(self, key: str, value: object, indices: list = [], object_class = MemoryObject):
+    def save(
+        self, key: str, value: object, indices: list = [], object_class=MemoryObject
+    ):
         """
         This functions is used to save value in `var`.
         
@@ -94,11 +98,11 @@ class RunTime:
         # Create array if does not exist
         if key not in self.var:
             self.var[key] = {}
-        
+
         # Get pointer from nested array to wanted index
         v = self.set_nested_array(key, indices[:-1])
 
-        #TODO: maybe refactor this
+        # TODO: maybe refactor this
         try:
             v[indices[-1].eval(self)].setter(value.eval(self), self)
         except KeyError:
@@ -130,17 +134,15 @@ class RunTime:
         """Read from stdin and store it in `var`."""
         value = input(f"{key}: ")
 
-        try: # value is a string by default
+        try:  # value is a string by default
             value = int(value)
         except TypeError:
             pass
 
         self.save(key, value, indices)
 
-    def stdout(self, key: str, indices: list = []):
-        """Write to stdout from `var`"""
-        value = self.get(key, indices)
-        
+    def stdout(self, value: object):
+        """Write to stdout"""
         if value == "\\n":
             print("")
         else:

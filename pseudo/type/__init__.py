@@ -27,7 +27,7 @@ class Statement:
 
     def eval(self, r):
         if self.value == "pisz":
-            r.stdout(self.args.value)
+            r.stdout(self.args.eval(r))
         elif self.value == "czytaj":
             r.stdin(self.args.value)
         elif self.value == "koniec":

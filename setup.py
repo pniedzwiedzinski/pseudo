@@ -17,7 +17,7 @@ setup(
     description="Pseudocode interpreter prototype",
     long_description=long_description(),
     long_description_content_type="text/markdown",
-    entry_points={"console_scripts": ["pdc=pseudo:main"]},
+    entry_points={"console_scripts": ["pdc=pseudo.cli:pdc"]},
     packages=find_packages(),
     tests_require=["pytest"],
     install_requires=["Click>=7.0"],
