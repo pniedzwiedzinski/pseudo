@@ -3,6 +3,8 @@
 __author__ = "Patryk Niedźwiedziński"
 
 from sys import exit
+from pseudo.type.numbers import Int
+from pseudo.type.string import String
 
 
 class MemoryObject:
@@ -135,9 +137,9 @@ class RunTime:
         value = input(f"{key}: ")
 
         try:  # value is a string by default
-            value = int(value)
-        except TypeError:
-            pass
+            value = Int(value)
+        except ValueError:
+            value = String(value)
 
         self.save(key, value, indices)
 
