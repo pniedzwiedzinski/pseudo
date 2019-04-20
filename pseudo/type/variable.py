@@ -31,6 +31,7 @@ class Variable(Value):
 
 class Increment:
     """Representing incrementation of iterator."""
+
     def __init__(self, key: str):
         self.key = key
 
@@ -47,13 +48,21 @@ class Assignment:
         - value: Value to assign.
     """
 
-    def __init__(self, target: Variable, value: Value, object_class = MemoryObject):
+    def __init__(
+        self, target: Variable, value: Value, object_class=MemoryObject, line=""
+    ):
         self.target = target
         self.value = value
         self.object_class = object_class
+        self.line = line
 
     def eval(self, r):
-        r.save(self.target.value, self.value, object_class=self.object_class)
+        r.save(
+            self.target.value,
+            self.value,
+            object_class=self.object_class,
+            line=self.line,
+        )
 
     def __repr__(self):
         return f"Assignment({self.target}, {self.value})"

@@ -141,6 +141,7 @@ class Lexer:
             self.i.throw(f"Expected assignment symbol")
 
         a, b = self.read_range()
+        line = self.i.current_line()
         self.i.next_line()
         expressions = self.read_indent_block(indent_level + 1)
         expressions.append(
@@ -149,7 +150,7 @@ class Lexer:
 
         return [
             Assignment(condition, a, Iterator),
-            Loop(Operation(Operator("<="), condition, b), expressions, condition),
+            Loop(Operation(Operator("<="), condition, b), expressions, condition, line),
         ]
 
     def read_keyword(self) -> str:

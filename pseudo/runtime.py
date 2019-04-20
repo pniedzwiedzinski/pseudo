@@ -16,14 +16,15 @@ class MemoryObject:
         - const: bool, If true object is constant and cannot be changed.
     """
 
-    def __init__(self, value: object, const: bool = False):
+    def __init__(self, value: object, const: bool = False, line: str = ""):
         self.value = value
         self.const = const
+        self.line = line
 
     def setter(self, value: object, r):
         """This function updates value."""
         if self.const:
-            r.throw(f"Variable is not settable")
+            r.throw(f"Variable is not settable", self.line)
         else:
             self.value = value
 
@@ -63,7 +64,9 @@ class RunTime:
                 pointer = pointer[k.eval(self)]
         return pointer
 
-    def _simple_save(self, key: str, value: object, object_class=MemoryObject):
+    def _simple_save(
+        self, key: str, value: object, object_class=MemoryObject, line: str = ""
+    ):
         """
         This function simply sets value in memory.
 
@@ -74,12 +77,17 @@ class RunTime:
         """
 
         if key not in self.var:
-            self.var[key] = object_class(value.eval(self))
+            self.var[key] = object_class(value.eval(self), line=line)
         else:
             self.var[key].setter(value.eval(self), self)
 
     def save(
-        self, key: str, value: object, indices: list = [], object_class=MemoryObject
+        self,
+        key: str,
+        value: object,
+        indices: list = [],
+        object_class=MemoryObject,
+        line: str = "",
     ):
         """
         This functions is used to save value in `var`.
@@ -91,10 +99,14 @@ class RunTime:
                 For example `T[a][b]` will have indices `[a, b]`.
             - object_class: class, Class of value.
         """
+        try:
+            line = value.line or line
+        except AttributeError:
+            pass
 
         # Simple variable set
         if not indices:
-            self._simple_save(key, value, object_class)
+            self._simple_save(key, value, object_class, line)
             return None
 
         # Create array if does not exist
@@ -108,7 +120,7 @@ class RunTime:
         try:
             v[indices[-1].eval(self)].setter(value.eval(self), self)
         except KeyError:
-            v[indices[-1].eval(self)] = object_class(value.eval(self))
+            v[indices[-1].eval(self)] = object_class(value.eval(self), line=line)
 
     def get(self, key: str, indices: list = []):
         """
@@ -154,6 +166,6 @@ class RunTime:
         """This function is used to tell user that a runtime error has occurred."""
 
         print(f"⚠️  Runtime error:")
-        print(f"\t{line_causing_error}")
+        print(f"\t'{line_causing_error}'")
         print(error_message)
         exit(1)
