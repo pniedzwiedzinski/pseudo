@@ -40,10 +40,22 @@ class MemoryObject:
 
 class RunTime:
     """
-    This class is a representation of computer resources like memory or processor.
-    
+    This class is a representation of computer resources like memory or processor. It is used 
+    to run instructions parsed by `pseudo.lexer.Lexer`.
+
     Attributes:
-        - var: dict, In this object all variables will be stored.
+        - var: dict, In this object all variables will be stored. Arrays are stored as independent
+            keys i.e.::
+                {
+                    "T[1]": 1,
+                    "T[2]": 2,
+                }
+
+    Usage::
+        >>> instructions = [Statement("pisz", Int(42))]
+        >>> r = RunTime()
+        >>> r.run(instructions)
+        42
     """
 
     def __init__(self):
@@ -51,7 +63,7 @@ class RunTime:
 
     def save(self, key: str, value: object, object_class=MemoryObject):
         """
-        This functions is used to save value in `var`.
+        This functions is used to save variable's value in memory
         
         Args:
             - key: str, Unique key under which value will be stored. `T[1][10]` is also a key
@@ -66,7 +78,7 @@ class RunTime:
 
     def get(self, key: str):
         """
-        This function returns value stored under key.
+        This function returns value of stored variable.
         
         Args:
             - key: str, Key under which value is stored.
@@ -78,11 +90,11 @@ class RunTime:
             return "nil"
 
     def delete(self, key: str):
-        """Remove from memory."""
+        """This function removes variable from memory."""
         del self.var[key]
 
     def stdin(self, key: str):
-        """Read from stdin and store it in `var`."""
+        """This function reads value from standard input and stores it in given variable."""
         value = input(f"{key}: ")
 
         try:  # value is a string by default
@@ -93,7 +105,7 @@ class RunTime:
         self.save(key, value)
 
     def stdout(self, value: object):
-        """Write to stdout"""
+        """This function writes value to standard output."""
         if value == "\\n":
             print("")
         else:
