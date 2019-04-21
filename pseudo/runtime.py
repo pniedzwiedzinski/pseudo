@@ -40,12 +40,19 @@ class MemoryObject:
 
 class RunTime:
     """
-    This class is a representation of computer resources like memory or processor. It is used 
+    This class is a representation of computer resources like memory or processor. It is used
     to run instructions parsed by `pseudo.lexer.Lexer`.
 
     Attributes:
-        - var: dict, In this object all variables will be stored. Arrays are stored as independent
-        keys i.e.::
+        - var: dict, In this object all variables will be stored.
+
+
+    Variable names
+    ~~~~~~~~~~~~~~
+
+        Variable names consist of alphanumeric characters, starting with alphabetical char. Arrays
+        are stored as independent keys i.e.::
+
             {
                 "T[1]": 1,
                 "T[2]": 2,
