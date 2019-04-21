@@ -8,8 +8,9 @@ from pseudo.type.base import Value
 class Int(Value):
     """Int value node."""
 
-    def __init__(self, value):
-        self.value = int(value)
+    def __init__(self, *args, **kwargs):
+        Value.__init__(self, *args, **kwargs)
+        self.value = int(self.value)
 
     def __str__(self):
         return self.__repr__()

@@ -9,10 +9,12 @@ class Value:
 
     Attributes:
         - value: Value of instance.
+        - line: Line of pseudocode representation
     """
 
-    def __init__(self, value):
+    def __init__(self, value, line=""):
         self.value = value
+        self.line = line
 
     def eval(self, r):
         return self.value
@@ -34,7 +36,7 @@ class EOL:
     """Representation of newline."""
 
     def __init__(self):
-        pass
+        self.line = ""
 
     def eval(self, r):
         pass

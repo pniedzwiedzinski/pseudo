@@ -141,6 +141,7 @@ class Lexer:
             self.i.throw(f"Expected assignment symbol")
 
         a, b = self.read_range()
+        line = self.i.current_line()
         self.i.next_line()
         expressions = self.read_indent_block(indent_level + 1)
         expressions.append(
@@ -148,8 +149,8 @@ class Lexer:
         )
 
         return [
-            Assignment(condition, a, Iterator),
-            Loop(Operation(Operator("<="), condition, b), expressions, condition),
+            Assignment(condition, a, Iterator, line=line),
+            Loop(Operation(Operator("<="), condition, b), expressions, condition, line),
         ]
 
     def read_keyword(self) -> str:
@@ -314,7 +315,7 @@ class Lexer:
                     and not isinstance(args, Bool)
                 ):
                     self.i.throw(f"Cannot assign type {type(args)} to variable")
-                return Assignment(Variable(keyword, indices), args)
+                return Assignment(Variable(keyword, indices), args, line=self.i.current_line())
             return Variable(keyword, indices)
         if c == "":
             raise EndOfFile
