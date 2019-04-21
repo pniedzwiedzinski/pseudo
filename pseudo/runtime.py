@@ -45,11 +45,11 @@ class RunTime:
 
     Attributes:
         - var: dict, In this object all variables will be stored. Arrays are stored as independent
-            keys i.e.::
-                {
-                    "T[1]": 1,
-                    "T[2]": 2,
-                }
+        keys i.e.::
+            {
+                "T[1]": 1,
+                "T[2]": 2,
+            }
 
     Usage::
         >>> instructions = [Statement("pisz", Int(42))]
