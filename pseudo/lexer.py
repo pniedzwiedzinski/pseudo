@@ -149,7 +149,7 @@ class Lexer:
         )
 
         return [
-            Assignment(condition, a, Iterator),
+            Assignment(condition, a, Iterator, line=line),
             Loop(Operation(Operator("<="), condition, b), expressions, condition, line),
         ]
 
@@ -315,7 +315,7 @@ class Lexer:
                     and not isinstance(args, Bool)
                 ):
                     self.i.throw(f"Cannot assign type {type(args)} to variable")
-                return Assignment(Variable(keyword, indices), args)
+                return Assignment(Variable(keyword, indices), args, line=self.i.current_line())
             return Variable(keyword, indices)
         if c == "":
             raise EndOfFile

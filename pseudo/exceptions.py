@@ -9,3 +9,7 @@ class IndentationBlockEnd(Exception):
 
 class Comment(Exception):
     """This exception is raised when `#` is seen."""
+
+
+class RunTimeError(Exception):
+    """This exception is raised when runtime error occurs."""

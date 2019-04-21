@@ -16,13 +16,17 @@ class Variable(Value):
     """
 
     def __init__(self, value, indices=[]):
-        postfix = ""
-        for i in indices:
-            postfix += f"[{str(i)}]"
-        self.value = value + postfix
+        self.value = value
+        self.indices = indices
 
     def eval(self, r):
-        return r.get(self.value)
+        return r.get(self.key(r))
+
+    def key(self, r):
+        postfix = ""
+        for i in self.indices:
+            postfix += f"[{str(i.eval(r))}]"
+        return self.value + postfix
 
     def __repr__(self):
         return f'Variable("{self.value}")'
@@ -32,10 +36,17 @@ class Variable(Value):
 
 
 class Increment:
-    """Representing incrementation of iterator."""
+    """
+    Representing incrementation of iterator.
+    
+    Attributes:
+        - key: str, Key of iterator.
+        - line: str, Representation of operation in pseudocode.
+    """
 
-    def __init__(self, key: str):
+    def __init__(self, key: str, line: str = ""):
         self.key = key
+        self.line = line
 
     def eval(self, r):
         r.var[self.key].incr(self.key)
@@ -51,7 +62,7 @@ class Assignment:
     """
 
     def __init__(
-        self, target: Variable, value: Value, object_class=MemoryObject, line=""
+        self, target: Variable, value: Value, object_class=MemoryObject, line: str = ""
     ):
         self.target = target
         self.value = value
@@ -59,7 +70,7 @@ class Assignment:
         self.line = line
 
     def eval(self, r):
-        r.save(self.target.value, self.value, object_class=self.object_class)
+        r.save(self.target.key(r), self.value, object_class=self.object_class)
 
     def __repr__(self):
         return f"Assignment({self.target}, {self.value})"

@@ -7,6 +7,7 @@ import os
 import traceback
 from sys import exit
 
+from pseudo.exceptions import RunTimeError
 from pseudo.type.numbers import Int
 from pseudo.type.string import String
 
@@ -112,17 +113,20 @@ class RunTime:
         with open(f"crash/{now}.log", "w") as fp:
             fp.write(error_message)
 
-        return f"crash/{now}.log"
+        return f"{os.getcwd()}/crash/{now}.log"
 
     def eval(self, instruction):
         """Evaluate instruction."""
-        instruction.eval(self)
+        try:
+            instruction.eval(self)
+        except RunTimeError as err:
+            self.throw(err, instruction.line)
 
     def run(self, instructions: list):
         """Run pseudocode instructions"""
         try:
             for i in instructions:
-                i.eval(self)
+                self.eval(i)
         except Exception:
             path = self.save_crash(traceback.format_exc())
             print("⚠️  Error: \n\tRuntime error has occurred!\n")

@@ -2,6 +2,7 @@
 
 __author__ = "Patryk Niedźwiedziński"
 
+from pseudo.exceptions import RunTimeError
 from pseudo.runtime import MemoryObject
 from pseudo.type.base import Value
 
@@ -15,7 +16,7 @@ class Iterator(MemoryObject):
         MemoryObject.__init__(self, key, value, const=True)
 
     def setter(self, _, r):
-        r.throw("Cannot set value of iterator", f"{self.key}")
+        raise RunTimeError("Cannot change value of iterator")
 
     def incr(self, key):
         self.value += 1
