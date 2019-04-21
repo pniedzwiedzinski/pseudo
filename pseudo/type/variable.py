@@ -16,14 +16,16 @@ class Variable(Value):
     """
 
     def __init__(self, value, indices=[]):
-        self.value = value
-        self.indices = indices
+        postfix = ""
+        for i in indices:
+            postfix += f"[{str(i)}]"
+        self.value = value + postfix
 
     def eval(self, r):
         return r.get(self.value)
 
     def __repr__(self):
-        return f'Variable("{self.value}", {self.indices})'
+        return f'Variable("{self.value}")'
 
     def __str__(self):
         return self.__repr__()
@@ -57,12 +59,7 @@ class Assignment:
         self.line = line
 
     def eval(self, r):
-        r.save(
-            self.target.value,
-            self.value,
-            object_class=self.object_class,
-            line=self.line,
-        )
+        r.save(self.target.value, self.value, object_class=self.object_class)
 
     def __repr__(self):
         return f"Assignment({self.target}, {self.value})"

@@ -17,14 +17,17 @@ def test_compile():
 script = """
 a := 1
 jeżeli a=1 to
+    T[a] := a
     pisz a
 
 dopóki a < 2 wykonuj
+    T[a] := a
     a:=a+1
 pisz a
 
 dla i:=3,...,5 wykonuj
     dla x:=3,...,5 wykonuj
+        T[x] <- x
         pisz x
 """
 

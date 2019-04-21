@@ -16,10 +16,10 @@ class MemoryObject:
         - const: bool, If true object is constant and cannot be changed.
     """
 
-    def __init__(self, value: object, const: bool = False, line: str = ""):
+    def __init__(self, key: str, value: object, const: bool = False):
+        self.key = key
         self.value = value
         self.const = const
-        self.line = line
 
     def setter(self, value: object, r):
         """This function updates value."""
@@ -44,100 +44,32 @@ class RunTime:
     def __init__(self):
         self.var = {}
 
-    def set_nested_array(self, key: str, indices: list):
-        """
-        This function returns pointer to nested array in `var`
-
-        Args:
-            - key: str, Key under which array will be stored.
-            - indices: list of objects, List of indexes, for example
-                `T[a][b]` will have indices `[a, b]`.
-        """
-
-        pointer = self.var[key]
-
-        for k in indices:  # For each index go to lower array
-            try:
-                pointer = pointer[k.eval(self)]
-            except KeyError:
-                pointer[k.eval(self)] = {}
-                pointer = pointer[k.eval(self)]
-        return pointer
-
-    def _simple_save(
-        self, key: str, value: object, object_class=MemoryObject, line: str = ""
-    ):
-        """
-        This function simply sets value in memory.
-
-        Args:
-            - key: str, Unique key under which value will be stored.
-            - value: object, Value to store.
-            - object_class: class, Class of value.
-        """
-
-        if key not in self.var:
-            self.var[key] = object_class(value.eval(self), line=line)
-        else:
-            self.var[key].setter(value.eval(self), self)
-
-    def save(
-        self,
-        key: str,
-        value: object,
-        indices: list = [],
-        object_class=MemoryObject,
-        line: str = "",
-    ):
+    def save(self, key: str, value: object, object_class=MemoryObject):
         """
         This functions is used to save value in `var`.
         
         Args:
-            - key: str, Unique key under which value will be stored.
+            - key: str, Unique key under which value will be stored. `T[1][10]` is also a key
             - value: object, Value to store.
-            - indices: list of objects, If variable is an array. 
-                For example `T[a][b]` will have indices `[a, b]`.
             - object_class: class, Class of value.
         """
-        try:
-            line = value.line or line
-        except AttributeError:
-            pass
 
-        # Simple variable set
-        if not indices:
-            self._simple_save(key, value, object_class, line)
-            return None
-
-        # Create array if does not exist
         if key not in self.var:
-            self.var[key] = {}
+            self.var[key] = object_class(key, value.eval(self))
+        else:
+            self.var[key].setter(value.eval(self), self)
 
-        # Get pointer from nested array to wanted index
-        v = self.set_nested_array(key, indices[:-1])
-
-        # TODO: maybe refactor this
-        try:
-            v[indices[-1].eval(self)].setter(value.eval(self), self)
-        except KeyError:
-            v[indices[-1].eval(self)] = object_class(value.eval(self), line=line)
-
-    def get(self, key: str, indices: list = []):
+    def get(self, key: str):
         """
         This function returns value stored under key.
         
         Args:
             - key: str, Key under which value is stored.
-            - indices: list of objects, If variable is array, for example 
-                `T[a][b]` will have indices `[a, b]`.
         """
 
-        try:
-            v = self.var[key]
-            for k in indices:
-                v = v.__getitem__(k.eval(self))
-            return v.getter()
-        except KeyError:
+        if key in self.var:
+            return self.var[key].getter()
+        else:
             return "nil"
 
     def delete(self, key: str):

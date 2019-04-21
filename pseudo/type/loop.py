@@ -11,11 +11,11 @@ class Iterator(MemoryObject):
     This class is a representation of iterator in memory.
     """
 
-    def __init__(self, value: int, line: str = ""):
-        MemoryObject.__init__(self, value, const=True, line=line)
+    def __init__(self, key: str, value: int):
+        MemoryObject.__init__(self, key, value, const=True)
 
     def setter(self, _, r):
-        r.throw("Cannot set value of iterator", self.line)
+        r.throw("Cannot set value of iterator", f"{self.key}")
 
     def incr(self, key):
         self.value += 1
