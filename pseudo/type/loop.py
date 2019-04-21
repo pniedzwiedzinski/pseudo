@@ -38,8 +38,7 @@ class Loop:
 
     def eval(self, r):
         while self.condition.eval(r):
-            for e in self.expressions:
-                e.eval(r)
+            r.run(self.expressions)
         if self.iterator is not None:
             r.delete(self.iterator.value)
 

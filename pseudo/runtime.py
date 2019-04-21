@@ -2,7 +2,11 @@
 
 __author__ = "Patryk Niedźwiedziński"
 
+import datetime
+import os
+import traceback
 from sys import exit
+
 from pseudo.type.numbers import Int
 from pseudo.type.string import String
 
@@ -76,7 +80,7 @@ class RunTime:
         """Remove from memory."""
         del self.var[key]
 
-    def stdin(self, key: str, indices: list = []):
+    def stdin(self, key: str):
         """Read from stdin and store it in `var`."""
         value = input(f"{key}: ")
 
@@ -85,7 +89,7 @@ class RunTime:
         except ValueError:
             value = String(value)
 
-        self.save(key, value, indices)
+        self.save(key, value)
 
     def stdout(self, value: object):
         """Write to stdout"""
@@ -94,10 +98,44 @@ class RunTime:
         else:
             print(value, end="")
 
+    @staticmethod
+    def save_crash(error_message: str):
+        """Save crash message to file and return path to it."""
+
+        now = datetime.datetime.now().strftime("%H-%M-%S-%d-%m-%Y")
+
+        try:  # Create folder to store .log file
+            os.mkdir("crash")
+        except FileExistsError:
+            pass
+
+        with open(f"crash/{now}.log", "w") as fp:
+            fp.write(error_message)
+
+        return f"crash/{now}.log"
+
+    def eval(self, instruction):
+        """Evaluate instruction."""
+        instruction.eval(self)
+
+    def run(self, instructions: list):
+        """Run pseudocode instructions"""
+        try:
+            for i in instructions:
+                i.eval(self)
+        except Exception:
+            path = self.save_crash(traceback.format_exc())
+            print("⚠️  Error: \n\tRuntime error has occurred!\n")
+            print(
+                "Wow! You encountered a bug! Please tell me how did you do that on https://github.com/pniedzwiedzinski/pseudo/issues\n"
+            )
+            print(f"Error message was copied to {path}")
+            exit(1)
+
     def throw(self, error_message: str, line_causing_error: str = ""):
         """This function is used to tell user that a runtime error has occurred."""
 
-        print(f"⚠️  Runtime error:")
+        print(f"⚠️  Error on line :")
         print(f"\t'{line_causing_error}'")
         print(error_message)
         exit(1)

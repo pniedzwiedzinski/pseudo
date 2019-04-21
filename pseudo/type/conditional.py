@@ -3,7 +3,6 @@
 __author__ = "Patryk Niedźwiedziński"
 
 
-from pseudo.run import run
 from pseudo.stream import EndOfFile
 
 
@@ -27,9 +26,9 @@ class Condition:
     def eval(self, r):
         b = self.condition.eval(r)
         if b and b != "nil":
-            run(self.true, r)
+            r.run(self.true)
         elif self.false is not None:
-            run(self.false, r)
+            r.run(self.false)
 
     def __eq__(self, other):
         if not isinstance(other, Condition):

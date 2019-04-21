@@ -6,7 +6,7 @@ import click
 import codecs
 
 from pseudo import __version__, __doc__, compile
-from pseudo.run import run
+from pseudo.runtime import RunTime
 
 
 __author__ = "Patryk Niedźwiedziński"
@@ -35,4 +35,5 @@ def pdc(file, version, range_symbol):
         text_input = fp.read()
 
     instructions = compile(text_input, range_symbol)
-    run(instructions)
+    r = RunTime()
+    r.run(instructions)
