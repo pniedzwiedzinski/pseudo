@@ -47,8 +47,7 @@ class RunTime:
         - var: dict, In this object all variables will be stored.
 
 
-    Variable names
-    ~~~~~~~~~~~~~~
+    Variable names:
 
         Variable names consist of alphanumeric characters, starting with alphabetical char. Arrays
         are stored as independent keys i.e.::
