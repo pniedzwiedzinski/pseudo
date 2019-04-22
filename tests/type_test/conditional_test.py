@@ -28,6 +28,7 @@ wpp
             Bool(1),
             [Statement("pisz", args=Int(4)), EOL()],
             [Statement("pisz", args=Int(3)), EOL()],
+            "jeżeli prawda to",
         ),
     )
 
@@ -43,5 +44,6 @@ wpp
             Operation(Operator(">"), Int(2), Operation(Operator("+"), Int(3), Int(2))),
             [Int(4), EOL()],
             None,
+            "jeżeli 2 > 3+2 to",
         ),
     )

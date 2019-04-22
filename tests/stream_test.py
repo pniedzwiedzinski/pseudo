@@ -19,6 +19,15 @@ def stream():
 
 
 @pytest.mark.timeout(2)
+def test_get_current_line(stream, test):
+    s = stream("a\nb")
+
+    test(s.get_current_line(), "a")
+    s.line += 1
+    test(s.get_current_line(), "b")
+
+
+@pytest.mark.timeout(2)
 def test_next_line(stream):
     """Checks Stream.next_line"""
     s = stream("1\n2")

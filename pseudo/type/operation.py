@@ -103,6 +103,10 @@ class Operation:
         self.left = left
         self.right = right
 
+    @property
+    def line(self):
+        return self.left.line + self.operator + self.right.line
+
     def eval(self, r):
         return self.operator.eval(self.left, self.right, r)
 

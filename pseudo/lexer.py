@@ -17,7 +17,7 @@ from pseudo.type.operation import (
     is_operator,
 )
 from pseudo.type.variable import Variable, Assignment, Increment
-from pseudo.type.loop import Loop, Iterator
+from pseudo.type.loop import Loop, Iterator, read_for, read_while
 from pseudo.type import Statement, EOL, Value
 from pseudo.exceptions import IndentationBlockEnd, Comment
 
@@ -106,16 +106,6 @@ class Lexer:
             expression += self.i.next()
         return expression
 
-    def read_while(self, indent_level: int = 0) -> Loop:
-        """Read while statement."""
-        # TODO: test
-        condition = self.read_condition("dopóki", indent_level=indent_level)
-        self.i.next_line()
-        expressions = self.read_indent_block(indent_level=indent_level + 1)
-        if expressions is None:
-            self.i.throw(f"Expected indented code, instead got 'nil'")
-        return Loop(condition, expressions)
-
     def read_range(self) -> tuple:
         """Read range `a ,..., b`"""
         a = self.read_args()
@@ -127,30 +117,6 @@ class Lexer:
         self.i.next()
         b = self.read_condition("dopóki")
         return (a, b)
-
-    def read_for(self, indent_level: int = 0) -> Loop:
-        """Read for statement."""
-        self.read_white_chars()
-        condition = self.read_next()
-
-        if not isinstance(condition, Variable):
-            self.i.throw(f"Expected Variable, but {type(condition)} was given")
-        self.read_white_chars()
-        assign = read_operator(self.i)
-        if not isinstance(assign, str) or (assign != ":=" and assign != "<-"):
-            self.i.throw(f"Expected assignment symbol")
-
-        a, b = self.read_range()
-        self.i.next_line()
-        expressions = self.read_indent_block(indent_level + 1)
-        expressions.append(
-            Increment(condition.value)
-        )
-
-        return [
-            Assignment(condition, a, Iterator),
-            Loop(Operation(Operator("<="), condition, b), expressions, condition),
-        ]
 
     def read_keyword(self) -> str:
         """Read a keyword from the stream."""
@@ -170,9 +136,9 @@ class Lexer:
         if keyword == "jeżeli":
             return read_if(self, indent_level)
         if keyword == "dopóki":
-            return self.read_while(indent_level)
+            return read_while(self, indent_level)
         if keyword == "dla":
-            return self.read_for(indent_level)
+            return read_for(self, indent_level)
         arg = self.read_args()
         arg = self.read_expression(arg)
         if keyword == "czytaj":
@@ -314,7 +280,9 @@ class Lexer:
                     and not isinstance(args, Bool)
                 ):
                     self.i.throw(f"Cannot assign type {type(args)} to variable")
-                return Assignment(Variable(keyword, indices), args)
+                return Assignment(
+                    Variable(keyword, indices), args, line=self.i.get_current_line()
+                )
             return Variable(keyword, indices)
         if c == "":
             raise EndOfFile
@@ -323,6 +291,10 @@ class Lexer:
     def read_indent_size(self):
         """Read indent size from stream."""
         size = 0
+
+        if isinstance(self.i.peek(), EOL):
+            return None
+
         self.indent_char = self.i.peek()
         while self.i.peek() == self.indent_char:
             self.i.next()
@@ -353,14 +325,25 @@ class Lexer:
             self.i.throw(f"Inconsistent indentation size")
 
     def read_indent_block(self, indent_level: int = 1) -> list:
-        """Read indented expressions while valid indentation and returns list of them."""
-        expressions = []
+        """
+        This function reads and return list of instructions in indentation block. If list is empty
+        or with only EOL instances then error is throwed.
+
+        Args:
+            - indent_level: int, Number of indents prepended to instructions.
+        """
+        instructions = []
+        empty_block = True
+        line = self.i.line
+
         while (
             self.i.peek() == " "
             or self.i.peek() == "\t"
             or self.i.peek() == "#"
             or isinstance(self.i.peek(), EOL)
         ):
+
+            # Read indentation
             try:
                 self.read_indent(indent_level)
             except IndentationBlockEnd:
@@ -368,9 +351,18 @@ class Lexer:
             except Comment:
                 self.i.next_line()
                 continue
+
+            # Read instruction
             try:
                 e = self.read_next(indent_level=indent_level)
             except EndOfFile:
                 break
-            expressions = append(expressions, e)
-        return expressions
+            if not isinstance(e, EOL):
+                empty_block = False
+            instructions = append(instructions, e)
+
+        # Check if block is empty
+        if empty_block:
+            self.i.line = line - 1
+            self.i.throw("Expected indentation block")
+        return instructions

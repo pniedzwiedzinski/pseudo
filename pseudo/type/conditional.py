@@ -3,7 +3,6 @@
 __author__ = "Patryk Niedźwiedziński"
 
 
-from pseudo.run import run
 from pseudo.stream import EndOfFile
 
 
@@ -15,19 +14,21 @@ class Condition:
         - condition: Condition to check
         - true: List to evaluate if condition is true
         - false: List to evaluate if condition is false (optional)
+        - line: String of pseudocode representation
     """
 
-    def __init__(self, condition, true, false=None):
+    def __init__(self, condition, true, false=None, line=""):
         self.condition = condition
         self.true = true
         self.false = false
+        self.line = line
 
     def eval(self, r):
         b = self.condition.eval(r)
         if b and b != "nil":
-            run(self.true, r)
+            r.run(self.true)
         elif self.false is not None:
-            run(self.false, r)
+            r.run(self.false)
 
     def __eq__(self, other):
         if not isinstance(other, Condition):
@@ -54,12 +55,13 @@ def read_if(lexer, indent_level: int = 0) -> Condition:
     """
 
     condition = lexer.read_condition("jeżeli", indent_level=indent_level)
+    line = lexer.i.get_current_line()
     lexer.i.next_line()
     true = lexer.read_indent_block(indent_level=indent_level + 1)
 
     false = None
     if lexer.i.eof():
-        return Condition(condition, true, false=false)
+        return Condition(condition, true, false=false, line=line)
     c, l = lexer.i.col, lexer.i.line
 
     try:
@@ -71,5 +73,5 @@ def read_if(lexer, indent_level: int = 0) -> Condition:
             lexer.i.col, lexer.i.line = c, l
     except EndOfFile:
         lexer.i.col, lexer.i.line = c, l
-    return Condition(condition, true, false=false)
+    return Condition(condition, true, false=false, line=line)
 
