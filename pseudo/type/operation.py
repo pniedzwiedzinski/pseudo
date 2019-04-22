@@ -98,7 +98,7 @@ def read_operator(stream):
 class Operation:
     """Operation node."""
 
-    def __init__(self, operator, left, right, line):
+    def __init__(self, operator, left, right):
         self.operator = operator
         self.left = left
         self.right = right
