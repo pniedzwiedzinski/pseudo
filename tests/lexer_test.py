@@ -90,7 +90,7 @@ def test_read_condition(lexer):
 
 
 @pytest.mark.timeout(2)
-def test_read_args(lexer):
+def test_read_args(lexer, test):
     """Checks Lexer.read_args"""
     lexer.i = Stream("    12")
     lexer.i.col = 3
@@ -107,6 +107,9 @@ def test_read_args(lexer):
         [Operation(Operator("+"), Int(2), Int(2)), Operator("*"), Int(2)],
     ):
         raise AssertionError
+
+    lexer.i = Stream("prawda")
+    test(lexer.read_args(), [Bool(1)])
 
 
 @pytest.mark.timeout(2)

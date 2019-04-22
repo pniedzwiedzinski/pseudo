@@ -7,6 +7,7 @@ from pseudo.runtime import RunTime
 from pseudo.stream import Stream
 from pseudo.type import Statement, EOL
 from pseudo.type.numbers import Int
+from pseudo.type.bool import Bool
 from pseudo.type.variable import Assignment, Variable, Increment
 from pseudo.type.operation import Operation, Operator
 from pseudo.type.loop import Loop, read_for, read_while, Iterator
@@ -56,10 +57,9 @@ def test_read_for(lexer, runtime, test, monkeypatch):
 @pytest.mark.timeout(2)
 def test_read_while(lexer, test):
     lexer.i = Stream(
-        """
-    dopóki prawda wykonuj
-        pisz a
-"""
+        """dopóki prawda wykonuj
+    pisz a"""
     )
+    lexer.i.col = 7
 
-    test(read_while(lexer), Loop(Int(1), Statement("pisz", Variable("a"))))
+    test(read_while(lexer), Loop(Bool(1), [Statement("pisz", Variable("a")), EOL()]))
