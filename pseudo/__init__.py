@@ -23,7 +23,7 @@ Example:
 
 
 __author__ = "Patryk Niedźwiedziński"
-__version__ = "0.9.2a"
+__version__ = "0.10.0"
 
 
 import gc
