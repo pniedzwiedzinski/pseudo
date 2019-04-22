@@ -280,7 +280,7 @@ class Lexer:
                     and not isinstance(args, Bool)
                 ):
                     self.i.throw(f"Cannot assign type {type(args)} to variable")
-                return Assignment(Variable(keyword, indices), args, line=self.i.current_line())
+                return Assignment(Variable(keyword, indices), args, line=self.i.get_current_line())
             return Variable(keyword, indices)
         if c == "":
             raise EndOfFile
@@ -320,13 +320,18 @@ class Lexer:
 
     def read_indent_block(self, indent_level: int = 1) -> list:
         """Read indented expressions while valid indentation and returns list of them."""
+        # TODO: fix throw error on compile
         expressions = []
+        empty_block = True
+        line = self.i.line
+
         while (
             self.i.peek() == " "
             or self.i.peek() == "\t"
             or self.i.peek() == "#"
             or isinstance(self.i.peek(), EOL)
         ):
+
             try:
                 self.read_indent(indent_level)
             except IndentationBlockEnd:
@@ -338,5 +343,11 @@ class Lexer:
                 e = self.read_next(indent_level=indent_level)
             except EndOfFile:
                 break
+            if not isinstance(e, EOL):
+                empty_block = False
             expressions = append(expressions, e)
+
+        if empty_block:
+            self.i.line = line - 1
+            self.i.throw("Expected indentation block")
         return expressions

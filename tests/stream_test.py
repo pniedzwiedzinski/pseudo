@@ -19,12 +19,12 @@ def stream():
 
 
 @pytest.mark.timeout(2)
-def test_line(stream, test):
+def test_get_current_line(stream, test):
     s = stream("a\nb")
 
-    test(s.current_line(), "a")
+    test(s.get_current_line(), "a")
     s.line += 1
-    test(s.current_line(), "b")
+    test(s.get_current_line(), "b")
 
 
 @pytest.mark.timeout(2)

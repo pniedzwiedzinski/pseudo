@@ -56,35 +56,63 @@ class Loop:
 
 
 def read_for(lexer, indent_level: int = 0) -> Loop:
-    """Read for statement."""
-    lexer.read_white_chars()
-    condition = lexer.read_next()
+    """
+    This function reads and returns for loop statement. The for loop needs couple things:
+        
+        - iterator: Variable to iterate over.
+        - start value: Value with which iterator will be initialized.
+        - end value: Value on which loop will end its execution.
+        - instruction stack: Instructions to execute during loop.
+    """
 
-    if not isinstance(condition, Variable):
-        lexer.i.throw(f"Expected Variable, but {type(condition)} was given")
+    # Read iterator name
     lexer.read_white_chars()
+    iterator = lexer.read_next()
+    if not isinstance(iterator, Variable):
+        lexer.i.throw(f"Expected Variable, but {type(iterator)} was given")
+    lexer.read_white_chars()
+
+    # Check assign operator
     assign = read_operator(lexer.i)
     if not isinstance(assign, str) or (assign != ":=" and assign != "<-"):
         lexer.i.throw(f"Expected assignment symbol")
 
-    a, b = lexer.read_range()
-    line = lexer.i.current_line()
+    # Read start and end values
+    start_value, end_value = lexer.read_range()
+
+    line = lexer.i.get_current_line()
     lexer.i.next_line()
-    expressions = lexer.read_indent_block(indent_level + 1)
-    expressions.append(Increment(condition.value))
+
+    # Read instructions
+    instructions = lexer.read_indent_block(indent_level + 1)
+    instructions.append(Increment(iterator.value))
 
     return [
-        Assignment(condition, a, Iterator, line=line),
-        Loop(Operation(Operator("<="), condition, b), expressions, condition, line),
+        Assignment(iterator, start_value, Iterator, line=line),
+        Loop(
+            Operation(Operator("<="), iterator, end_value), instructions, iterator, line
+        ),
     ]
 
 
 def read_while(lexer, indent_level: int = 0) -> Loop:
-    """Read while statement."""
-    # TODO: test
+    """
+    This function reads and returns while loop statement. The while loop needs condition
+    and instruction stack.
+
+    Args:
+        - lexer: Lexer object to read values
+        - indent_level: Level of indentation on which loop was written.
+    """
+
+    # Read condition
     condition = lexer.read_condition("dopóki", indent_level=indent_level)
+    line = lexer.i.get_current_line()
     lexer.i.next_line()
-    expressions = lexer.read_indent_block(indent_level=indent_level + 1)
-    if expressions is None:
+
+    # Read instructions
+    instructions = lexer.read_indent_block(indent_level=indent_level + 1)
+    if instructions is None:
         lexer.i.throw(f"Expected indented code, instead got 'nil'")
-    return Loop(condition, expressions)
+
+    return Loop(condition, instructions, line=line)

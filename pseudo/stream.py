@@ -32,8 +32,8 @@ class Stream:
         self.line = 1
         self.col = 0
 
-    def current_line(self):
-        """Current line"""
+    def get_current_line(self):
+        """Returns current line"""
         return self.input[self.line - 1]
 
     def next_line(self):

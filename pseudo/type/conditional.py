@@ -55,7 +55,7 @@ def read_if(lexer, indent_level: int = 0) -> Condition:
     """
 
     condition = lexer.read_condition("jeżeli", indent_level=indent_level)
-    line = lexer.i.current_line()
+    line = lexer.i.get_current_line()
     lexer.i.next_line()
     true = lexer.read_indent_block(indent_level=indent_level + 1)
 

@@ -53,6 +53,32 @@ def test_read_for(lexer, runtime, test, monkeypatch):
 
     test(T, [1, 2, 3, 4, 5])
 
+    # Test lack of indentation block
+    lexer.i = Stream("dla 1 := 1,...,5 wykonuj")
+    lexer.i.col = 4
+
+    try:
+        runtime.run(read_for(lexer))
+    except SystemExit:
+        pass
+    else:
+        raise AssertionError
+
+    lexer.i = Stream(
+        """dla a := 1,...,5 wykonuj
+
+
+"""
+    )
+    lexer.i.col = 4
+
+    try:
+        runtime.run(read_for(lexer))
+    except SystemExit:
+        pass
+    else:
+        raise AssertionError
+
 
 @pytest.mark.timeout(2)
 def test_read_while(lexer, test):
@@ -62,4 +88,11 @@ def test_read_while(lexer, test):
     )
     lexer.i.col = 7
 
-    test(read_while(lexer), Loop(Bool(1), [Statement("pisz", Variable("a")), EOL()]))
+    test(
+        read_while(lexer),
+        Loop(
+            Bool(1),
+            [Statement("pisz", Variable("a")), EOL()],
+            line="dopóki prawda wykonuj",
+        ),
+    )
