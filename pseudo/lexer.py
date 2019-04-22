@@ -280,7 +280,9 @@ class Lexer:
                     and not isinstance(args, Bool)
                 ):
                     self.i.throw(f"Cannot assign type {type(args)} to variable")
-                return Assignment(Variable(keyword, indices), args, line=self.i.get_current_line())
+                return Assignment(
+                    Variable(keyword, indices), args, line=self.i.get_current_line()
+                )
             return Variable(keyword, indices)
         if c == "":
             raise EndOfFile
@@ -289,6 +291,10 @@ class Lexer:
     def read_indent_size(self):
         """Read indent size from stream."""
         size = 0
+
+        if isinstance(self.i.peek(), EOL):
+            return None
+
         self.indent_char = self.i.peek()
         while self.i.peek() == self.indent_char:
             self.i.next()
@@ -319,9 +325,14 @@ class Lexer:
             self.i.throw(f"Inconsistent indentation size")
 
     def read_indent_block(self, indent_level: int = 1) -> list:
-        """Read indented expressions while valid indentation and returns list of them."""
-        # TODO: fix throw error on compile
-        expressions = []
+        """
+        This function reads and return list of instructions in indentation block. If list is empty
+        or with only EOL instances then error is throwed.
+
+        Args:
+            - indent_level: int, Number of indents prepended to instructions.
+        """
+        instructions = []
         empty_block = True
         line = self.i.line
 
@@ -332,6 +343,7 @@ class Lexer:
             or isinstance(self.i.peek(), EOL)
         ):
 
+            # Read indentation
             try:
                 self.read_indent(indent_level)
             except IndentationBlockEnd:
@@ -339,15 +351,18 @@ class Lexer:
             except Comment:
                 self.i.next_line()
                 continue
+
+            # Read instruction
             try:
                 e = self.read_next(indent_level=indent_level)
             except EndOfFile:
                 break
             if not isinstance(e, EOL):
                 empty_block = False
-            expressions = append(expressions, e)
+            instructions = append(instructions, e)
 
+        # Check if block is empty
         if empty_block:
             self.i.line = line - 1
             self.i.throw("Expected indentation block")
-        return expressions
+        return instructions

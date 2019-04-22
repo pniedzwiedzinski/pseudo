@@ -79,6 +79,20 @@ def test_read_for(lexer, runtime, test, monkeypatch):
     else:
         raise AssertionError
 
+    try:
+        runtime.run(
+            compile(
+                """dla a := 1,...,5 wykonuj
+
+
+"""
+            )
+        )
+    except SystemExit:
+        pass
+    else:
+        raise AssertionError
+
 
 @pytest.mark.timeout(2)
 def test_read_while(lexer, test):
