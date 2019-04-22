@@ -17,7 +17,7 @@ from pseudo.type.operation import (
     is_operator,
 )
 from pseudo.type.variable import Variable, Assignment, Increment
-from pseudo.type.loop import Loop, Iterator
+from pseudo.type.loop import Loop, Iterator, read_for, read_while
 from pseudo.type import Statement, EOL, Value
 from pseudo.exceptions import IndentationBlockEnd, Comment
 
@@ -106,16 +106,6 @@ class Lexer:
             expression += self.i.next()
         return expression
 
-    def read_while(self, indent_level: int = 0) -> Loop:
-        """Read while statement."""
-        # TODO: test
-        condition = self.read_condition("dopóki", indent_level=indent_level)
-        self.i.next_line()
-        expressions = self.read_indent_block(indent_level=indent_level + 1)
-        if expressions is None:
-            self.i.throw(f"Expected indented code, instead got 'nil'")
-        return Loop(condition, expressions)
-
     def read_range(self) -> tuple:
         """Read range `a ,..., b`"""
         a = self.read_args()
@@ -127,31 +117,6 @@ class Lexer:
         self.i.next()
         b = self.read_condition("dopóki")
         return (a, b)
-
-    def read_for(self, indent_level: int = 0) -> Loop:
-        """Read for statement."""
-        self.read_white_chars()
-        condition = self.read_next()
-
-        if not isinstance(condition, Variable):
-            self.i.throw(f"Expected Variable, but {type(condition)} was given")
-        self.read_white_chars()
-        assign = read_operator(self.i)
-        if not isinstance(assign, str) or (assign != ":=" and assign != "<-"):
-            self.i.throw(f"Expected assignment symbol")
-
-        a, b = self.read_range()
-        line = self.i.current_line()
-        self.i.next_line()
-        expressions = self.read_indent_block(indent_level + 1)
-        expressions.append(
-            Increment(condition.value)
-        )
-
-        return [
-            Assignment(condition, a, Iterator, line=line),
-            Loop(Operation(Operator("<="), condition, b), expressions, condition, line),
-        ]
 
     def read_keyword(self) -> str:
         """Read a keyword from the stream."""
@@ -171,9 +136,9 @@ class Lexer:
         if keyword == "jeżeli":
             return read_if(self, indent_level)
         if keyword == "dopóki":
-            return self.read_while(indent_level)
+            return read_while(self, indent_level)
         if keyword == "dla":
-            return self.read_for(indent_level)
+            return read_for(self, indent_level)
         arg = self.read_args()
         arg = self.read_expression(arg)
         if keyword == "czytaj":

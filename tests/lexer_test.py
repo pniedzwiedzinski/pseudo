@@ -65,33 +65,6 @@ def test_update_args(lexer):
 
 
 @pytest.mark.timeout(2)
-def test_read_for(lexer):
-    """Checks Lexer.read_for"""
-    lexer.i = Stream(
-        """dla i:=1,...,5 wykonuj
-    pisz i"""
-    )
-    lexer.i.col = 4
-
-    loop = lexer.read_for()
-    if compare_list(
-        loop,
-        [
-            Assignment(Variable("i"), Int(1)),
-            Loop(
-                Operation("<=", Variable("i"), Int(5)),
-                [
-                    Statement("pisz", args=Variable("i")),
-                    Assignment(Variable("i"), Operation("+", Variable("i"), 1)),
-                ],
-            ),
-        ],
-    ):
-        print(loop)
-        raise AssertionError
-
-
-@pytest.mark.timeout(2)
 def test_read_keyword(lexer):
     """Checks Lexer.read_keyword"""
     lexer.i = Stream("pisz x")

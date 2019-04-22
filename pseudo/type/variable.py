@@ -48,8 +48,14 @@ class Increment:
         self.key = key
         self.line = line
 
+    def __eq__(self, other):
+        try:
+            return self.__dict__ == other.__dict__
+        except AttributeError:
+            return False
+
     def eval(self, r):
-        r.var[self.key].incr(self.key)
+        r.var[self.key].incr()
 
 
 class Assignment:
@@ -71,6 +77,12 @@ class Assignment:
 
     def eval(self, r):
         r.save(self.target.key(r), self.value, object_class=self.object_class)
+
+    def __eq__(self, other):
+        try:
+            return self.__dict__ == other.__dict__
+        except AttributeError:
+            return False
 
     def __repr__(self):
         return f"Assignment({self.target}, {self.value})"
