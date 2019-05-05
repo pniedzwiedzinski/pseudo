@@ -3,9 +3,9 @@
 ## Data types
 
 - `4` - Int
-- `4.2` - Float
+- `4.2` - Float #WIP
 - `"hello"` - String
-- `true` - Bool
+- `prawda` - Bool
 
 ## Operations
 
@@ -16,7 +16,7 @@
 - `div` - integer division, only on Ints
 - `mod` - division remainder, only on Ints
 
-### Bool operations
+### Bool operations #WIP
 
 - `and`
 - `or`
@@ -42,7 +42,7 @@ Pseudocode has no incrementing mechanism, neither increasing, so you need to typ
 a := a + 1
 ```
 
-### Swapping
+### Swapping #WIP
 
 Pseudocode has built-in swapping operator
 
@@ -54,24 +54,31 @@ a <-> b
 
 Everything after `#` will be ignored
 
-## Printing
+## IO
 
 ```
-print a
+pisz a
 ```
 
-`print` can take only one argument, `print a, b` is not correct!
+`pisz` can take only one argument, `pisz a, b` is not correct!
+
+
+```
+czytaj a
+```
+
+`czytaj` as well can take only one argument
 
 ## Conditionals operations
 
 ```
-if a=1 then
-  print "A is equal to 1"
-else
-  print "A is not equal to 1"
+jeżeli a=1 to
+  pisz "A is equal to 1"
+wpp
+  pisz "A is not equal to 1"
 ```
 
-Multiple conditions
+Multiple conditions #WIP
 
 ```
 if not (a>1 and a<5) or a=3 then # a in [-∞, 1] or a in [5, ∞] or a=3
@@ -83,11 +90,11 @@ if not (a>1 and a<5) or a=3 then # a in [-∞, 1] or a in [5, ∞] or a=3
 ### while
 
 ```
-while a < 10 do
+dopóki a < 10 wykonuj
   a := a + 1
 ```
 
-### do while
+### do while #WIP
 
 ```
 do
@@ -98,11 +105,11 @@ while a < 10
 ### for
 
 ```
-for i:=1,...,a do
-  print i
+dla i:=1,...,a wykonuj
+  pisz i
 ```
 
-## Functions and procedures
+## Functions and procedures #WIP
 
 ```
 function Test(arg1, arg2)
