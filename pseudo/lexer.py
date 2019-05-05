@@ -139,6 +139,8 @@ class Lexer:
             return read_while(self, indent_level)
         if keyword == "dla":
             return read_for(self, indent_level)
+        if keyword == "koniec":
+            return Statement(keyword)
         arg = self.read_args()
         arg = self.read_expression(arg)
         if keyword == "czytaj":
