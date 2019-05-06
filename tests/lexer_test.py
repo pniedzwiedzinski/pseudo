@@ -5,7 +5,8 @@ import pseudo
 
 from pseudo.type.operation import Operation, Operator
 from pseudo.type.loop import Loop
-from pseudo.type import Int, Statement, Bool, Variable, Assignment
+from pseudo.type import Int, Statement, Bool
+from pseudo.type.variable import Variable, Assignment
 from pseudo.stream import Stream, EOL, EndOfFile
 
 __author__ = "Patryk Niedźwiedziński"
@@ -220,3 +221,4 @@ def test_read_indent_size(lexer):
 
     if lexer.indent_size != 1 or lexer.indent_char != "\t":
         raise AssertionError
+
