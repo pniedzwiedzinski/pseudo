@@ -243,7 +243,7 @@ class Lexer:
             return Value(c)
 
         if c == '"' or c == "'":
-            return read_string()
+            return read_string(self)
 
         if is_operator(c):
             return read_operator(self.i)

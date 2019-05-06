@@ -8,7 +8,6 @@ __author__ = "Patryk Niedźwiedziński"
 from pseudo.type.numbers import Int
 from pseudo.type.string import String
 from pseudo.type.bool import Bool
-from pseudo.type.variable import Variable, Assignment
 from pseudo.type.base import Value, EOL
 
 

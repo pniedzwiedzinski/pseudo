@@ -4,6 +4,7 @@ Home
 
 .. toctree::
     getting_started
+    stream
     runtime
     type/index
 
