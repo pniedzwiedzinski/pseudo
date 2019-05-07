@@ -257,7 +257,7 @@ class Lexer:
             if self.is_keyword(keyword):
                 return self.read_builtin(keyword, indent_level, prev)
             if keyword in OPERATOR_KEYWORDS:
-                return Operator(keyword)
+                return Operator(keyword, line=self.i.get_current_line())
             if keyword == "prawda" or keyword == "fałsz":
                 return read_bool(keyword)
             indices = []
