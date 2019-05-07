@@ -7,6 +7,7 @@ Home
     stream
     runtime
     type/index
+    function
 
 .. automodule:: pseudo
 

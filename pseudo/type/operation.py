@@ -3,7 +3,7 @@
 __author__ = "Patryk Niedźwiedziński"
 
 
-from pseudo.type.base import Value
+from pseudo.type.base import Value, ASTNode
 from pseudo.type.bool import Bool
 
 
@@ -18,19 +18,27 @@ class Operator(Value):
     """Opartor class for representing mathematical operator."""
 
     def eval(self, left: Value, right: Value, r):
-        if self.value == "+":
-            return left.eval(r) + right.eval(r)
-        if self.value == "-":
-            return left.eval(r) - right.eval(r)
-        if self.value == "*":
-            return left.eval(r) * right.eval(r)
-        if self.value == "div":
-            return left.eval(r) // right.eval(r)
-        if self.value == "mod":
-            return left.eval(r) % right.eval(r)
+        try:
+            if self.value == "+":
+                return left.eval(r) + right.eval(r)
+            if self.value == "-":
+                return left.eval(r) - right.eval(r)
+            if self.value == "*":
+                return left.eval(r) * right.eval(r)
+            if self.value == "/":
+                return left.eval(r) / right.eval(r)
+            if self.value == "div":
+                return left.eval(r) // right.eval(r)
+            if self.value == "mod":
+                return left.eval(r) % right.eval(r)
 
-        # Then operation is boolean
-        return Bool.eval_operation(self.value, left, right, r)
+            # Then operation is boolean
+            return Bool.eval_operation(self.value, left, right, r)
+        except TypeError:
+            r.throw(
+                f"Type error: cannot do '{repr(left.eval(r))} {self.value} {repr(right.eval(r))}'",
+                self.line,
+            )
 
     def __lt__(self, o):
         if self.value in GROUP_2:
@@ -90,12 +98,12 @@ def read_operator(stream):
 
     is_comparison = stream.peek() == "=" and (c == "!" or c in "<>")
     if is_comparison:  # !=, <= , >=
-        return Operator(c + stream.next())
+        return Operator(c + stream.next(), line=stream.get_current_line())
 
-    return Operator(c)
+    return Operator(c, line=stream.get_current_line())
 
 
-class Operation:
+class Operation(ASTNode):
     """Operation node."""
 
     def __init__(self, operator, left, right):
@@ -105,7 +113,7 @@ class Operation:
 
     @property
     def line(self):
-        return self.left.line + self.operator + self.right.line
+        return self.operator.line
 
     def eval(self, r):
         return self.operator.eval(self.left, self.right, r)

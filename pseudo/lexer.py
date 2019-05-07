@@ -18,6 +18,7 @@ from pseudo.type.operation import (
 )
 from pseudo.type.variable import Variable, Assignment, Increment
 from pseudo.type.loop import Loop, Iterator, read_for, read_while
+from pseudo.type.function import Call, read_function
 from pseudo.type import Statement, EOL, Value
 from pseudo.exceptions import IndentationBlockEnd, Comment
 
@@ -54,6 +55,7 @@ class Lexer:
             "dopóki",
             "wykonuj",
             "dla",
+            "funkcja",
         }
         self.range_symbol = "..."
         self.indent_char = None
@@ -139,6 +141,8 @@ class Lexer:
             return read_while(self, indent_level)
         if keyword == "dla":
             return read_for(self, indent_level)
+        if keyword == "funkcja":
+            return read_function(self, indent_level)
         if keyword == "koniec":
             return Statement(keyword)
         arg = self.read_args()
@@ -175,11 +179,11 @@ class Lexer:
                 if len(args) == 0:
                     args.append(Int(0))
             if arg == Value(","):
-                break
+                continue
             if arg == Value(")"):
                 if bracket:
                     break
-                self.i.throw(f"Invalid character '{operator}'")
+                self.i.throw(f"Invalid character '{arg}'")
             if arg == Value("]"):
                 break
 
@@ -251,21 +255,36 @@ class Lexer:
         if is_digit(c):
             return read_number(self)
 
-        elif c not in {" ", "\t"}:
+        elif c not in {" ", "\t", "["}:
             col = self.i.col
             keyword = self.read_keyword()
+
+            # Builtin keyword
             if self.is_keyword(keyword):
                 return self.read_builtin(keyword, indent_level, prev)
+
+            # Operation
             if keyword in OPERATOR_KEYWORDS:
-                return Operator(keyword)
+                return Operator(keyword, line=self.i.get_current_line())
+
+            # Bool
             if keyword == "prawda" or keyword == "fałsz":
                 return read_bool(keyword)
+
+            # Check and read indices
             indices = []
             while self.i.peek() == "[":
                 self.i.next()
                 arg = self.read_args()
                 exp = self.read_expression(arg)
                 indices.append(exp)
+
+            # Check if it's a call (`a()`)
+            if self.i.peek() == "(":
+                self.i.next()
+                args = self.read_args(bracket=True)
+                return Call(keyword, args, self.i.get_current_line())
+
             if col == i * indent_level:
                 operator = self.read_next()
                 if isinstance(operator, EOL):
@@ -286,8 +305,8 @@ class Lexer:
                     Variable(keyword, indices), args, line=self.i.get_current_line()
                 )
             return Variable(keyword, indices)
-        if c == "":
-            raise EndOfFile
+        # if c == "":
+        #     raise EndOfFile
         self.i.throw(f"Invalid character: '{c}'")
 
     def read_indent_size(self):

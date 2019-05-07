@@ -2,7 +2,7 @@
 
 __author__ = "Patryk Niedźwiedziński"
 
-from pseudo.type.base import Value
+from pseudo.type.base import Value, ASTNode
 from pseudo.runtime import MemoryObject
 
 
@@ -35,7 +35,7 @@ class Variable(Value):
         return self.__repr__()
 
 
-class Increment:
+class Increment(ASTNode):
     """
     Representing incrementation of iterator.
     
@@ -58,7 +58,7 @@ class Increment:
         r.var[self.key].incr()
 
 
-class Assignment:
+class Assignment(ASTNode):
     """
     Node for representing assignments.
 

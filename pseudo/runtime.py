@@ -37,6 +37,10 @@ class MemoryObject:
         """This function returns value."""
         return self.value
 
+    def call(self, r, args=[]):
+        """Call variable like `a()`"""
+        r.throw(f"Variable {self.key} is not callable", self.line)
+
 
 class RunTime:
     """
@@ -64,8 +68,8 @@ class RunTime:
         42
     """
 
-    def __init__(self):
-        self.var = {}
+    def __init__(self, var={}):
+        self.var = var
 
     def save(self, key: str, value: object, object_class=MemoryObject):
         """
@@ -157,7 +161,7 @@ class RunTime:
     def throw(self, error_message: str, line_causing_error: str = ""):
         """This function is used to tell user that a runtime error has occurred."""
 
-        print(f"⚠️  Error on line :")
+        print(f"\n⚠️  Error on line :")
         print(f"\t'{line_causing_error}'")
         print(error_message)
         exit(1)

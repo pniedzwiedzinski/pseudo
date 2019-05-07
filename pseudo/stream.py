@@ -82,7 +82,7 @@ class Stream:
 
     def throw(self, error: str):
         """Used to display error messages with line number. It stops the execution."""
-        print(f"⚠️  Error on line {self.line}:")
+        print(f"\n⚠️  Error on line {self.line}:")
         if "EOL" in error:
             print(f"\t'{self.input[self.line-2]}'")
         else:

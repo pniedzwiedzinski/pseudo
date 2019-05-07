@@ -4,7 +4,7 @@ __author__ = "Patryk Niedźwiedziński"
 
 from pseudo.exceptions import RunTimeError
 from pseudo.runtime import MemoryObject
-from pseudo.type.base import Value
+from pseudo.type.base import Value, ASTNode
 from pseudo.type.variable import Variable, Assignment, Increment
 from pseudo.type.operation import Operation, Operator, read_operator
 
@@ -24,7 +24,7 @@ class Iterator(MemoryObject):
         self.value += 1
 
 
-class Loop:
+class Loop(ASTNode):
     """
     Node for representing looped actions.
 

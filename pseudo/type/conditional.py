@@ -4,9 +4,10 @@ __author__ = "Patryk Niedźwiedziński"
 
 
 from pseudo.stream import EndOfFile
+from pseudo.type.base import ASTNode
 
 
-class Condition:
+class Condition(ASTNode):
     """
     Node for representing conditional expressions (if).
 
