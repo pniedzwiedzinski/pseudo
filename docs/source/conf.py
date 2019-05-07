@@ -14,6 +14,7 @@
 #
 import os
 import sys
+import pseudo
 
 sys.path.insert(0, os.path.abspath("../.."))
 
@@ -25,9 +26,9 @@ copyright = "2019, Patryk Niedźwiedziński"
 author = "Patryk Niedźwiedziński"
 
 # The short X.Y version
-version = ""
+version = ".".join(pseudo.__version__.split(".")[:2])
 # The full version, including alpha/beta/rc tags
-release = "0.5.2"
+release = pseudo.__version__
 
 
 # -- General configuration ---------------------------------------------------

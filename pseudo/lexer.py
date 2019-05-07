@@ -251,7 +251,7 @@ class Lexer:
         if is_digit(c):
             return read_number(self)
 
-        elif c not in {" ", "\t"}:
+        elif c not in {" ", "\t", "["}:
             col = self.i.col
             keyword = self.read_keyword()
             if self.is_keyword(keyword):
@@ -286,8 +286,8 @@ class Lexer:
                     Variable(keyword, indices), args, line=self.i.get_current_line()
                 )
             return Variable(keyword, indices)
-        if c == "":
-            raise EndOfFile
+        # if c == "":
+        #     raise EndOfFile
         self.i.throw(f"Invalid character: '{c}'")
 
     def read_indent_size(self):

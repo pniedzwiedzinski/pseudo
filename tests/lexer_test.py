@@ -222,3 +222,15 @@ def test_read_indent_size(lexer):
     if lexer.indent_size != 1 or lexer.indent_char != "\t":
         raise AssertionError
 
+
+@pytest.mark.timeout(2)
+def test_table_init(lexer):
+    lexer.i = Stream("[1, 2]")
+
+    try:
+        lexer.read_next()
+    except SystemExit:
+        pass
+    else:
+        raise AssertionError
+
