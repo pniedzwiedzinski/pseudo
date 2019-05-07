@@ -3,7 +3,26 @@
 __author__ = "Patryk Niedźwiedziński"
 
 
-class Value:
+class ASTNode:
+    """
+    When pseudocode is being compiled interpreter builds Abstract Syntax Tree. It's a graph
+    representing actual code. Every node has `eval` method which is called to get result of
+    code.
+    """
+
+    def eval(self, r):
+        """
+        Args:
+            - r: `pseudo.runtime.RunTime`_; Every node is evaluated in some context. This context
+                is contained in runtime.
+
+        .. _`pseudo.runtime.RunTime`: https://pseudo.readthedocs.io/en/latest/runtime.html#pseudo.runtime.RunTime
+        """
+
+        raise NotImplementedError
+
+
+class Value(ASTNode):
     """
     Node containing a value.
 
@@ -32,7 +51,7 @@ class Value:
         return str(self.value)
 
 
-class EOL:
+class EOL(ASTNode):
     """Representation of newline."""
 
     def __init__(self):

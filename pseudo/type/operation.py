@@ -3,7 +3,7 @@
 __author__ = "Patryk Niedźwiedziński"
 
 
-from pseudo.type.base import Value
+from pseudo.type.base import Value, ASTNode
 from pseudo.type.bool import Bool
 
 
@@ -103,7 +103,7 @@ def read_operator(stream):
     return Operator(c, line=stream.get_current_line())
 
 
-class Operation:
+class Operation(ASTNode):
     """Operation node."""
 
     def __init__(self, operator, left, right):

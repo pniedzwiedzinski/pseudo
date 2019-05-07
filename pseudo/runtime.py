@@ -37,6 +37,10 @@ class MemoryObject:
         """This function returns value."""
         return self.value
 
+    def call(self, r, args=[]):
+        """Call variable like `a()`"""
+        r.throw(f"Variable {self.key} is not callable", self.line)
+
 
 class RunTime:
     """
@@ -64,8 +68,8 @@ class RunTime:
         42
     """
 
-    def __init__(self):
-        self.var = {}
+    def __init__(self, var={}):
+        self.var = var
 
     def save(self, key: str, value: object, object_class=MemoryObject):
         """
