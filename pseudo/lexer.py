@@ -18,7 +18,7 @@ from pseudo.type.operation import (
 )
 from pseudo.type.variable import Variable, Assignment, Increment
 from pseudo.type.loop import Loop, Iterator, read_for, read_while
-from pseudo.type.function import Call
+from pseudo.type.function import Call, read_function
 from pseudo.type import Statement, EOL, Value
 from pseudo.exceptions import IndentationBlockEnd, Comment
 
@@ -55,6 +55,7 @@ class Lexer:
             "dopóki",
             "wykonuj",
             "dla",
+            "funkcja",
         }
         self.range_symbol = "..."
         self.indent_char = None
@@ -140,6 +141,8 @@ class Lexer:
             return read_while(self, indent_level)
         if keyword == "dla":
             return read_for(self, indent_level)
+        if keyword == "funkcja":
+            return read_function(self, indent_level)
         if keyword == "koniec":
             return Statement(keyword)
         arg = self.read_args()
