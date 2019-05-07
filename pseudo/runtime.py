@@ -161,7 +161,7 @@ class RunTime:
     def throw(self, error_message: str, line_causing_error: str = ""):
         """This function is used to tell user that a runtime error has occurred."""
 
-        print(f"⚠️  Error on line :")
+        print(f"\n⚠️  Error on line :")
         print(f"\t'{line_causing_error}'")
         print(error_message)
         exit(1)

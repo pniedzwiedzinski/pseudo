@@ -105,6 +105,7 @@ class Call(ASTNode):
 
         if function_exists:
             function = r.get(self.function_name)
-            function.call(r, self.args, self.line)
-        else:
-            r.throw(f"Function {repr(self.function_name)} is not defined.", self.line)
+            if isinstance(function, Function):
+                return function.call(r, self.args, self.line)
+
+        r.throw(f"Function {repr(self.function_name)} is not defined.", self.line)
