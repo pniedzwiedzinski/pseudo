@@ -23,7 +23,7 @@ class Function:
         self.instructions = instructions
         self.line = line
 
-    def call(self, r, args=[], calling_line=""):
+    def call(self, r, args, scope_id, calling_line):
         # TODO: create scope and init args
         if len(self.args) != len(args):
             r.throw(
@@ -31,10 +31,10 @@ class Function:
                 calling_line,
             )
         for key, value in zip(self.args, args):
-            r.save(key.value, value)
-        r.run(self.instructions)
+            r.save(key.value, value, scope_id=scope_id)
+        r.run(self.instructions, scope_id)
 
-    def eval(self, r):
+    def eval(self, r, scope_id=None):
         return self
 
 
@@ -78,7 +78,7 @@ class FunctionDefinition(ASTNode):
         self.instructions = instructions
         self.line = line
 
-    def eval(self, r):
+    def eval(self, r, scope_id=None):
         r.save(
             self.function_name,
             Function(self.function_name, self.args, self.instructions, self.line),
@@ -100,12 +100,15 @@ class Call(ASTNode):
         self.args = args
         self.line = line
 
-    def eval(self, r):
+    def eval(self, r, scope_id=None):
         function_exists = self.function_name in r.var
 
         if function_exists:
             function = r.get(self.function_name)
             if isinstance(function, Function):
-                return function.call(r, self.args, self.line)
+                scope_id = r.register_scope(self.function_name)
+                function.call(r, self.args, scope_id, self.line)
+                r.remove_scope(scope_id)
+                return
 
         r.throw(f"Function {repr(self.function_name)} is not defined.", self.line)

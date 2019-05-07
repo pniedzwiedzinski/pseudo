@@ -17,26 +17,26 @@ OPERATOR_KEYWORDS = {"div", "mod"}
 class Operator(Value):
     """Opartor class for representing mathematical operator."""
 
-    def eval(self, left: Value, right: Value, r):
+    def eval(self, left: Value, right: Value, r, scope_id: str = None):
         try:
             if self.value == "+":
-                return left.eval(r) + right.eval(r)
+                return left.eval(r, scope_id) + right.eval(r, scope_id)
             if self.value == "-":
-                return left.eval(r) - right.eval(r)
+                return left.eval(r, scope_id) - right.eval(r, scope_id)
             if self.value == "*":
-                return left.eval(r) * right.eval(r)
+                return left.eval(r, scope_id) * right.eval(r, scope_id)
             if self.value == "/":
-                return left.eval(r) / right.eval(r)
+                return left.eval(r, scope_id) / right.eval(r, scope_id)
             if self.value == "div":
-                return left.eval(r) // right.eval(r)
+                return left.eval(r, scope_id) // right.eval(r, scope_id)
             if self.value == "mod":
-                return left.eval(r) % right.eval(r)
+                return left.eval(r, scope_id) % right.eval(r, scope_id)
 
             # Then operation is boolean
-            return Bool.eval_operation(self.value, left, right, r)
+            return Bool.eval_operation(self.value, left, right, r, scope_id)
         except TypeError:
             r.throw(
-                f"Type error: cannot do '{repr(left.eval(r))} {self.value} {repr(right.eval(r))}'",
+                f"Type error: cannot do '{repr(left.eval(r, scope_id))} {self.value} {repr(right.eval(r, scope_id))}'",
                 self.line,
             )
 
@@ -115,8 +115,8 @@ class Operation(ASTNode):
     def line(self):
         return self.operator.line
 
-    def eval(self, r):
-        return self.operator.eval(self.left, self.right, r)
+    def eval(self, r, scope_id=None):
+        return self.operator.eval(self.left, self.right, r, scope_id)
 
     def __eq__(self, other):
         try:

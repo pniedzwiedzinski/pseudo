@@ -5,6 +5,7 @@ __author__ = "Patryk Niedźwiedziński"
 import datetime
 import os
 import traceback
+from uuid import uuid4
 from sys import exit
 
 from pseudo.exceptions import RunTimeError
@@ -70,23 +71,60 @@ class RunTime:
 
     def __init__(self, var={}):
         self.var = var
+        self.scopes = {}
 
-    def save(self, key: str, value: object, object_class=MemoryObject):
+    def register_scope(self, function_name: str) -> str:
+        """
+        Create new scope and return its id.
+
+        Args:
+            - function_name: str, Prefix for scope id.
+        """
+
+        while True:
+            scope_id = f"{function_name}-{uuid4()}"
+            if scope_id not in self.scopes:
+                break
+
+        self.scopes[scope_id] = {}
+
+        return scope_id
+
+    def remove_scope(self, scope_id: str):
+        """
+        Remove scope from scope register.
+
+        Args:
+            - scope_id: str, Scope to remove.
+        """
+
+        del self.scopes[scope_id]
+
+    def save(
+        self, key: str, value: object, object_class=MemoryObject, scope_id: str = None
+    ):
         """
         This functions is used to save variable's value in memory
-        
+
         Args:
             - key: str, Unique key under which value will be stored. `T[1][10]` is also a key
             - value: object, Value to store.
             - object_class: class, Class of value.
+            - scope_id: str, Scope in which value should be saved, if None it will be saved to
+                global scope.
         """
 
         if key not in self.var:
-            self.var[key] = object_class(key, value.eval(self))
+            if scope_id:
+                self.scopes[scope_id][key] = object_class(
+                    key, value.eval(self, scope_id)
+                )
+            else:
+                self.var[key] = object_class(key, value.eval(self))
         else:
             self.var[key].setter(value.eval(self), self)
 
-    def get(self, key: str):
+    def get(self, key: str, scope_id: str = None):
         """
         This function returns value of stored variable.
         
@@ -94,14 +132,19 @@ class RunTime:
             - key: str, Key under which value is stored.
         """
 
+        if scope_id and key in self.scopes[scope_id]:
+            return self.scopes[scope_id][key].getter()
         if key in self.var:
             return self.var[key].getter()
         else:
             return "nil"
 
-    def delete(self, key: str):
+    def delete(self, key: str, scope_id: str = None):
         """This function removes variable from memory."""
-        del self.var[key]
+        if scope_id and key in self.scopes[scope_id]:
+            del self.scopes[scope_id][key]
+        else:
+            del self.var[key]
 
     def stdin(self, key: str):
         """This function reads value from standard input and stores it in given variable."""
@@ -137,18 +180,21 @@ class RunTime:
 
         return f"{os.getcwd()}/crash/{now}.log"
 
-    def eval(self, instruction):
+    def eval(self, instruction, scope_id: str = None):
         """Evaluate instruction."""
         try:
-            instruction.eval(self)
+            if scope_id:
+                instruction.eval(self, scope_id)
+            else:
+                instruction.eval(self)
         except RunTimeError as err:
             self.throw(err, instruction.line)
 
-    def run(self, instructions: list):
+    def run(self, instructions: list, scope_id: str = None):
         """Run pseudocode instructions"""
         try:
             for i in instructions:
-                self.eval(i)
+                self.eval(i, scope_id)
         except Exception:
             path = self.save_crash(traceback.format_exc())
             print("⚠️  Error: \n\tRuntime error has occurred!\n")

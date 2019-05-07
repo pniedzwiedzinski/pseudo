@@ -1,6 +1,7 @@
 import pytest
 import pseudo
 from pseudo.runtime import RunTime
+from pseudo.scope import Scope
 
 
 @pytest.fixture
@@ -14,6 +15,13 @@ def lexer():
 def runtime():
     r = RunTime()
     return r
+
+
+@pytest.fixture
+def scope():
+    main = Scope()
+    s = Scope(main)
+    return s
 
 
 @pytest.fixture

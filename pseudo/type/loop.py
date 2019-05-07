@@ -39,9 +39,9 @@ class Loop(ASTNode):
         self.iterator = iterator
         self.line = line
 
-    def eval(self, r):
-        while self.condition.eval(r):
-            r.run(self.expressions)
+    def eval(self, r, scope_id=None):
+        while self.condition.eval(r, scope_id):
+            r.run(self.expressions, scope_id)
         if self.iterator is not None:
             r.delete(self.iterator.value)
 

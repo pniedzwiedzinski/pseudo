@@ -19,13 +19,13 @@ class Variable(Value):
         self.value = value
         self.indices = indices
 
-    def eval(self, r):
-        return r.get(self.key(r))
+    def eval(self, r, scope_id=None):
+        return r.get(self.key(r, scope_id), scope_id)
 
-    def key(self, r):
+    def key(self, r, scope_id):
         postfix = ""
         for i in self.indices:
-            postfix += f"[{str(i.eval(r))}]"
+            postfix += f"[{str(i.eval(r, scope_id))}]"
         return self.value + postfix
 
     def __repr__(self):
@@ -54,7 +54,9 @@ class Increment(ASTNode):
         except AttributeError:
             return False
 
-    def eval(self, r):
+    def eval(self, r, scope_id=None):
+        if scope_id:
+            return r.scopes[scope_id][self.key].incr()
         r.var[self.key].incr()
 
 
@@ -75,8 +77,13 @@ class Assignment(ASTNode):
         self.object_class = object_class
         self.line = line
 
-    def eval(self, r):
-        r.save(self.target.key(r), self.value, object_class=self.object_class)
+    def eval(self, r, scope_id=None):
+        r.save(
+            self.target.key(r, scope_id),
+            self.value,
+            object_class=self.object_class,
+            scope_id=scope_id,
+        )
 
     def __eq__(self, other):
         try:

@@ -24,9 +24,9 @@ class Statement:
         self.value = value
         self.args = args
 
-    def eval(self, r):
+    def eval(self, r, scope_id=None):
         if self.value == "pisz":
-            r.stdout(self.args.eval(r))
+            r.stdout(self.args.eval(r, scope_id))
         elif self.value == "czytaj":
             r.stdin(self.args.value)
         elif self.value == "koniec":

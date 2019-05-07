@@ -24,12 +24,12 @@ class Condition(ASTNode):
         self.false = false
         self.line = line
 
-    def eval(self, r):
-        b = self.condition.eval(r)
+    def eval(self, r, scope_id=None):
+        b = self.condition.eval(r, scope_id)
         if b and b != "nil":
-            r.run(self.true)
+            r.run(self.true, scope_id)
         elif self.false is not None:
-            r.run(self.false)
+            r.run(self.false, scope_id)
 
     def __eq__(self, other):
         if not isinstance(other, Condition):

@@ -10,7 +10,7 @@ class ASTNode:
     code.
     """
 
-    def eval(self, r):
+    def eval(self, r, scope_id=None):
         """
         Args:
             - r: `pseudo.runtime.RunTime`_; Every node is evaluated in some context. This context
@@ -35,7 +35,7 @@ class Value(ASTNode):
         self.value = value
         self.line = line
 
-    def eval(self, r):
+    def eval(self, r, scope_id=None):
         return self.value
 
     def __eq__(self, other):
@@ -57,7 +57,7 @@ class EOL(ASTNode):
     def __init__(self):
         self.line = ""
 
-    def eval(self, r):
+    def eval(self, r, scope_id=None):
         pass
 
     def __eq__(self, other):
