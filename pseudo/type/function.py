@@ -35,7 +35,6 @@ class Function(Value):
         self.void = void
 
     def call(self, r, args, scope_id, calling_line):
-        # TODO: create scope and init args
         if len(self.args) != len(args):
             r.throw(
                 f"Function {repr(self.name)} takes {len(self.args)} arguments, but {len(args)} were given.",
