@@ -13,15 +13,26 @@ class Function(Value):
     This class is a representation of function in memory.
 
     Attributes:
-        - instructions: list; List of instructions to be evaluated.
-        - args: list; List of arguments names that function takes.
+        - name: str, Name of function.
+        - args: list, List of arguments names that function takes.
+        - instructions: list, List of instructions to be evaluated.
+        - line: str, Line in pseudocode.
+        - void: bool, Defines if function can return value.
     """
 
-    def __init__(self, name: str, args: list, instructions: list, line: str = ""):
+    def __init__(
+        self,
+        name: str,
+        args: list,
+        instructions: list,
+        line: str = "",
+        void: bool = False,
+    ):
         self.name = name
         self.args = args
         self.instructions = instructions
         self.line = line
+        self.void = void
 
     def call(self, r, args, scope_id, calling_line):
         # TODO: create scope and init args
@@ -34,14 +45,16 @@ class Function(Value):
             r.save(key.value, value, scope_id=scope_id)
         try:
             r.run(self.instructions, scope_id)
-        except ReturnCall as r:
-            return r.return_value
+        except ReturnCall as ret:
+            if self.void:
+                r.throw(f"Procedure {repr(self.name)} can not return value.")
+            return ret.return_value
 
     def eval(self, r, scope_id=None):
         return self
 
 
-def read_function(lexer, indent_level: int = 0):
+def read_function(lexer, indent_level: int = 0, void: bool = False):
     """
     This function parse function statement. The function expect cursor to be after `function`
     keyword::
@@ -51,6 +64,8 @@ def read_function(lexer, indent_level: int = 0):
 
     Args:
         - lexer: pseudo.lexer.Lexer
+        - indent_level
+        - void: bool, Defines if function can return value.
     """
 
     lexer.read_white_chars()
@@ -67,7 +82,7 @@ def read_function(lexer, indent_level: int = 0):
 
     instructions = lexer.read_indent_block(indent_level + 1)
 
-    return FunctionDefinition(name, args, instructions, line)
+    return FunctionDefinition(name, args, instructions, line, void)
 
 
 class FunctionDefinition(ASTNode):
@@ -79,18 +94,29 @@ class FunctionDefinition(ASTNode):
         - args: list; List of arguments that function takes.
         - instructions: list; List of instructions to be evaluated.
         - line: str; Line in pseudocode.
+        - void: bool, Defines if function can return value.
     """
 
-    def __init__(self, function_name: str, args: list, instructions: list, line: str):
+    def __init__(
+        self,
+        function_name: str,
+        args: list,
+        instructions: list,
+        line: str,
+        void: bool = False,
+    ):
         self.function_name = function_name
         self.args = args
         self.instructions = instructions
         self.line = line
+        self.void = void
 
     def eval(self, r, scope_id=None):
         r.save(
             self.function_name,
-            Function(self.function_name, self.args, self.instructions, self.line),
+            Function(
+                self.function_name, self.args, self.instructions, self.line, self.void
+            ),
         )
 
     def __repr__(self):

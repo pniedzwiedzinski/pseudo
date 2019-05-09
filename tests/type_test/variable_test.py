@@ -12,6 +12,7 @@ def test_assignment(runtime, lexer, test):
     i = lexer.read_next()
 
     test(i, Assignment(Variable("a"), Int(1), line="a := 1"))
+    runtime.eval(i)
 
     lexer.i = Stream("b := 2-1")
     i = lexer.read_next()
@@ -24,3 +25,4 @@ def test_assignment(runtime, lexer, test):
             line="b := 2-1",
         ),
     )
+    runtime.eval(i)

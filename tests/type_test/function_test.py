@@ -1,5 +1,6 @@
 import pytest
 
+from pseudo import compile
 from pseudo.type import Int, Statement, EOL
 from pseudo.type.function import Call, FunctionDefinition, read_function
 from pseudo.stream import Stream
@@ -36,4 +37,25 @@ def test_read_function(lexer, test):
         i,
         FunctionDefinition("a", [], [Statement("pisz", Int(1)), EOL()], "funkcja a()"),
     )
+
+
+@pytest.mark.timeout(2)
+def test_return(runtime, test, monkeypatch):
+    instructions = compile(
+        """funkcja a(b)
+    zwróć b
+    
+pisz a(2)"""
+    )
+
+    T = []
+
+    def mock_print(x, *args, **kwargs):
+        T.append(x)
+
+    monkeypatch.setattr("builtins.print", mock_print)
+
+    runtime.run(instructions)
+
+    test(T, [2])
 

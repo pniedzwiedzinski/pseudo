@@ -56,6 +56,7 @@ class Lexer:
             "wykonuj",
             "dla",
             "funkcja",
+            "procedura",
             "zwróć"
         }
         self.range_symbol = "..."
@@ -144,6 +145,8 @@ class Lexer:
             return read_for(self, indent_level)
         if keyword == "funkcja":
             return read_function(self, indent_level)
+        if keyword == "procedura":
+            return read_function(self, indent_level, void=True)
         if keyword == "koniec":
             return Statement(keyword)
         arg = self.read_args()
