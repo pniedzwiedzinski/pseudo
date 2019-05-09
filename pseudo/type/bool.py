@@ -26,18 +26,22 @@ class Bool(Value):
             - right: Value
         """
 
+        return_value = None
+
         if operator == "=":
-            return int(left.eval(r, scope_id) == right.eval(r, scope_id))
-        if operator == "!=":
-            return int(left.eval(r, scope_id) != right.eval(r, scope_id))
-        if operator == ">":
-            return int(left.eval(r, scope_id) > right.eval(r, scope_id))
-        if operator == "<":
-            return int(left.eval(r, scope_id) < right.eval(r, scope_id))
-        if operator == "<=":
-            return int(left.eval(r, scope_id) <= right.eval(r, scope_id))
-        if operator == ">=":
-            return int(left.eval(r, scope_id) >= right.eval(r, scope_id))
+            return_value = int(left.eval(r, scope_id) == right.eval(r, scope_id))
+        elif operator == "!=":
+            return_value = int(left.eval(r, scope_id) != right.eval(r, scope_id))
+        elif operator == ">":
+            return_value = int(left.eval(r, scope_id) > right.eval(r, scope_id))
+        elif operator == "<":
+            return_value = int(left.eval(r, scope_id) < right.eval(r, scope_id))
+        elif operator == "<=":
+            return_value = int(left.eval(r, scope_id) <= right.eval(r, scope_id))
+        elif operator == ">=":
+            return_value = int(left.eval(r, scope_id) >= right.eval(r, scope_id))
+
+        return return_value
 
     def __repr__(self):
         return f"Bool({self.value})"

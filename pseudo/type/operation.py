@@ -22,21 +22,25 @@ class Operator(ASTNode):
 
     def eval(self, left: Value, right: Value, r, scope_id: str = None, line=""):
         try:
+            return_value = None
+
             if self.value == "+":
-                return left.eval(r, scope_id) + right.eval(r, scope_id)
-            if self.value == "-":
-                return left.eval(r, scope_id) - right.eval(r, scope_id)
-            if self.value == "*":
-                return left.eval(r, scope_id) * right.eval(r, scope_id)
-            if self.value == "/":
-                return left.eval(r, scope_id) / right.eval(r, scope_id)
-            if self.value == "div":
-                return left.eval(r, scope_id) // right.eval(r, scope_id)
-            if self.value == "mod":
-                return left.eval(r, scope_id) % right.eval(r, scope_id)
+                return_value = left.eval(r, scope_id) + right.eval(r, scope_id)
+            elif self.value == "-":
+                return_value = left.eval(r, scope_id) - right.eval(r, scope_id)
+            elif self.value == "*":
+                return_value = left.eval(r, scope_id) * right.eval(r, scope_id)
+            elif self.value == "/":
+                return_value = left.eval(r, scope_id) / right.eval(r, scope_id)
+            elif self.value == "div":
+                return_value = left.eval(r, scope_id) // right.eval(r, scope_id)
+            elif self.value == "mod":
+                return_value = left.eval(r, scope_id) % right.eval(r, scope_id)
 
             # Then operation is boolean
-            return Bool.eval_operation(self.value, left, right, r, scope_id)
+            return return_value or Bool.eval_operation(
+                self.value, left, right, r, scope_id
+            )
         except TypeError:
             r.throw(
                 f"Type error: cannot do '{repr(left.eval(r, scope_id))} {self.value} {repr(right.eval(r, scope_id))}'",
