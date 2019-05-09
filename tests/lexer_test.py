@@ -105,7 +105,11 @@ def test_read_args(lexer, test):
     lexer.i = Stream("(2+2)*2")
     if not compare_list(
         lexer.read_args(),
-        [Operation(Operator("+"), Int(2), Int(2)), Operator("*"), Int(2)],
+        [
+            Operation(Operator("+"), Int(2), Int(2), line="(2+2)*2"),
+            Operator("*"),
+            Int(2),
+        ],
     ):
         raise AssertionError
 

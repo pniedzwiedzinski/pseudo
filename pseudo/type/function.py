@@ -97,7 +97,7 @@ class FunctionDefinition(ASTNode):
         return f"FunctionDefinition({repr(self.function_name)}, {repr(self.args)}, {repr(self.instructions)})"
 
 
-class Call(ASTNode):
+class Call(Value):
     """
     Representation of function call in AST.
 
@@ -108,6 +108,7 @@ class Call(ASTNode):
     """
 
     def __init__(self, function_name: str, args: list = [], line: str = ""):
+        Value.__init__(self, function_name, line)
         self.function_name = function_name
         self.args = args
         self.line = line

@@ -90,7 +90,10 @@ def read_for(lexer, indent_level: int = 0) -> Loop:
     return [
         Assignment(iterator, start_value, Iterator, line=line),
         Loop(
-            Operation(Operator("<="), iterator, end_value), instructions, iterator, line
+            Operation(Operator("<="), iterator, end_value, line=""),
+            instructions,
+            iterator,
+            line,
         ),
     ]
 

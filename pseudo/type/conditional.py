@@ -35,7 +35,6 @@ class Condition(ASTNode):
         if not isinstance(other, Condition):
             return False
         if self.__dict__ != other.__dict__:
-            raise Exception
             return False
         return True
 

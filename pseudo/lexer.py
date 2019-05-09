@@ -84,7 +84,7 @@ class Lexer:
     def update_args(self, args, i):
         """Update args with new operation instance."""
         try:
-            args[i] = Operation(args[i], args[i - 1], args[i + 1])
+            args[i] = Operation(args[i], args[i - 1], args[i + 1], self.i.get_current_line())
             del args[i + 1]
             del args[i - 1]
         except IndexError:
@@ -268,7 +268,7 @@ class Lexer:
 
             # Operation
             if keyword in OPERATOR_KEYWORDS:
-                return Operator(keyword, line=self.i.get_current_line())
+                return Operator(keyword)
 
             # Bool
             if keyword == "prawda" or keyword == "fałsz":
@@ -300,7 +300,7 @@ class Lexer:
 
                 is_value = Value in type(args).__bases__
 
-                if is_value:
+                if not is_value:
                     self.i.throw(f"Cannot assign type {type(args)} to variable")
                 return Assignment(
                     Variable(keyword, indices), args, line=self.i.get_current_line()

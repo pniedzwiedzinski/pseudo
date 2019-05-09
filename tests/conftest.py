@@ -20,7 +20,8 @@ def runtime():
 def test():
     def _test(a, b):
         if a != b:
-            print(a)
+            print(a.__dict__)
+            print(b.__dict__)
             raise AssertionError
 
     return _test

@@ -14,10 +14,13 @@ OPERATORS = {"+", "-", "*", ":", "<", ">", "=", "!"}
 OPERATOR_KEYWORDS = {"div", "mod"}
 
 
-class Operator(Value):
+class Operator(ASTNode):
     """Opartor class for representing mathematical operator."""
 
-    def eval(self, left: Value, right: Value, r, scope_id: str = None):
+    def __init__(self, value):
+        self.value = value
+
+    def eval(self, left: Value, right: Value, r, scope_id: str = None, line=""):
         try:
             if self.value == "+":
                 return left.eval(r, scope_id) + right.eval(r, scope_id)
@@ -37,7 +40,7 @@ class Operator(Value):
         except TypeError:
             r.throw(
                 f"Type error: cannot do '{repr(left.eval(r, scope_id))} {self.value} {repr(right.eval(r, scope_id))}'",
-                self.line,
+                line,
             )
 
     def __lt__(self, o):
@@ -98,25 +101,22 @@ def read_operator(stream):
 
     is_comparison = stream.peek() == "=" and (c == "!" or c in "<>")
     if is_comparison:  # !=, <= , >=
-        return Operator(c + stream.next(), line=stream.get_current_line())
+        return Operator(c + stream.next())
 
-    return Operator(c, line=stream.get_current_line())
+    return Operator(c)
 
 
-class Operation(ASTNode):
+class Operation(Value):
     """Operation node."""
 
-    def __init__(self, operator, left, right):
+    def __init__(self, operator, left, right, line=""):
+        Value.__init__(self, operator, line)
         self.operator = operator
         self.left = left
         self.right = right
 
-    @property
-    def line(self):
-        return self.operator.line
-
     def eval(self, r, scope_id=None):
-        return self.operator.eval(self.left, self.right, r, scope_id)
+        return self.operator.eval(self.left, self.right, r, scope_id, self.line)
 
     def __eq__(self, other):
         try:
