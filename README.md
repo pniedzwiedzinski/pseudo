@@ -85,7 +85,7 @@ dla a:=1,...,5 wykonuj
 - [x] printing
 - [x] math operations
 - [x] math operations order
-- [ ] type errors
+- [x] type errors
 - [x] input variable
 - [x] variables
 - [x] `koniec`
@@ -93,7 +93,7 @@ dla a:=1,...,5 wykonuj
 - [x] while loop
 - [x] for loop
 - [x] arrays
-- [ ] functions
+- [x] functions
 
 ## How it works
 
