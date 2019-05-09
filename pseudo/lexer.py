@@ -18,7 +18,7 @@ from pseudo.type.operation import (
 )
 from pseudo.type.variable import Variable, Assignment, Increment
 from pseudo.type.loop import Loop, Iterator, read_for, read_while
-from pseudo.type.function import Call, read_function
+from pseudo.type.function import Call, read_function, Return
 from pseudo.type import Statement, EOL, Value
 from pseudo.exceptions import IndentationBlockEnd, Comment
 
@@ -56,6 +56,7 @@ class Lexer:
             "wykonuj",
             "dla",
             "funkcja",
+            "zwróć"
         }
         self.range_symbol = "..."
         self.indent_char = None
@@ -147,6 +148,8 @@ class Lexer:
             return Statement(keyword)
         arg = self.read_args()
         arg = self.read_expression(arg)
+        if keyword == "zwróć":
+            return Return(arg)
         if keyword == "czytaj":
             if not isinstance(arg, Variable):
                 self.i.throw("Statement 'czytaj' requires variable as argument")
@@ -291,15 +294,13 @@ class Lexer:
                     return Variable(keyword, indices)
                 if operator != ":=":
                     self.i.throw(f"Cannot parse '{operator}'")
+
                 args = self.read_args()
                 args = self.read_expression(args)
-                if (
-                    not isinstance(args, Int)
-                    and not isinstance(args, String)
-                    and not isinstance(args, Operation)
-                    and not isinstance(args, Variable)
-                    and not isinstance(args, Bool)
-                ):
+
+                is_value = Value in type(args).__bases__
+
+                if is_value:
                     self.i.throw(f"Cannot assign type {type(args)} to variable")
                 return Assignment(
                     Variable(keyword, indices), args, line=self.i.get_current_line()

@@ -11,6 +11,7 @@ from sys import exit
 from pseudo.exceptions import RunTimeError
 from pseudo.type.numbers import Int
 from pseudo.type.string import String
+from pseudo.type.exceptions import ReturnCall
 
 
 class MemoryObject:
@@ -189,12 +190,16 @@ class RunTime:
                 instruction.eval(self)
         except RunTimeError as err:
             self.throw(err, instruction.line)
+        except ReturnCall as r:
+            raise r
 
     def run(self, instructions: list, scope_id: str = None):
         """Run pseudocode instructions"""
         try:
             for i in instructions:
                 self.eval(i, scope_id)
+        except ReturnCall as r:
+            raise r
         except Exception:
             path = self.save_crash(traceback.format_exc())
             print("⚠️  Error: \n\tRuntime error has occurred!\n")

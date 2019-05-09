@@ -3,12 +3,12 @@ Functions are a way to use the same fragment of code multiple times.
 """
 
 
-from pseudo.runtime import MemoryObject
-from pseudo.type.base import ASTNode
+from pseudo.type.base import ASTNode, Value
 from pseudo.type.variable import Assignment
+from pseudo.type.exceptions import ReturnCall
 
 
-class Function:
+class Function(Value):
     """
     This class is a representation of function in memory.
 
@@ -32,15 +32,22 @@ class Function:
             )
         for key, value in zip(self.args, args):
             r.save(key.value, value, scope_id=scope_id)
-        r.run(self.instructions, scope_id)
+        try:
+            r.run(self.instructions, scope_id)
+        except ReturnCall as r:
+            return r.return_value
 
     def eval(self, r, scope_id=None):
         return self
 
 
-def read_function(lexer, indent_level: int):
+def read_function(lexer, indent_level: int = 0):
     """
-    This function parse function statement.
+    This function parse function statement. The function expect cursor to be after `function`
+    keyword::
+
+        funkcja a()
+               ^
 
     Args:
         - lexer: pseudo.lexer.Lexer
@@ -54,11 +61,13 @@ def read_function(lexer, indent_level: int):
     lexer.i.next()
     args = lexer.read_args(bracket=True)
 
+    line = lexer.i.get_current_line()
+
     lexer.i.next_line()
 
     instructions = lexer.read_indent_block(indent_level + 1)
 
-    return FunctionDefinition(name, args, instructions, lexer.i.get_current_line())
+    return FunctionDefinition(name, args, instructions, line)
 
 
 class FunctionDefinition(ASTNode):
@@ -84,6 +93,9 @@ class FunctionDefinition(ASTNode):
             Function(self.function_name, self.args, self.instructions, self.line),
         )
 
+    def __repr__(self):
+        return f"FunctionDefinition({repr(self.function_name)}, {repr(self.args)}, {repr(self.instructions)})"
+
 
 class Call(ASTNode):
     """
@@ -107,8 +119,26 @@ class Call(ASTNode):
             function = r.get(self.function_name)
             if isinstance(function, Function):
                 scope_id = r.register_scope(self.function_name)
-                function.call(r, self.args, scope_id, self.line)
+                return_value = function.call(r, self.args, scope_id, self.line)
                 r.remove_scope(scope_id)
-                return
+                return return_value or "nil"
 
         r.throw(f"Function {repr(self.function_name)} is not defined.", self.line)
+
+    def __repr__(self):
+        return f"Call({repr(self.function_name)}, {repr(self.args)})"
+
+
+class Return(ASTNode):
+    """
+    Representation of `return` call in AST.
+
+    Attributes:
+        - return_value: `pseudo.type.base.Value`, Value to return.
+    """
+
+    def __init__(self, return_value):
+        self.return_value = return_value
+
+    def eval(self, r, scope_id):
+        raise ReturnCall(self.return_value.eval(r, scope_id))
