@@ -76,7 +76,6 @@ def test_read_keyword(lexer):
 @pytest.mark.timeout(2)
 def test_read_condition(lexer):
     """Checks Lexer.read_condition"""
-    # TODO: Fix test
     lexer.i = Stream("jeżeli prawda to")
     lexer.i.col = 7
 

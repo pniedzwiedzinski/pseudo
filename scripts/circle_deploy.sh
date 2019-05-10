@@ -24,7 +24,7 @@ go get github.com/tcnksm/ghr
 
 echo "Starting deployment of pseudo@$VERSION"
 
-ghr -t ${GITHUB_TOKEN} -u ${CIRCLE_PROJECT_USERNAME} -r ${CIRCLE_PROJECT_REPONAME} -c ${CIRCLE_SHA1} -n v${VERSION} -b $(cat LATEST_RELEASE.md) ${VERSION} ./dist/pdc-${VERSION}-linux.tar.gz
+ghr -t ${GITHUB_TOKEN} -u ${CIRCLE_PROJECT_USERNAME} -r ${CIRCLE_PROJECT_REPONAME} -c ${CIRCLE_SHA1} -n "v$VERSION" -b $(cat LATEST_RELEASE.md) ${VERSION} "./dist/pdc-$VERSION-linux.tar.gz"
 
 # build package and upload to pypi index
 # echo "[distutils]" >> ~/.pypirc

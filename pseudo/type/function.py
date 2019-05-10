@@ -34,7 +34,16 @@ class Function(Value):
         self.line = line
         self.void = void
 
-    def call(self, r, args, scope_id, calling_line):
+    def call(self, r, args: list, scope_id: str, calling_line: str):
+        """
+        Call function.
+
+        Args:
+            - r: pseudo.runtime.RunTime, Runtime in which function will be called.
+            - args: list, Arguments passed in function call.
+            - scope_id, str, Scope in which function's instructions will be evaluated.
+            - calling_ling: str, Line in pseudocode.
+        """
         if len(self.args) != len(args):
             r.throw(
                 f"Function {repr(self.name)} takes {len(self.args)} arguments, but {len(args)} were given.",
@@ -46,7 +55,7 @@ class Function(Value):
             r.run(self.instructions, scope_id)
         except ReturnCall as ret:
             if self.void:
-                r.throw(f"Procedure {repr(self.name)} can not return value.")
+                r.throw(f"Procedure {repr(self.name)} can not return value.", self.line)
             return ret.return_value
 
     def eval(self, r, scope_id=None):
