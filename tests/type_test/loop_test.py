@@ -37,8 +37,8 @@ def test_unsettable_iterator():
 def test_read_for(lexer, runtime, test, monkeypatch):
     """Checks read_for"""
     lexer.i = Stream(
-        """dla i:=1,...,5 wykonuj
-    pisz i"""
+        """dla x:=1,...,5 wykonuj
+    pisz x"""
     )
     lexer.i.col = 4
 

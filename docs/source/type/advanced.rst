@@ -16,3 +16,11 @@ conditional:
 operation:
     .. automodule:: pseudo.type.operation
         :members:
+
+loop:
+    .. automodule:: pseudo.type.loop
+        :members:
+
+function:
+    .. automodule:: pseudo.type.function
+        :members:

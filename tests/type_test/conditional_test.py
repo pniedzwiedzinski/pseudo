@@ -41,7 +41,12 @@ wpp
     test(
         read_if(lexer),
         Condition(
-            Operation(Operator(">"), Int(2), Operation(Operator("+"), Int(3), Int(2))),
+            Operation(
+                Operator(">"),
+                Int(2),
+                Operation(Operator("+"), Int(3), Int(2), line="jeżeli 2 > 3+2 to"),
+                line="jeżeli 2 > 3+2 to",
+            ),
             [Int(4), EOL()],
             None,
             "jeżeli 2 > 3+2 to",

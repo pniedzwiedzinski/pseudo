@@ -3,7 +3,7 @@
 __author__ = "Patryk Niedźwiedziński"
 
 
-from pseudo.type.base import Value
+from pseudo.type.base import Value, ASTNode
 from pseudo.type.bool import Bool
 
 
@@ -14,23 +14,38 @@ OPERATORS = {"+", "-", "*", ":", "<", ">", "=", "!"}
 OPERATOR_KEYWORDS = {"div", "mod"}
 
 
-class Operator(Value):
+class Operator(ASTNode):
     """Opartor class for representing mathematical operator."""
 
-    def eval(self, left: Value, right: Value, r):
-        if self.value == "+":
-            return left.eval(r) + right.eval(r)
-        if self.value == "-":
-            return left.eval(r) - right.eval(r)
-        if self.value == "*":
-            return left.eval(r) * right.eval(r)
-        if self.value == "div":
-            return left.eval(r) // right.eval(r)
-        if self.value == "mod":
-            return left.eval(r) % right.eval(r)
+    def __init__(self, value):
+        self.value = value
 
-        # Then operation is boolean
-        return Bool.eval_operation(self.value, left, right, r)
+    def eval(self, left: Value, right: Value, r, scope_id: str = None, line=""):
+        try:
+            return_value = None
+
+            if self.value == "+":
+                return_value = left.eval(r, scope_id) + right.eval(r, scope_id)
+            elif self.value == "-":
+                return_value = left.eval(r, scope_id) - right.eval(r, scope_id)
+            elif self.value == "*":
+                return_value = left.eval(r, scope_id) * right.eval(r, scope_id)
+            elif self.value == "/":
+                return_value = left.eval(r, scope_id) / right.eval(r, scope_id)
+            elif self.value == "div":
+                return_value = left.eval(r, scope_id) // right.eval(r, scope_id)
+            elif self.value == "mod":
+                return_value = left.eval(r, scope_id) % right.eval(r, scope_id)
+
+            # Then operation is boolean
+            return return_value or Bool.eval_operation(
+                self.value, left, right, r, scope_id
+            )
+        except TypeError:
+            r.throw(
+                f"Type error: cannot do '{repr(left.eval(r, scope_id))} {self.value} {repr(right.eval(r, scope_id))}'",
+                line,
+            )
 
     def __lt__(self, o):
         if self.value in GROUP_2:
@@ -95,20 +110,17 @@ def read_operator(stream):
     return Operator(c)
 
 
-class Operation:
+class Operation(Value):
     """Operation node."""
 
-    def __init__(self, operator, left, right):
+    def __init__(self, operator, left, right, line=""):
+        Value.__init__(self, operator, line)
         self.operator = operator
         self.left = left
         self.right = right
 
-    @property
-    def line(self):
-        return self.left.line + self.operator + self.right.line
-
-    def eval(self, r):
-        return self.operator.eval(self.left, self.right, r)
+    def eval(self, r, scope_id=None):
+        return self.operator.eval(self.left, self.right, r, scope_id, self.line)
 
     def __eq__(self, other):
         try:

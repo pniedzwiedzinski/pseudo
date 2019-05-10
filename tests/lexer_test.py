@@ -76,7 +76,6 @@ def test_read_keyword(lexer):
 @pytest.mark.timeout(2)
 def test_read_condition(lexer):
     """Checks Lexer.read_condition"""
-    # TODO: Fix test
     lexer.i = Stream("jeżeli prawda to")
     lexer.i.col = 7
 
@@ -105,7 +104,11 @@ def test_read_args(lexer, test):
     lexer.i = Stream("(2+2)*2")
     if not compare_list(
         lexer.read_args(),
-        [Operation(Operator("+"), Int(2), Int(2)), Operator("*"), Int(2)],
+        [
+            Operation(Operator("+"), Int(2), Int(2), line="(2+2)*2"),
+            Operator("*"),
+            Int(2),
+        ],
     ):
         raise AssertionError
 
@@ -220,5 +223,17 @@ def test_read_indent_size(lexer):
     lexer.read_indent_size()
 
     if lexer.indent_size != 1 or lexer.indent_char != "\t":
+        raise AssertionError
+
+
+@pytest.mark.timeout(2)
+def test_table_init(lexer):
+    lexer.i = Stream("[1, 2]")
+
+    try:
+        lexer.read_next()
+    except SystemExit:
+        pass
+    else:
         raise AssertionError
 

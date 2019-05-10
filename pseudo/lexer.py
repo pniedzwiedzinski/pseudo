@@ -18,6 +18,7 @@ from pseudo.type.operation import (
 )
 from pseudo.type.variable import Variable, Assignment, Increment
 from pseudo.type.loop import Loop, Iterator, read_for, read_while
+from pseudo.type.function import Call, read_function, Return
 from pseudo.type import Statement, EOL, Value
 from pseudo.exceptions import IndentationBlockEnd, Comment
 
@@ -54,6 +55,9 @@ class Lexer:
             "dopóki",
             "wykonuj",
             "dla",
+            "funkcja",
+            "procedura",
+            "zwróć"
         }
         self.range_symbol = "..."
         self.indent_char = None
@@ -81,7 +85,7 @@ class Lexer:
     def update_args(self, args, i):
         """Update args with new operation instance."""
         try:
-            args[i] = Operation(args[i], args[i - 1], args[i + 1])
+            args[i] = Operation(args[i], args[i - 1], args[i + 1], self.i.get_current_line())
             del args[i + 1]
             del args[i - 1]
         except IndexError:
@@ -125,30 +129,44 @@ class Lexer:
 
     def read_builtin(self, keyword: str, indent_level: int, prev: object) -> object:
         """Read builtin statement, expression from input stream i.e.: if, while etc"""
+        return_value = None
+
         if keyword == self.range_symbol:
-            return keyword
-        if keyword == "wpp":
+            return_value = keyword
+        elif keyword == "wpp":
             if isinstance(prev, Condition):
-                return keyword
-            self.i.throw(f"Unexpected keyword '{keyword}'")
-        if keyword == "to" or keyword == "wykonuj":
-            return keyword
-        if keyword == "jeżeli":
-            return read_if(self, indent_level)
-        if keyword == "dopóki":
-            return read_while(self, indent_level)
-        if keyword == "dla":
-            return read_for(self, indent_level)
-        if keyword == "koniec":
-            return Statement(keyword)
+                return_value = keyword
+            else:
+                self.i.throw(f"Unexpected keyword '{keyword}'")
+        elif keyword == "to" or keyword == "wykonuj":
+            return_value = keyword
+        elif keyword == "jeżeli":
+            return_value = read_if(self, indent_level)
+        elif keyword == "dopóki":
+            return_value = read_while(self, indent_level)
+        elif keyword == "dla":
+            return_value = read_for(self, indent_level)
+        elif keyword == "funkcja":
+            return_value = read_function(self, indent_level)
+        elif keyword == "procedura":
+            return_value = read_function(self, indent_level, void=True)
+        elif keyword == "koniec":
+            return_value = Statement(keyword)
+
+        if return_value:
+            return return_value
+
         arg = self.read_args()
         arg = self.read_expression(arg)
-        if keyword == "czytaj":
-            if not isinstance(arg, Variable):
+
+        if keyword == "zwróć":
+            return_value = Return(arg)
+        elif keyword == "czytaj" and not isinstance(arg, Variable):
                 self.i.throw("Statement 'czytaj' requires variable as argument")
-        if isinstance(arg, Statement):
+        elif isinstance(arg, Statement):
             self.i.throw(f"Statement '{keyword}' cannot take '{arg}' as argument")
-        return Statement(keyword, args=arg)
+
+        return return_value or Statement(keyword, args=arg)
 
     def read_condition(self, keyword, indent_level: int = 0) -> object:
         """Read condition of conditional expression."""
@@ -175,11 +193,11 @@ class Lexer:
                 if len(args) == 0:
                     args.append(Int(0))
             if arg == Value(","):
-                break
+                continue
             if arg == Value(")"):
                 if bracket:
                     break
-                self.i.throw(f"Invalid character '{operator}'")
+                self.i.throw(f"Invalid character '{arg}'")
             if arg == Value("]"):
                 break
 
@@ -251,43 +269,56 @@ class Lexer:
         if is_digit(c):
             return read_number(self)
 
-        elif c not in {" ", "\t"}:
+        elif c not in {" ", "\t", "["}:
             col = self.i.col
             keyword = self.read_keyword()
+
+            # Builtin keyword
             if self.is_keyword(keyword):
                 return self.read_builtin(keyword, indent_level, prev)
+
+            # Operation
             if keyword in OPERATOR_KEYWORDS:
                 return Operator(keyword)
+
+            # Bool
             if keyword == "prawda" or keyword == "fałsz":
                 return read_bool(keyword)
+
+            # Check and read indices
             indices = []
             while self.i.peek() == "[":
                 self.i.next()
                 arg = self.read_args()
                 exp = self.read_expression(arg)
                 indices.append(exp)
+
+            # Check if it's a call (`a()`)
+            if self.i.peek() == "(":
+                self.i.next()
+                args = self.read_args(bracket=True)
+                return Call(keyword, args, self.i.get_current_line())
+
             if col == i * indent_level:
                 operator = self.read_next()
                 if isinstance(operator, EOL):
                     return Variable(keyword, indices)
                 if operator != ":=":
                     self.i.throw(f"Cannot parse '{operator}'")
+
                 args = self.read_args()
                 args = self.read_expression(args)
-                if (
-                    not isinstance(args, Int)
-                    and not isinstance(args, String)
-                    and not isinstance(args, Operation)
-                    and not isinstance(args, Variable)
-                    and not isinstance(args, Bool)
-                ):
+
+                is_value = Value in type(args).__bases__
+
+                if not is_value:
                     self.i.throw(f"Cannot assign type {type(args)} to variable")
                 return Assignment(
                     Variable(keyword, indices), args, line=self.i.get_current_line()
                 )
             return Variable(keyword, indices)
-        if c == "":
-            raise EndOfFile
+        # if c == "":
+        #     raise EndOfFile
         self.i.throw(f"Invalid character: '{c}'")
 
     def read_indent_size(self):
