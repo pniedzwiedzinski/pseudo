@@ -136,7 +136,8 @@ class Lexer:
         elif keyword == "wpp":
             if isinstance(prev, Condition):
                 return_value = keyword
-            self.i.throw(f"Unexpected keyword '{keyword}'")
+            else:
+                self.i.throw(f"Unexpected keyword '{keyword}'")
         elif keyword == "to" or keyword == "wykonuj":
             return_value = keyword
         elif keyword == "jeżeli":
@@ -160,8 +161,7 @@ class Lexer:
 
         if keyword == "zwróć":
             return_value = Return(arg)
-        elif keyword == "czytaj":
-            if not isinstance(arg, Variable):
+        elif keyword == "czytaj" and not isinstance(arg, Variable):
                 self.i.throw("Statement 'czytaj' requires variable as argument")
         elif isinstance(arg, Statement):
             self.i.throw(f"Statement '{keyword}' cannot take '{arg}' as argument")
